@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/graph_renderer/dialogue_graph_renderer.gd" type="Script" id=1]
+
+[node name="DialogueGraphRenderer" type="GraphEdit"]
+margin_right = 1024.0
+margin_bottom = 600.0
+scroll_offset = Vector2( -352, -185 )
+use_snap = false
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+vertical_spacing = 90
+horizontal_spacing = 90

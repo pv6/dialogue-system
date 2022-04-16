@@ -1,0 +1,378 @@
+tool
+extends Control
+
+
+signal open_dialogue_error()
+
+const COPY_NODES_STRING_HEADER := "node ids:"
+
+var session: DialogueEditorSession = preload("session.tres")
+
+var _editor_config := ConfigFile.new()
+
+# for tag editor
+# i am sorry ok i just didn't care to make a whole new class for this one field
+var _edited_text_node_id: int
+
+onready var graph_renderer: DialogueGraphRenderer = $VBoxContainer/HSplitContainer/DialogueGraphRenderer
+onready var action_condition_widget: ActionConditionWidget = $VBoxContainer/HSplitContainer/ActionConditionWidget
+onready var actors_editor: AcceptDialog = $ActorsEditor
+onready var tags_editor: AcceptDialog = $TagsEditor
+onready var dialogue_blackboards_editor: AcceptDialog = $DialogueBlackboardsEditor
+onready var blackboard_editor: AcceptDialog = $BlackboardEditor
+onready var global_actors_editor: AcceptDialog = $GlobalActorsEditor
+onready var global_tags_editor: AcceptDialog = $GlobalTagsEditor
+
+onready var _working_dialogue_manager: WorkingResourceManager = $WorkingDialogueManager
+
+
+func _init() -> void:
+    session.clear_connections()
+    session.dialogue_editor = self
+    session.connect("changed", self, "_on_session_changed")
+
+    _editor_config.load("res://addons/dialogue_system/plugin.cfg")
+
+
+func _ready() -> void:
+    _working_dialogue_manager.connect("resource_changed", self, "_on_working_dialogue_changed")
+    session.dialogue_undo_redo = _working_dialogue_manager
+
+    # set open global editors callback functions to GUI buttons
+    actors_editor.storage_editor.item_editor.connect(
+        "edit_storage_pressed", self, "open_global_actors_editor")
+    tags_editor.storage_editor.item_editor.connect(
+        "edit_storage_pressed", self, "open_global_tags_editor")
+
+    new_dialogue()
+
+
+func undo() -> void:
+    _working_dialogue_manager.undo()
+
+
+func redo() -> void:
+    _working_dialogue_manager.redo()
+
+
+func copy_selected_nodes() -> void:
+    var id_string = COPY_NODES_STRING_HEADER
+
+    for id in graph_renderer.selected_node_ids:
+        id_string += str(id) + ","
+
+    OS.clipboard = id_string
+
+
+func paste_nodes() -> void:
+    _working_dialogue_manager.commit_action("Paste Nodes", self, "_paste_nodes")
+
+
+func insert_parent_hear_node() -> void:
+    _working_dialogue_manager.commit_action("Insert Parent Hear Node", self, "_insert_parent_hear_node")
+
+
+func insert_child_hear_node() -> void:
+    _working_dialogue_manager.commit_action("Insert Child Hear Node", self, "_insert_child_hear_node")
+
+
+func insert_child_say_node() -> void:
+    _working_dialogue_manager.commit_action("Insert Child Say Node", self, "_insert_child_say_node")
+
+
+func deep_delete_selected_nodes() -> void:
+    _working_dialogue_manager.commit_action("Deep Delete Selected Nodes", self, "_deep_delete_selected_nodes")
+
+
+func shallow_delete_selected_nodes() -> void:
+    _working_dialogue_manager.commit_action("Shallow Delete Selected Nodes", self, "_shallow_delete_selected_nodes")
+
+
+func new_dialogue() -> void:
+    print("New Dialogue")
+    _working_dialogue_manager.new_file()
+
+
+func open_dialogue() -> void:
+    print("Open Dialogue")
+    _working_dialogue_manager.open()
+
+
+func save_dialogue() -> void:
+    print("Save Dialogue")
+    _set_dialogue_editor_version()
+    _working_dialogue_manager.save()
+
+
+func save_dialogue_as() -> void:
+    print("Save Dialogue As")
+    _set_dialogue_editor_version()
+    _working_dialogue_manager.save_as()
+
+
+func open_actors_editor() -> void:
+    actors_editor.storage_editor.storage = get_dialogue().actors
+    actors_editor.popup_centered()
+
+
+func open_tags_editor(text_node: TextDialogueNode) -> void:
+    tags_editor.storage_editor.storage = text_node.tags
+    _edited_text_node_id = text_node.id
+    tags_editor.popup_centered()
+
+
+func open_global_actors_editor() -> void:
+    global_actors_editor.storage_editor.storage = session.global_actors
+    global_actors_editor.popup_centered()
+
+
+func open_global_tags_editor() -> void:
+    global_tags_editor.storage_editor.storage = session.global_tags
+    global_tags_editor.popup_centered()
+
+
+func open_dialogue_blackboards_editor() -> void:
+    dialogue_blackboards_editor.storage_editor.storage = get_dialogue().blackboards
+    dialogue_blackboards_editor.popup_centered()
+
+
+func open_blackboard_editor(blackboard: Blackboard) -> void:
+    blackboard_editor.blackboard = blackboard
+    blackboard_editor.popup_centered()
+
+
+func get_dialogue() -> Dialogue:
+    return _working_dialogue_manager.resource as Dialogue
+
+
+static func _unroll_referenced_node_id(referenced_node_id: int, nodes: Dictionary) -> int:
+    while nodes.has(referenced_node_id) and nodes[referenced_node_id] is ReferenceDialogueNode:
+        referenced_node_id = nodes[referenced_node_id].referenced_node_id
+    return referenced_node_id
+
+
+func _set_dialogue_editor_version() -> void:
+    # have to do this indirectly
+    # because "manager.resource.version = ..." triggers setter for resource jfc
+    var res = _working_dialogue_manager.resource
+    res.editor_version = _editor_config.get_value("plugin", "version", "0.0.0")
+
+
+func _paste_nodes(dialogue: Dialogue) -> Dialogue:
+    var id_string := OS.clipboard
+
+    # check that clipboard contains copied node ids
+    if not id_string.find(COPY_NODES_STRING_HEADER) == 0:
+        return null
+    id_string = id_string.substr(COPY_NODES_STRING_HEADER.length())
+
+    # cash selected node ids
+    var selected_nodes := dialogue.get_nodes_by_ids(graph_renderer.selected_node_ids)
+
+    # add references to copied nodes as children in each currently selected node
+    var pasted_node_ids := id_string.split(",", false)
+    for pasted_id in pasted_node_ids:
+        pasted_id = int(pasted_id)
+        if dialogue.nodes.has(pasted_id):
+            for parent in selected_nodes:
+                var ref_node := ReferenceDialogueNode.new()
+                ref_node.id = dialogue.get_new_max_id()
+                ref_node.referenced_node_id = _unroll_referenced_node_id(pasted_id, dialogue.nodes)
+                parent.children.push_back(ref_node)
+                ref_node.parent_id = parent.id
+
+    dialogue.update_nodes()
+
+    return dialogue
+
+
+func _insert_child_hear_node(dialogue: Dialogue) -> Dialogue:
+    return _insert_child_node(dialogue, HearDialogueNode.new())
+
+
+func _insert_child_say_node(dialogue: Dialogue) -> Dialogue:
+    return _insert_child_node(dialogue, SayDialogueNode.new())
+
+
+func _insert_parent_hear_node(dialogue: Dialogue) -> Dialogue:
+    return _insert_parent_node(dialogue, HearDialogueNode.new())
+
+
+func _insert_parent_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
+    var selected_nodes = dialogue.get_nodes_by_ids(graph_renderer.selected_node_ids)
+    if selected_nodes.size() != 1:
+        return null
+
+    var cur_node: DialogueNode = selected_nodes[0]
+    if cur_node as RootDialogueNode:
+        return null
+
+    node.id = dialogue.get_new_max_id()
+
+    var cur_parent = dialogue.nodes[cur_node.parent_id]
+    var indx =  cur_parent.children.find(cur_node)
+    cur_parent.children[indx] = node
+    node.parent_id = cur_node.parent_id
+    node.children.push_back(cur_node)
+    cur_node.parent_id = node.id
+
+    if node is HearDialogueNode and cur_node is HearDialogueNode:
+        node.speaker_id = cur_node.speaker_id
+        node.listener_id = cur_node.listener_id
+
+    dialogue.update_nodes()
+
+    return dialogue as Dialogue
+
+
+func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
+    var selected_nodes = dialogue.get_nodes_by_ids(graph_renderer.selected_node_ids)
+    if selected_nodes.empty():
+        return null
+
+    node.id = dialogue.get_new_max_id()
+
+    var first_parent := true
+    for parent in selected_nodes:
+        if first_parent:
+            parent.children.push_back(node)
+            node.parent_id = parent.id
+            if node is HearDialogueNode:
+                while not parent is HearDialogueNode and not parent is RootDialogueNode:
+                    parent = dialogue.nodes[parent.parent_id]
+                if parent is HearDialogueNode:
+                    node.speaker_id = parent.speaker_id
+                    node.listener_id = parent.listener_id
+            first_parent = false
+        else:
+            var ref_node := ReferenceDialogueNode.new()
+            ref_node.id = dialogue.get_new_max_id()
+            ref_node.referenced_node_id = _unroll_referenced_node_id(node.id, dialogue.nodes)
+            parent.children.push_back(ref_node)
+            ref_node.parent_id = parent.id
+
+    dialogue.update_nodes()
+
+    return dialogue as Dialogue
+
+
+func _deep_delete_selected_nodes(dialogue: Dialogue) -> Dialogue:
+    return _delete_selected_nodes(dialogue, false)
+
+
+func _shallow_delete_selected_nodes(dialogue: Dialogue) -> Dialogue:
+    return _delete_selected_nodes(dialogue, true)
+
+
+func _delete_selected_nodes(dialogue: Dialogue, save_children: bool) -> Dialogue:
+    var nodes_to_delete := dialogue.get_nodes_by_ids(graph_renderer.selected_node_ids)
+    if nodes_to_delete.empty():
+        return null
+
+    while not nodes_to_delete.empty():
+        # extract node from queue
+        var node: DialogueNode = nodes_to_delete.pop_front()
+
+        # can't delete root node
+        if node is RootDialogueNode:
+            continue
+
+        var node_parent = dialogue.nodes[node.parent_id]
+
+        if save_children:
+            # reassign children to deleted node parent
+            for child in node.children:
+                child.parent_id = node.parent_id
+                node_parent.children.push_back(child)
+        else:
+            # add children to delete queue
+            for child in node.children:
+                nodes_to_delete.push_back(child)
+
+        # delete node from parent
+        node_parent.children.erase(node)
+
+        # find references to node and add them to delete queue as well
+        for other_node in dialogue.nodes.values():
+            var ref_node := other_node as ReferenceDialogueNode
+            if ref_node and ref_node.referenced_node_id == node.id:
+                nodes_to_delete.push_back(ref_node)
+
+    dialogue.update_nodes()
+
+    return dialogue as Dialogue
+
+
+func _on_working_dialogue_changed() -> void:
+    var dialogue := _working_dialogue_manager.resource
+
+    # set new dialogue to graph renderer
+    if graph_renderer:
+        graph_renderer.dialogue = dialogue
+
+    # set selected nodes to action condition widget
+    if action_condition_widget:
+        action_condition_widget.clear_selected_node()
+        if dialogue and graph_renderer:
+            var selected_nodes = dialogue.get_nodes_by_ids(graph_renderer.selected_node_ids)
+            for node in selected_nodes:
+                action_condition_widget.select_node(node)
+
+
+func _on_node_selected(node: Node) -> void:
+    if node is DialogueNodeRenderer:
+        action_condition_widget.select_node(node.node)
+
+
+func _on_node_unselected(node: Node) -> void:
+    if node is DialogueNodeRenderer:
+        action_condition_widget.unselect_node(node.node)
+
+
+func _on_working_dialogue_manager_file_changed() -> void:
+    action_condition_widget.clear_selected_node()
+
+
+func _on_actors_editor_confirmed() -> void:
+    if actors_editor.storage_editor.has_changes:
+        _working_dialogue_manager.commit_action("Edit Dialogue Actors", self, "_edit_actors")
+
+
+func _on_tags_editor_confirmed() -> void:
+    if tags_editor.storage_editor.has_changes:
+        _working_dialogue_manager.commit_action("Edit Node Tags", self, "_edit_tags")
+
+
+func _on_dialogue_blackboards_editor_confirmed() -> void:
+    if dialogue_blackboards_editor.storage_editor.has_changes:
+        _working_dialogue_manager.commit_action("Edit Dialogue Blackboards", self, "_edit_blackboards")
+
+
+func _edit_actors(dialogue: Dialogue) -> Dialogue:
+    dialogue.actors = actors_editor.storage_editor.storage
+    return dialogue
+
+
+func _edit_tags(dialogue: Dialogue) -> Dialogue:
+    dialogue.nodes[_edited_text_node_id].tags = tags_editor.storage_editor.storage
+    return dialogue
+
+
+func _edit_blackboards(dialogue: Dialogue) -> Dialogue:
+    dialogue.blackboards = dialogue_blackboards_editor.storage_editor.storage
+    return dialogue
+
+
+func _on_global_actors_editor_confirmed() -> void:
+    session.global_actors = global_actors_editor.storage_editor.storage
+    ResourceSaver.save(session.global_actors.resource_path, session.global_actors)
+
+
+func _on_global_actors_tags_confirmed():
+    session.global_tags = global_tags_editor.storage_editor.storage
+    ResourceSaver.save(session.global_tags.resource_path, session.global_tags)
+
+
+func _on_session_changed() -> void:
+    actors_editor.storage_editor.item_editor.storage = session.global_actors
+    tags_editor.storage_editor.item_editor.storage = session.global_tags

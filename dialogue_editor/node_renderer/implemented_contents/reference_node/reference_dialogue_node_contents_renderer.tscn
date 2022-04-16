@@ -1,0 +1,31 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/node_renderer/implemented_contents/reference_node/reference_dialogue_node_contents_renderer.gd" type="Script" id=1]
+
+[node name="ReferenceDialogueNodeContentsRenderer" type="VBoxContainer"]
+margin_right = 40.0
+margin_bottom = 40.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="JumpToContents" type="HBoxContainer" parent="."]
+margin_right = 170.0
+margin_bottom = 20.0
+
+[node name="Label" type="Label" parent="JumpToContents"]
+margin_top = 3.0
+margin_right = 51.0
+margin_bottom = 17.0
+text = "Jump To"
+
+[node name="OptionButton" type="OptionButton" parent="JumpToContents"]
+margin_left = 55.0
+margin_right = 170.0
+margin_bottom = 20.0
+text = "Start Of Node"
+items = [ "Start Of Node", null, false, 0, null, "End Of Node", null, false, 1, null ]
+selected = 0
+
+[connection signal="item_selected" from="JumpToContents/OptionButton" to="." method="_on_jump_to_option_button_item_selected"]

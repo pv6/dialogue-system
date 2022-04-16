@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_player_renderer/basic/dialogue_player_basic_renderer.tscn" type="PackedScene" id=1]
+[ext_resource path="res://addons/dialogue_system/examples/example_dialogue.tres" type="Resource" id=2]
+
+[node name="DialoguePlayerExample" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="DialoguePlayerBasicRenderer" parent="." instance=ExtResource( 1 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 141.0
+margin_top = 75.0
+margin_right = 477.0
+margin_bottom = 379.0
+dialogue = ExtResource( 2 )

@@ -1,0 +1,123 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/support/icon_button.gd" type="Script" id=1]
+[ext_resource path="res://addons/dialogue_system/dialogue_player_renderer/basic/dialogue_player_basic_renderer.gd" type="Script" id=2]
+[ext_resource path="res://addons/dialogue_system/dialogue_player_renderer/basic/continue_arrow.svg" type="Texture" id=3]
+[ext_resource path="res://addons/dialogue_system/dialogue_player_renderer/basic/reload.svg" type="Texture" id=4]
+
+[node name="DialoguePlayerBasicRenderer" type="PanelContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Contents" type="VBoxContainer" parent="."]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 1017.0
+margin_bottom = 593.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ActorsContainer" type="MarginContainer" parent="Contents"]
+margin_right = 1010.0
+margin_bottom = 14.0
+
+[node name="ToLabel" type="Label" parent="Contents/ActorsContainer"]
+margin_right = 1010.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+text = "TO"
+align = 1
+
+[node name="SpeakerAndListener" type="HBoxContainer" parent="Contents/ActorsContainer"]
+margin_right = 1010.0
+margin_bottom = 14.0
+
+[node name="SpeakerLabel" type="Label" parent="Contents/ActorsContainer/SpeakerAndListener"]
+margin_right = 503.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+text = "Speaker"
+
+[node name="ListenerLabel" type="Label" parent="Contents/ActorsContainer/SpeakerAndListener"]
+margin_left = 507.0
+margin_right = 1010.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+text = "Listener"
+align = 2
+
+[node name="HSeparator" type="HSeparator" parent="Contents"]
+margin_top = 18.0
+margin_right = 1010.0
+margin_bottom = 22.0
+
+[node name="TextLabel" type="RichTextLabel" parent="Contents"]
+margin_top = 26.0
+margin_right = 1010.0
+margin_bottom = 282.0
+rect_min_size = Vector2( 0, 256 )
+text = "Node Text"
+
+[node name="NextButton" type="ToolButton" parent="Contents"]
+margin_top = 286.0
+margin_right = 1010.0
+margin_bottom = 308.0
+text = "Continue"
+icon = ExtResource( 3 )
+align = 0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HSeparator2" type="HSeparator" parent="Contents"]
+margin_top = 312.0
+margin_right = 1010.0
+margin_bottom = 316.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="Contents"]
+margin_top = 320.0
+margin_right = 1010.0
+margin_bottom = 334.0
+text = "Say Options"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ButtonsContainer" type="VBoxContainer" parent="Contents"]
+margin_top = 338.0
+margin_right = 1010.0
+margin_bottom = 360.0
+rect_min_size = Vector2( 0, 22 )
+
+[node name="HSeparator3" type="HSeparator" parent="Contents"]
+margin_top = 364.0
+margin_right = 1010.0
+margin_bottom = 368.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DebugContainer" type="MarginContainer" parent="Contents"]
+margin_top = 372.0
+margin_right = 1010.0
+margin_bottom = 396.0
+
+[node name="ReplayButton" type="ToolButton" parent="Contents/DebugContainer"]
+margin_right = 1010.0
+margin_bottom = 24.0
+text = "Replay"
+icon = ExtResource( 4 )
+align = 0
+script = ExtResource( 1 )
+
+[connection signal="pressed" from="Contents/NextButton" to="." method="_on_next_button_pressed"]
+[connection signal="pressed" from="Contents/DebugContainer/ReplayButton" to="." method="_on_replay_button_pressed"]

@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/line_edit/storage_item_line_edit_editor.gd" type="Script" id=1]
+
+[node name="StorageItemLineEditEditor" type="MarginContainer"]
+anchor_right = 1.005
+anchor_bottom = 0.072
+margin_left = 5.0
+margin_top = 5.0
+margin_right = -10.0
+margin_bottom = -5.0
+size_flags_horizontal = 3
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LineEdit" type="LineEdit" parent="."]
+margin_right = 1014.0
+margin_bottom = 33.0
+size_flags_horizontal = 3
+placeholder_text = "Item Name"
+__meta__ = {
+"_edit_use_anchors_": false
+}

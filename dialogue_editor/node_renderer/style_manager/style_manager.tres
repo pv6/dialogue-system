@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=5 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/node_renderer/style_manager/dialogue_node_style_manager.gd" type="Script" id=1]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/node_renderer/style_manager/styles/default_style.tres" type="Resource" id=2]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/node_renderer/style_manager/styles/hear_node_style.tres" type="Resource" id=3]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/node_renderer/style_manager/styles/say_node_style.tres" type="Resource" id=4]
+
+[resource]
+script = ExtResource( 1 )
+default_style = ExtResource( 2 )
+node_styles = [ ExtResource( 3 ), ExtResource( 4 ) ]

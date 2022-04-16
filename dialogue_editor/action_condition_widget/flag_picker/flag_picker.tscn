@@ -1,0 +1,96 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/blackboard_picker/blackboard_picker.tscn" type="PackedScene" id=1]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_picker/storage_picker.tscn" type="PackedScene" id=2]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/flag_picker/flag_picker.gd" type="Script" id=4]
+
+[node name="FlagPicker" type="HBoxContainer"]
+margin_right = 1024.0
+margin_bottom = 600.0
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BlackboardPicker" parent="." instance=ExtResource( 1 )]
+margin_right = 198.0
+margin_bottom = 600.0
+rect_min_size = Vector2( 192, 0 )
+
+[node name="VSeparator" type="VSeparator" parent="."]
+margin_left = 202.0
+margin_right = 206.0
+margin_bottom = 600.0
+
+[node name="FlagContainer" type="HBoxContainer" parent="."]
+margin_left = 210.0
+margin_right = 431.0
+margin_bottom = 600.0
+alignment = 2
+
+[node name="FlagLabel" type="Label" parent="FlagContainer"]
+margin_top = 293.0
+margin_right = 25.0
+margin_bottom = 307.0
+text = "Flag"
+align = 1
+
+[node name="FlagStoragePicker" parent="FlagContainer" instance=ExtResource( 2 )]
+anchor_right = 0.0
+margin_left = 29.0
+margin_right = 221.0
+margin_bottom = 600.0
+rect_min_size = Vector2( 192, 0 )
+size_flags_horizontal = 1
+can_select_none = false
+
+[node name="VSeparator2" type="VSeparator" parent="."]
+margin_left = 435.0
+margin_right = 439.0
+margin_bottom = 600.0
+
+[node name="ValueContainer" type="HBoxContainer" parent="."]
+margin_left = 443.0
+margin_right = 552.0
+margin_bottom = 600.0
+alignment = 2
+
+[node name="ValueLabel" type="Label" parent="ValueContainer"]
+margin_top = 293.0
+margin_right = 35.0
+margin_bottom = 307.0
+text = "Value"
+align = 1
+
+[node name="ValueOptionButton" type="OptionButton" parent="ValueContainer"]
+margin_left = 39.0
+margin_right = 109.0
+margin_bottom = 600.0
+rect_min_size = Vector2( 70, 0 )
+text = "True"
+items = [ "True", null, false, 0, null, "False", null, false, 1, null ]
+selected = 0
+
+[node name="Dialogs" type="Node" parent="."]
+
+[node name="ConfirmationDialog" type="ConfirmationDialog" parent="Dialogs"]
+margin_right = 200.0
+margin_bottom = 70.0
+rect_min_size = Vector2( 150, 52.5 )
+window_title = "Add Flag"
+
+[node name="LineEdit" type="LineEdit" parent="Dialogs/ConfirmationDialog"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 192.0
+margin_bottom = 34.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+placeholder_text = "Flag name"
+
+[connection signal="blackboard_forced_selected" from="BlackboardPicker" to="." method="_on_blackboard_forced_selected"]
+[connection signal="blackboard_selected" from="BlackboardPicker" to="." method="_on_blackboard_selected"]
+[connection signal="edit_storage_pressed" from="FlagContainer/FlagStoragePicker" to="." method="_on_edit_storage_pressed"]
+[connection signal="item_forced_selected" from="FlagContainer/FlagStoragePicker" to="." method="_on_flag_storage_picker_item_forced_selected"]
+[connection signal="item_selected" from="FlagContainer/FlagStoragePicker" to="." method="_on_flag_storage_picker_item_selected"]
+[connection signal="item_selected" from="ValueContainer/ValueOptionButton" to="." method="_on_flag_value_selected"]

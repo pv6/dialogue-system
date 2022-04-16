@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/form/field_edit.gd" type="Script" id=1]
+
+[node name="FieldEdit" type="HBoxContainer"]
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+margin_top = -7.0
+margin_bottom = 7.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+field_name = ""
+
+[node name="Label" type="Label" parent="."]
+margin_right = 510.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "field_name"
+
+[node name="TextEdit" type="TextEdit" parent="."]
+margin_left = 514.0
+margin_right = 1024.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+text = "value"

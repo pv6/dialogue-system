@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/node_menu_button.gd" type="Script" id=1]
+
+[node name="NodeMenuButton" type="MenuButton"]
+margin_right = 37.0
+margin_bottom = 20.0
+focus_mode = 2
+text = "Node"
+items = [ "Insert Child Node", null, 0, false, false, 0, 0, null, "", false, "Insert Parent Node", null, 0, false, false, 1, 0, null, "", false, "Copy Selected Nodes", null, 0, false, false, 2, 0, null, "", false, "Paste Nodes", null, 0, false, false, 3, 0, null, "", false, "Shallow Delete Selected Nodes", null, 0, false, false, 4, 0, null, "", false, "Deep Delete Selected Nodes", null, 0, false, false, 5, 0, null, "", false ]
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}

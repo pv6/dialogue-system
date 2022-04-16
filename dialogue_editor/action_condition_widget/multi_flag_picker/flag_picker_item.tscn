@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/flag_picker/flag_picker.tscn" type="PackedScene" id=1]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/support/icon_button.gd" type="Script" id=2]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/icons/remove.svg" type="Texture" id=3]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/multi_flag_picker/flag_picker_item.gd" type="Script" id=4]
+
+[node name="FlagPickerItem" type="HBoxContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 585.0
+margin_bottom = 593.0
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FlagPicker" parent="." instance=ExtResource( 1 )]
+margin_right = 552.0
+margin_bottom = 586.0
+
+[node name="RemoveButton" type="ToolButton" parent="."]
+margin_left = 556.0
+margin_right = 584.0
+margin_bottom = 586.0
+icon = ExtResource( 3 )
+script = ExtResource( 2 )
