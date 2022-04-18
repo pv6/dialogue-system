@@ -23,18 +23,6 @@ var _to: Vector2
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
 
-class NodeDepth:
-    var node: DialogueNode
-    var depth: int
-    var prev_node: DialogueNode
-    var pos: Vector2
-
-    func _init(node: DialogueNode, depth: int, prev_node: DialogueNode) -> void:
-        self.node = node
-        self.depth = depth
-        self.prev_node = prev_node
-
-
 func set_dialogue(new_dialogue: Dialogue) -> void:
     if dialogue:
         if dialogue.is_connected("nodes_changed", self, "update_graph"):
@@ -96,78 +84,61 @@ func update_graph() -> void:
     for node_renderer in node_renderers.values():
         for child in node_renderer.node.children:
             connect_node(node_renderer.name, 0, node_renderers[child.id].name, 0)
+            
+    _calculate_node_position(dialogue.root_node, Vector2(0, 0))
+    var root_offset = node_renderers[dialogue.root_node.id].offset
+    for renderer in node_renderers.values():
+        renderer.offset -= root_offset
 
-    var columns := []
 
-    var visited_nodes := {}
-    var stack := [NodeDepth.new(dialogue.root_node, 0, null)]
+func _get_chidren_height(node: DialogueNode) -> int:
+    if node.children.empty():
+        return 0
+    var sum = 0
+    for child in node.children:
+        sum += _get_height(child)
+    return sum + (node.children.size() - 1) * vertical_spacing
 
-    # calculate node columns
-    while not stack.empty():
-        var cur := stack[-1] as NodeDepth
-        assert(cur)
-        assert(not visited_nodes.has(cur.node))
-        stack.pop_back()
 
-        # add new column if needed
-        if cur.depth >= columns.size():
-            columns.push_back([])
-            var cur_column := columns[cur.depth] as Array
-            # pad new column with empty nodes so that last column always largest
-            # we're doing it depth first, so "upper" branches have already stopped
-            for i in range(columns[cur.depth - 1].size() - 1):
-                cur_column.push_back(NodeDepth.new(null, cur.depth, columns[cur.depth - 1][i].prev_node))
+func _get_height(node: DialogueNode) -> int:
+    if not node:
+        return 0
+    return int(max(node_renderers[node.id].rect_size.y, _get_chidren_height(node)))
 
-        # save node information into current column
-        columns[cur.depth].push_back(cur)
 
-        # if null node, propagate towards last column
-        if not cur.node:
-            if cur.depth < columns.size() - 1:
-                stack.push_back(NodeDepth.new(null, cur.depth + 1, cur.prev_node))
-        else:
-            visited_nodes[cur.node] = true
-            # add null node as child if no children
-            if cur.node.children.empty():
-                stack.push_back(NodeDepth.new(null, cur.depth + 1, cur.node))
-            else:
-                # add children nodes
-                for i in range(cur.node.children.size() - 1, -1, -1):
-                    var next_node = cur.node.children[i]
-                    if not visited_nodes.has(next_node):
-                        stack.push_back(NodeDepth.new(next_node, cur.depth + 1, cur.node))
+func _get_bottom(node: DialogueNode) -> int:
+    if not node:
+        return 0
+    var renderer = node_renderers[node.id]
+    return renderer.offset.y + renderer.rect_size.y / 2 + _get_height(node) / 2 + vertical_spacing
 
-    # calculate positions
-    var node_size := (node_renderers.values()[0] as DialogueNodeRenderer).rect_size
-    var max_column_size := columns[-2].size() as int
-    var pixel_height := node_size.y * (max_column_size - 1) + vertical_spacing * (max_column_size - 1)
 
-    # starting with last column - 1 (last column is all null nodes)
-    for i in range(columns.size() - 2, -1, -1):
-        for j in range(columns[i].size()):
-            var cur = columns[i][j]
-            cur.pos.x = node_size.x * i + horizontal_spacing * i
-            if i == columns.size() - 2:
-                if max_column_size > 1:
-                    cur.pos.y = j * pixel_height / (max_column_size - 1)
-                else:
-                    cur.pos.y = 0
-            else:
-                var sum_pos_y := 0.0
-                var count := 0
-                for nd in columns[i + 1]:
-                    if (cur.node and nd.prev_node == cur.node) or (not cur.node and nd.prev_node == cur.prev_node):
-                        sum_pos_y += nd.pos.y
-                        count += 1
-                assert(count > 0)
-                cur.pos.y = sum_pos_y / count
+func _shift_offset(node: DialogueNode, shift: Vector2) -> void:
+    if not node:
+        return
+    node_renderers[node.id].offset += shift
+    _shift_children_offset(node, shift)
 
-    # subtract root node position to move root to (0, 0)
-    var root_pos = columns[0][0].pos
-    for col in columns:
-        for nd in col:
-            if nd.node:
-                node_renderers[nd.node.id].offset = nd.pos - root_pos
+
+func _shift_children_offset(node: DialogueNode, shift: Vector2) -> void:
+    for child in node.children:
+        _shift_offset(child, shift)
+
+
+func _calculate_node_position(node: DialogueNode, start_pos: Vector2) -> void:
+    if not node:
+        return
+    var prev_child = null
+    for child in node.children:
+        _calculate_node_position(child, Vector2(node_renderers[node.id].rect_size.x + horizontal_spacing, _get_bottom(prev_child)))
+        prev_child = child
+    var cur_height = _get_height(node)
+    var renderer = node_renderers[node.id]
+    var renderer_height = renderer.rect_size.y
+    var children_height = _get_chidren_height(node)
+    renderer.offset = Vector2(0, cur_height / 2 - renderer_height / 2)
+    _shift_offset(node, Vector2(start_pos.x, start_pos.y))
+    _shift_children_offset(node, Vector2(0, max((renderer_height - _get_chidren_height(node)) / 2, 0)))
 
 
 func _add_node_renderer(node: DialogueNode) -> void:
