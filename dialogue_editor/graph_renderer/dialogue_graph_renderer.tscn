@@ -8,8 +8,5 @@ margin_bottom = 600.0
 scroll_offset = Vector2( -352, -185 )
 use_snap = false
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 vertical_spacing = 90
 horizontal_spacing = 90

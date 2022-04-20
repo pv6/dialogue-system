@@ -14,8 +14,8 @@ var _editor_config := ConfigFile.new()
 # i am sorry ok i just didn't care to make a whole new class for this one field
 var _edited_text_node_id: int
 
-onready var graph_renderer: DialogueGraphRenderer = $VBoxContainer/HSplitContainer/DialogueGraphRenderer
-onready var action_condition_widget: ActionConditionWidget = $VBoxContainer/HSplitContainer/ActionConditionWidget
+onready var graph_renderer: DialogueGraphRenderer = $VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer
+onready var action_condition_widget: ActionConditionWidget = $VBoxContainer/TabContainer/HSplitContainer/ActionConditionWidget
 onready var actors_editor: AcceptDialog = $ActorsEditor
 onready var tags_editor: AcceptDialog = $TagsEditor
 onready var dialogue_blackboards_editor: AcceptDialog = $DialogueBlackboardsEditor
@@ -24,6 +24,7 @@ onready var global_actors_editor: AcceptDialog = $GlobalActorsEditor
 onready var global_tags_editor: AcceptDialog = $GlobalTagsEditor
 
 onready var _working_dialogue_manager: WorkingResourceManager = $WorkingDialogueManager
+onready var _tab_container: TabContainer = $VBoxContainer/TabContainer
 
 
 func _init() -> void:
@@ -320,17 +321,18 @@ func _on_working_dialogue_changed() -> void:
 
 
 func _on_node_selected(node: Node) -> void:
-    if node is DialogueNodeRenderer:
+    if action_condition_widget and node is DialogueNodeRenderer:
         action_condition_widget.select_node(node.node)
 
 
 func _on_node_unselected(node: Node) -> void:
-    if node is DialogueNodeRenderer:
+    if action_condition_widget and node is DialogueNodeRenderer:
         action_condition_widget.unselect_node(node.node)
 
 
 func _on_working_dialogue_manager_file_changed() -> void:
-    action_condition_widget.clear_selected_node()
+    if action_condition_widget:
+        action_condition_widget.clear_selected_node()
 
 
 func _on_actors_editor_confirmed() -> void:
@@ -376,3 +378,24 @@ func _on_global_actors_tags_confirmed():
 func _on_session_changed() -> void:
     actors_editor.storage_editor.item_editor.storage = session.global_actors
     tags_editor.storage_editor.item_editor.storage = session.global_tags
+
+
+func _get_file_name() -> String:
+    if _working_dialogue_manager.save_path == "":
+        return "[unsaved]"
+    else:
+        var path = _working_dialogue_manager.save_path
+        return path.get_file().trim_suffix("." + path.get_extension())
+
+
+func _on_working_dialogue_manager_save_path_changed():
+    if _tab_container:
+        _tab_container.set_tab_title(0, _get_file_name())
+
+
+func _on_working_dialogue_manager_has_unsaved_changes_changed(value):
+    if _tab_container:
+        if value:
+            _tab_container.set_tab_title(0, _get_file_name() + "(*)")
+        else:
+            _tab_container.set_tab_title(0, _get_file_name())

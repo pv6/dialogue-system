@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=2]
+[gd_scene load_steps=32 format=2]
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/dialogue_editor.gd" type="Script" id=1]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/graph_renderer/dialogue_graph_renderer.tscn" type="PackedScene" id=2]
@@ -81,24 +81,83 @@ local_blackboard = SubResource( 3 )
 max_id = 1
 editor_version = "0.0.0"
 
+[sub_resource type="Resource" id=9]
+script = ExtResource( 8 )
+max_id = 0
+must_be_unique = true
+_data = {
+}
+_locked_indices = {
+}
+
+[sub_resource type="Resource" id=10]
+script = ExtResource( 8 )
+max_id = 0
+must_be_unique = true
+_data = {
+}
+_locked_indices = {
+}
+
+[sub_resource type="Resource" id=11]
+script = ExtResource( 13 )
+field_names = SubResource( 10 )
+
+[sub_resource type="Resource" id=12]
+script = ExtResource( 8 )
+max_id = 1
+must_be_unique = true
+_data = {
+0: SubResource( 11 )
+}
+_locked_indices = {
+0: true
+}
+
+[sub_resource type="Resource" id=13]
+script = ExtResource( 11 )
+flags = [  ]
+node_script = ""
+use_flags = true
+use_script = false
+
+[sub_resource type="Resource" id=14]
+script = ExtResource( 11 )
+flags = [  ]
+node_script = ""
+use_flags = true
+use_script = false
+
+[sub_resource type="Resource" id=15]
+script = ExtResource( 6 )
+children = [  ]
+id = 0
+parent_id = -1
+condition_logic = SubResource( 14 )
+action_logic = SubResource( 13 )
+comment = ""
+
+[sub_resource type="Resource" id=16]
+script = ExtResource( 7 )
+root_node = SubResource( 15 )
+actors = SubResource( 9 )
+blackboards = SubResource( 12 )
+local_blackboard = SubResource( 11 )
+max_id = 1
+editor_version = "0.0.0"
+
 [node name="DialogueEditor" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="MenuButtonsContainer" type="HBoxContainer" parent="VBoxContainer"]
 margin_right = 1024.0
@@ -113,27 +172,38 @@ margin_left = 72.0
 margin_right = 118.0
 items = [ "Insert Child Hear Node", null, 0, false, false, 0, 0, null, "", false, "Insert Child Say Node", null, 0, false, false, 1, 0, null, "", false, "Insert Parent Hear Node", null, 0, false, false, 2, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Copy Selected Nodes", null, 0, false, false, 3, 0, null, "", false, "Paste Nodes", null, 0, false, false, 4, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Shallow Delete Selected Nodes", null, 0, false, false, 5, 0, null, "", false, "Deep Delete Selected Nodes", null, 0, false, false, 6, 0, null, "", false ]
 
-[node name="HSplitContainer" type="HSplitContainer" parent="VBoxContainer"]
+[node name="TabContainer" type="TabContainer" parent="VBoxContainer"]
 margin_top = 24.0
 margin_right = 1024.0
 margin_bottom = 600.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+tab_align = 0
 
-[node name="DialogueGraphRenderer" parent="VBoxContainer/HSplitContainer" instance=ExtResource( 2 )]
-margin_right = 712.0
-margin_bottom = 576.0
+[node name="HSplitContainer" type="HSplitContainer" parent="VBoxContainer/TabContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-scroll_offset = Vector2( -455, -90 )
+
+[node name="DialogueGraphRenderer" parent="VBoxContainer/TabContainer/HSplitContainer" instance=ExtResource( 2 )]
+margin_right = 704.0
+margin_bottom = 540.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+scroll_offset = Vector2( -455, -66 )
 dialogue = SubResource( 8 )
 
-[node name="ActionConditionWidget" parent="VBoxContainer/HSplitContainer" instance=ExtResource( 9 )]
+[node name="ActionConditionWidget" parent="VBoxContainer/TabContainer/HSplitContainer" instance=ExtResource( 9 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_left = 724.0
-margin_right = 1024.0
-margin_bottom = 576.0
+margin_left = 716.0
+margin_right = 1016.0
+margin_bottom = 540.0
 size_flags_horizontal = 1
 
 [node name="ActorsEditor" parent="." instance=ExtResource( 10 )]
@@ -191,11 +261,8 @@ storage_name = "Global tags"
 margin_right = 40.0
 margin_bottom = 40.0
 script = ExtResource( 12 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 resource_class_name = "Dialogue"
-resource = SubResource( 8 )
+resource = SubResource( 16 )
 
 [connection signal="new_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="new_dialogue"]
 [connection signal="open_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="open_dialogue"]
@@ -210,14 +277,16 @@ resource = SubResource( 8 )
 [connection signal="insert_parent_hear_node" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="insert_parent_hear_node"]
 [connection signal="paste_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="paste_nodes"]
 [connection signal="shallow_delete_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="shallow_delete_selected_nodes"]
-[connection signal="node_selected" from="VBoxContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_node_selected"]
-[connection signal="node_unselected" from="VBoxContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_node_unselected"]
+[connection signal="node_selected" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_node_selected"]
+[connection signal="node_unselected" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_node_unselected"]
 [connection signal="confirmed" from="ActorsEditor" to="." method="_on_actors_editor_confirmed"]
 [connection signal="confirmed" from="TagsEditor" to="." method="_on_tags_editor_confirmed"]
 [connection signal="confirmed" from="DialogueBlackboardsEditor" to="." method="_on_dialogue_blackboards_editor_confirmed"]
 [connection signal="confirmed" from="GlobalActorsEditor" to="." method="_on_global_actors_editor_confirmed"]
 [connection signal="confirmed" from="GlobalTagsEditor" to="." method="_on_global_actors_tags_confirmed"]
 [connection signal="file_changed" from="WorkingDialogueManager" to="." method="_on_working_dialogue_manager_file_changed"]
+[connection signal="has_unsaved_changes_changed" from="WorkingDialogueManager" to="." method="_on_working_dialogue_manager_has_unsaved_changes_changed"]
+[connection signal="save_path_changed" from="WorkingDialogueManager" to="." method="_on_working_dialogue_manager_save_path_changed"]
 
 [editable path="ActorsEditor"]
 [editable path="TagsEditor"]

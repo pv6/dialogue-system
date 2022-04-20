@@ -6,6 +6,7 @@ extends Control
 signal resource_changed()
 signal has_unsaved_changes_changed(value)
 signal file_changed()
+signal save_path_changed()
 
 export(String) var resource_class_name := "Resource" setget set_resource_class_name
 export(Resource) var resource: Resource setget set_resource
@@ -31,9 +32,12 @@ func set_has_unsaved_changes(value: bool) -> void:
 
 
 func set_save_path(new_save_path: String) -> void:
-    save_path = new_save_path
     if resource:
-        resource.take_over_path(save_path)
+        resource.take_over_path(new_save_path)
+#    if save_path == new_save_path:
+#        return
+    save_path = new_save_path
+    emit_signal("save_path_changed")
 
 
 func new_file() -> void:
@@ -96,13 +100,14 @@ func undo() -> void:
     if _undo_redo.has_undo():
         print("UNDO: " + _undo_redo.get_current_action_name())
         _undo_redo.undo()
-        self.has_unsaved_changes = _undo_redo.has_undo()
+        self.has_unsaved_changes = true
 
 
 func redo() -> void:
     if _undo_redo.has_redo():
-        _undo_redo.redo()
         print("REDO: " + _undo_redo.get_current_action_name())
+        _undo_redo.redo()
+        self.has_unsaved_changes = true
 
 
 func commit_action(action_name: String, object, method: String,
