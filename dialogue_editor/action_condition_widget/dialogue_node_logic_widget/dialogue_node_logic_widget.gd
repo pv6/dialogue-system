@@ -76,8 +76,12 @@ func _on_script_check_box_pressed() -> void:
     _session.dialogue_undo_redo.commit_action("Set Node Logic Use Script", self, "_set_use_script")
 
 
-func _on_script_text_edit_focus_exited():
-    _session.dialogue_undo_redo.commit_action("Set Node Logic Script Text", self, "_set_script_text")
+func _on_script_text_edit_focus_exited() -> void:
+    call_deferred("_call_set_script_text")
+
+
+func _call_set_script_text() -> void:
+    _session.dialogue_undo_redo.commit_action("Set Node " + property.capitalize() + " Script", self, "_set_script_text")
 
 
 func _set_use_flags(dialogue: Dialogue) -> Dialogue:

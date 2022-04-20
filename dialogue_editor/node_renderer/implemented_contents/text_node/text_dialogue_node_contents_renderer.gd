@@ -31,7 +31,7 @@ func _call_edit_text() -> void:
 
 
 func _edit_text(dialogue: Dialogue) -> Dialogue:
-    if dialogue.nodes[node.id].text == _text_edit.text:
+    if not node or dialogue.nodes[node.id].text == _text_edit.text:
         return null
     dialogue.nodes[node.id].text = _text_edit.text
     return dialogue
