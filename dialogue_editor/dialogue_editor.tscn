@@ -1,9 +1,9 @@
-[gd_scene load_steps=24 format=2]
+[gd_scene load_steps=26 format=2]
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/dialogue_editor.gd" type="Script" id=1]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/graph_renderer/dialogue_graph_renderer.tscn" type="PackedScene" id=2]
-[ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/dialogue_menu_button.tscn" type="PackedScene" id=3]
-[ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/node_menu_button.tscn" type="PackedScene" id=4]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/dialogue/dialogue_menu_button.tscn" type="PackedScene" id=3]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/node/node_menu_button.tscn" type="PackedScene" id=4]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/blackboard_editor/blackboard_editor.tscn" type="PackedScene" id=5]
 [ext_resource path="res://addons/dialogue_system/dialogue/implemented_nodes/root_dialogue_node.gd" type="Script" id=6]
 [ext_resource path="res://addons/dialogue_system/dialogue/dialogue.gd" type="Script" id=7]
@@ -15,6 +15,8 @@
 [ext_resource path="res://addons/dialogue_system/support/blackboard.gd" type="Script" id=13]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/file_dialog/storage_item_file_dialog_editor.tscn" type="PackedScene" id=14]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/storage_picker/storage_item_storage_picker_editor.tscn" type="PackedScene" id=15]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/actors/actors_menu_button.tscn" type="PackedScene" id=16]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/tags/tags_menu_button.tscn" type="PackedScene" id=17]
 
 [sub_resource type="Resource" id=1]
 script = ExtResource( 8 )
@@ -107,6 +109,15 @@ margin_left = 72.0
 margin_right = 118.0
 items = [ "Insert Child Hear Node", null, 0, false, false, 0, 0, null, "", false, "Insert Child Say Node", null, 0, false, false, 1, 0, null, "", false, "Insert Parent Hear Node", null, 0, false, false, 2, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Copy Selected Nodes", null, 0, false, false, 3, 0, null, "", false, "Paste Nodes", null, 0, false, false, 4, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Shallow Delete Selected Nodes", null, 0, false, false, 5, 0, null, "", false, "Deep Delete Selected Nodes", null, 0, false, false, 6, 0, null, "", false ]
 
+[node name="EditorMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 16 )]
+margin_left = 122.0
+margin_right = 175.0
+
+[node name="TagsMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 17 )]
+margin_left = 179.0
+margin_right = 219.0
+items = [ "Edit Global Tags", null, 0, false, false, 0, 0, null, "", false ]
+
 [node name="TabContainer" type="TabContainer" parent="VBoxContainer"]
 margin_top = 24.0
 margin_right = 1024.0
@@ -149,9 +160,7 @@ margin_left = 400.0
 margin_top = 87.0
 margin_right = 623.0
 margin_bottom = 512.0
-popup_exclusive = false
 window_title = "Edit Dialogue Actors"
-resizable = true
 storage_name = "dialogue actors"
 
 [node name="StorageEditor" parent="ActorsEditor" index="3"]
@@ -162,9 +171,7 @@ margin_left = 400.0
 margin_top = 87.0
 margin_right = 623.0
 margin_bottom = 512.0
-popup_exclusive = false
 window_title = "Edit Text Node Tags"
-resizable = true
 storage_name = "text node tags "
 
 [node name="StorageEditor" parent="TagsEditor" index="3"]
@@ -215,6 +222,9 @@ resource = SubResource( 8 )
 [connection signal="insert_parent_hear_node" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="insert_parent_hear_node"]
 [connection signal="paste_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="paste_nodes"]
 [connection signal="shallow_delete_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="shallow_delete_selected_nodes"]
+[connection signal="open_dialogue_actors_editor" from="VBoxContainer/MenuButtonsContainer/EditorMenuButton" to="." method="open_actors_editor"]
+[connection signal="open_global_actors_editor" from="VBoxContainer/MenuButtonsContainer/EditorMenuButton" to="." method="open_global_actors_editor"]
+[connection signal="open_global_tags_editor" from="VBoxContainer/MenuButtonsContainer/TagsMenuButton" to="." method="open_global_tags_editor"]
 [connection signal="node_selected" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_node_selected"]
 [connection signal="node_unselected" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_node_unselected"]
 [connection signal="confirmed" from="ActorsEditor" to="." method="_on_actors_editor_confirmed"]

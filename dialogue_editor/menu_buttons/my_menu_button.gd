@@ -15,16 +15,17 @@ func _ready() -> void:
     _popup.connect("id_pressed", self, "_on_id_pressed")
 
 
-func _add_button(display_name: String, signal_name: String, scancode: int, is_control := false,
+func _add_button(display_name: String, signal_name: String, scancode: int = -1, is_control := false,
         is_shift := false, is_alt := false) -> void:
     _popup.add_item(display_name, _last_index)
-    var shortcut := ShortCut.new()
-    shortcut.shortcut = InputEventKey.new()
-    shortcut.shortcut.scancode = scancode
-    shortcut.shortcut.control = is_control
-    shortcut.shortcut.shift = is_shift
-    shortcut.shortcut.alt = is_alt
-    _popup.set_item_shortcut(_popup.get_item_index(_last_index), shortcut)
+    if scancode != -1:
+        var shortcut := ShortCut.new()
+        shortcut.shortcut = InputEventKey.new()
+        shortcut.shortcut.scancode = scancode
+        shortcut.shortcut.control = is_control
+        shortcut.shortcut.shift = is_shift
+        shortcut.shortcut.alt = is_alt
+        _popup.set_item_shortcut(_popup.get_item_index(_last_index), shortcut)
     _button_signals.append(signal_name)
     _last_index += 1
 
