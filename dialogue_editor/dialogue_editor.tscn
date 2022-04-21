@@ -102,14 +102,17 @@ margin_bottom = 20.0
 size_flags_horizontal = 3
 
 [node name="DialogueMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 3 )]
+items = [ "New Dialogue", null, 0, false, false, 0, 0, null, "", false, "Open Dialogue...", null, 0, false, false, 1, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Save Dialogue", null, 0, false, false, 2, 0, null, "", false, "Save Dialogue As...", null, 0, false, false, 3, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Undo", null, 0, false, false, 4, 0, null, "", false, "Redo", null, 0, false, false, 5, 0, null, "", false ]
 
 [node name="NodeMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 4 )]
 margin_left = 72.0
 margin_right = 118.0
+items = [ "Insert Child Hear Node", null, 0, false, false, 0, 0, null, "", false, "Insert Child Say Node", null, 0, false, false, 1, 0, null, "", false, "Insert Parent Hear Node", null, 0, false, false, 2, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Copy Selected Nodes", null, 0, false, false, 3, 0, null, "", false, "Paste Nodes", null, 0, false, false, 4, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Shallow Delete Selected Nodes", null, 0, false, false, 5, 0, null, "", false, "Deep Delete Selected Nodes", null, 0, false, false, 6, 0, null, "", false ]
 
 [node name="EditorMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 16 )]
 margin_left = 122.0
 margin_right = 175.0
+items = [ "Edit Dialogue Actors", null, 0, false, false, 0, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Edit Global Actors", null, 0, false, false, 1, 0, null, "", false ]
 
 [node name="TagsMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 17 )]
 margin_left = 179.0
@@ -223,6 +226,7 @@ resource = SubResource( 8 )
 [connection signal="open_dialogue_actors_editor" from="VBoxContainer/MenuButtonsContainer/EditorMenuButton" to="." method="open_actors_editor"]
 [connection signal="open_global_actors_editor" from="VBoxContainer/MenuButtonsContainer/EditorMenuButton" to="." method="open_global_actors_editor"]
 [connection signal="open_global_tags_editor" from="VBoxContainer/MenuButtonsContainer/TagsMenuButton" to="." method="open_global_tags_editor"]
+[connection signal="collapsed_nodes_changed" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_collapsed_nodes_changed"]
 [connection signal="node_selected" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_node_selected"]
 [connection signal="node_unselected" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_node_unselected"]
 [connection signal="confirmed" from="ActorsEditor" to="." method="_on_actors_editor_confirmed"]

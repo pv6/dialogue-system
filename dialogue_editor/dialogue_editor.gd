@@ -172,10 +172,13 @@ func _paste_nodes(dialogue: Dialogue) -> Dialogue:
 
     # add references to copied nodes as children in each currently selected node
     var pasted_node_ids := id_string.split(",", false)
-    for pasted_id in pasted_node_ids:
-        pasted_id = int(pasted_id)
-        if dialogue.nodes.has(pasted_id):
-            for parent in selected_nodes:
+    for parent in selected_nodes:
+        if graph_renderer.collapsed_nodes.has(parent.id):
+            print("Can't paste into collapsed node!")
+            return null
+        for pasted_id in pasted_node_ids:
+            pasted_id = int(pasted_id)
+            if dialogue.nodes.has(pasted_id):
                 var ref_node := _make_reference_node(pasted_id, dialogue)
                 parent.add_child(ref_node)
 
@@ -240,6 +243,9 @@ func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
 
     var first_parent := true
     for parent in selected_nodes:
+        if graph_renderer.collapsed_nodes.has(parent.id):
+            print("Can't add child to collapsed node!")
+            return null
         if first_parent:
             parent.add_child(node)
             if node is HearDialogueNode:
@@ -312,12 +318,21 @@ func _on_working_dialogue_changed() -> void:
         graph_renderer.dialogue = dialogue
 
     # set selected nodes to action condition widget
+    _update_action_condition_selected_nodes()
+
+
+func _update_action_condition_selected_nodes() -> void:
+    var dialogue := _working_dialogue_manager.resource
     if action_condition_widget:
         action_condition_widget.clear_selected_node()
         if dialogue and graph_renderer:
             var selected_nodes = dialogue.get_nodes_by_ids(graph_renderer.selected_node_ids)
             for node in selected_nodes:
                 action_condition_widget.select_node(node)
+
+
+func _on_collapsed_nodes_changed() -> void:
+    _update_action_condition_selected_nodes()
 
 
 func _on_node_selected(node: Node) -> void:

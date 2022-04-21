@@ -3,6 +3,8 @@ class_name DialogueGraphRenderer
 extends GraphEdit
 
 
+signal collapsed_nodes_changed()
+
 const NODE_RENDERER_SCENE := preload("../node_renderer/dialogue_node_renderer.tscn")
 
 export(int) var vertical_spacing := 30
@@ -16,11 +18,18 @@ export(Array) var selected_node_ids: Array setget set_selected_node_ids, get_sel
 # node id -> renderer
 var node_renderers: Dictionary
 
+var collapsed_nodes: Dictionary
+
 var _dragged_node_renderer: DialogueNodeRenderer
 var _from: Vector2
 var _to: Vector2
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
+
+
+func _init() -> void:
+    collapsed_nodes = {}
+    node_renderers = {}
 
 
 func set_dialogue(new_dialogue: Dialogue) -> void:
@@ -64,6 +73,7 @@ func update_graph() -> void:
         renderer.node = null
         remove_child(renderer)
         renderer.disconnect("dragged", self, "_on_node_dragged")
+        renderer.disconnect("close_request", self, "_on_node_collapsed")
         renderer.queue_free()
     node_renderers.clear()
 
@@ -72,16 +82,17 @@ func update_graph() -> void:
     assert(dialogue.root_node)
 
     # create node renderers
-    for node in dialogue.nodes.values():
-        _add_node_renderer(node)
+    _recursively_add_node_renderers(dialogue.root_node)
 
     # restore selected nodes
     for id in selected:
-        if dialogue.nodes.has(id):
+        if dialogue.nodes.has(id) and node_renderers.has(id):
             node_renderers[id].selected = true
 
     # connect child nodes
     for node_renderer in node_renderers.values():
+        if collapsed_nodes.has(node_renderer.node.id):
+            continue
         for child in node_renderer.node.children:
             connect_node(node_renderer.name, 0, node_renderers[child.id].name, 0)
             
@@ -92,8 +103,8 @@ func update_graph() -> void:
         renderer.offset -= root_offset
 
 
-func _get_chidren_height(node: DialogueNode) -> int:
-    if node.children.empty():
+func _get_children_height(node: DialogueNode) -> int:
+    if node.children.empty() or collapsed_nodes.has(node.id):
         return 0
     var sum = 0
     for child in node.children:
@@ -104,7 +115,7 @@ func _get_chidren_height(node: DialogueNode) -> int:
 func _get_height(node: DialogueNode) -> int:
     if not node:
         return 0
-    return int(max(node_renderers[node.id].rect_size.y, _get_chidren_height(node)))
+    return int(max(node_renderers[node.id].rect_size.y, _get_children_height(node)))
 
 
 func _get_bottom(node: DialogueNode) -> int:
@@ -122,6 +133,8 @@ func _shift_offset(node: DialogueNode, shift: Vector2) -> void:
 
 
 func _shift_children_offset(node: DialogueNode, shift: Vector2) -> void:
+    if collapsed_nodes.has(node.id):
+        return
     for child in node.children:
         _shift_offset(child, shift)
 
@@ -130,24 +143,35 @@ func _calculate_node_position(node: DialogueNode, start_pos: Vector2) -> void:
     if not node:
         return
     var prev_child = null
-    for child in node.children:
-        _calculate_node_position(child, Vector2(node_renderers[node.id].rect_size.x + horizontal_spacing, _get_bottom(prev_child)))
-        prev_child = child
+    if not collapsed_nodes.has(node.id):
+        for child in node.children:
+            _calculate_node_position(child, Vector2(node_renderers[node.id].rect_size.x + horizontal_spacing, _get_bottom(prev_child)))
+            prev_child = child
     var cur_height = _get_height(node)
     var renderer = node_renderers[node.id]
     var renderer_height = renderer.rect_size.y
-    var children_height = _get_chidren_height(node)
+    var children_height = _get_children_height(node)
     renderer.offset = Vector2(0, cur_height / 2 - renderer_height / 2)
     _shift_offset(node, Vector2(start_pos.x, start_pos.y))
-    _shift_children_offset(node, Vector2(0, max((renderer_height - _get_chidren_height(node)) / 2, 0)))
+    _shift_children_offset(node, Vector2(0, max((renderer_height - children_height) / 2, 0)))
 
 
 func _add_node_renderer(node: DialogueNode) -> void:
     var node_renderer := NODE_RENDERER_SCENE.instance() as DialogueNodeRenderer
     node_renderers[node.id] = node_renderer
     node_renderer.node = node
+    node_renderer.is_collapsed = collapsed_nodes.has(node.id)
     node_renderer.connect("dragged", self, "_on_node_dragged", [node_renderer])
+    node_renderer.connect("close_request", self, "_on_node_collapsed", [node_renderer.node.id])
     add_child(node_renderer)
+
+
+func _recursively_add_node_renderers(node: DialogueNode) -> void:
+    _add_node_renderer(node)
+    if collapsed_nodes.has(node.id):
+        return
+    for child in node.children:
+        _recursively_add_node_renderers(child)
 
 
 func _on_node_dragged(from: Vector2, to: Vector2, node_renderer: DialogueNodeRenderer) -> void:
@@ -191,3 +215,12 @@ func _drag_node(dialogue: Dialogue) -> Dialogue:
     # ignore dragging if no changes
     _dragged_node_renderer.offset = _from
     return null
+
+
+func _on_node_collapsed(node_id: int) -> void:
+    if collapsed_nodes.has(node_id):
+        collapsed_nodes.erase(node_id)
+    else:
+        collapsed_nodes[node_id] = true
+    update_graph()
+    emit_signal("collapsed_nodes_changed")
