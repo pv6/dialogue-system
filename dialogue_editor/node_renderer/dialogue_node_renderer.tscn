@@ -31,11 +31,10 @@ shadow_size = 20
 [node name="DialogueNodeRenderer" type="GraphNode"]
 margin_right = 300.0
 margin_bottom = 200.0
-rect_min_size = Vector2( 300, 200 )
-custom_styles/frame = SubResource( 1 )
-custom_styles/selectedframe = SubResource( 2 )
 custom_colors/close_color = Color( 0, 0, 0, 1 )
 custom_colors/title_color = Color( 0, 0, 0, 1 )
+custom_styles/frame = SubResource( 1 )
+custom_styles/selectedframe = SubResource( 2 )
 title = "dummy node"
 show_close = true
 slot/0/left_enabled = true
@@ -45,6 +44,3 @@ slot/0/right_enabled = true
 slot/0/right_type = 0
 slot/0/right_color = Color( 0.75, 0.75, 0.75, 1 )
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}

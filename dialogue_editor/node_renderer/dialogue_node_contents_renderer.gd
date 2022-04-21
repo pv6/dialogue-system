@@ -7,6 +7,7 @@ var node: DialogueNode setget set_node
 
 
 func _ready():
+    size_flags_vertical = SIZE_EXPAND_FILL
     _update_contents()
 
 
