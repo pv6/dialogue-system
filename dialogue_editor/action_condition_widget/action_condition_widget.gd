@@ -7,9 +7,9 @@ var _nodes: Dictionary
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
-onready var _condition_widget = $ConditionWidget
-onready var _action_widget = $ActionWidget
-onready var _node_name = $NodeName
+onready var _condition_widget = $Contents/ConditionWidget
+onready var _action_widget = $Contents/ActionWidget
+onready var _node_name = $Contents/NodeName
 
 
 func select_node(node: DialogueNode) -> void:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/dialogue_editor.gd" type="Script" id=1]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/graph_renderer/dialogue_graph_renderer.tscn" type="PackedScene" id=2]
@@ -81,71 +81,6 @@ local_blackboard = SubResource( 3 )
 max_id = 1
 editor_version = "0.0.0"
 
-[sub_resource type="Resource" id=9]
-script = ExtResource( 8 )
-max_id = 0
-must_be_unique = true
-_data = {
-}
-_locked_indices = {
-}
-
-[sub_resource type="Resource" id=10]
-script = ExtResource( 8 )
-max_id = 0
-must_be_unique = true
-_data = {
-}
-_locked_indices = {
-}
-
-[sub_resource type="Resource" id=11]
-script = ExtResource( 13 )
-field_names = SubResource( 10 )
-
-[sub_resource type="Resource" id=12]
-script = ExtResource( 8 )
-max_id = 1
-must_be_unique = true
-_data = {
-0: SubResource( 11 )
-}
-_locked_indices = {
-0: true
-}
-
-[sub_resource type="Resource" id=13]
-script = ExtResource( 11 )
-flags = [  ]
-node_script = ""
-use_flags = true
-use_script = false
-
-[sub_resource type="Resource" id=14]
-script = ExtResource( 11 )
-flags = [  ]
-node_script = ""
-use_flags = true
-use_script = false
-
-[sub_resource type="Resource" id=15]
-script = ExtResource( 6 )
-children = [  ]
-id = 0
-parent_id = -1
-condition_logic = SubResource( 14 )
-action_logic = SubResource( 13 )
-comment = ""
-
-[sub_resource type="Resource" id=16]
-script = ExtResource( 7 )
-root_node = SubResource( 15 )
-actors = SubResource( 9 )
-blackboards = SubResource( 12 )
-local_blackboard = SubResource( 11 )
-max_id = 1
-editor_version = "0.0.0"
-
 [node name="DialogueEditor" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -189,9 +124,12 @@ margin_right = -4.0
 margin_bottom = -4.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+__meta__ = {
+"_tab_name": "[unsaved]"
+}
 
 [node name="DialogueGraphRenderer" parent="VBoxContainer/TabContainer/HSplitContainer" instance=ExtResource( 2 )]
-margin_right = 704.0
+margin_right = 804.0
 margin_bottom = 540.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -201,7 +139,7 @@ dialogue = SubResource( 8 )
 [node name="ActionConditionWidget" parent="VBoxContainer/TabContainer/HSplitContainer" instance=ExtResource( 9 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_left = 716.0
+margin_left = 816.0
 margin_right = 1016.0
 margin_bottom = 540.0
 size_flags_horizontal = 1
@@ -262,7 +200,7 @@ margin_right = 40.0
 margin_bottom = 40.0
 script = ExtResource( 12 )
 resource_class_name = "Dialogue"
-resource = SubResource( 16 )
+resource = SubResource( 8 )
 
 [connection signal="new_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="new_dialogue"]
 [connection signal="open_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="open_dialogue"]
