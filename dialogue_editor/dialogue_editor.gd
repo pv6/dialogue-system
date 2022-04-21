@@ -176,15 +176,21 @@ func _paste_nodes(dialogue: Dialogue) -> Dialogue:
         pasted_id = int(pasted_id)
         if dialogue.nodes.has(pasted_id):
             for parent in selected_nodes:
-                var ref_node := ReferenceDialogueNode.new()
-                ref_node.id = dialogue.get_new_max_id()
-                ref_node.referenced_node_id = _unroll_referenced_node_id(pasted_id, dialogue.nodes)
-                parent.children.push_back(ref_node)
-                ref_node.parent_id = parent.id
+                var ref_node := _make_reference_node(pasted_id, dialogue)
+                parent.add_child(ref_node)
 
     dialogue.update_nodes()
 
     return dialogue
+
+
+func _make_reference_node(referenced_node_id: int, dialogue: Dialogue) -> ReferenceDialogueNode:
+    var ref_node := ReferenceDialogueNode.new()
+    ref_node.id = dialogue.get_new_max_id()
+    ref_node.referenced_node_id = _unroll_referenced_node_id(referenced_node_id, dialogue.nodes)
+    if dialogue.nodes[referenced_node_id] is ReferenceDialogueNode:
+        ref_node.jump_to = dialogue.nodes[referenced_node_id].jump_to
+    return ref_node
 
 
 func _insert_child_hear_node(dialogue: Dialogue) -> Dialogue:
@@ -214,8 +220,7 @@ func _insert_parent_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
     var indx =  cur_parent.children.find(cur_node)
     cur_parent.children[indx] = node
     node.parent_id = cur_node.parent_id
-    node.children.push_back(cur_node)
-    cur_node.parent_id = node.id
+    node.add_child(cur_node)
 
     if node is HearDialogueNode and cur_node is HearDialogueNode:
         node.speaker_id = cur_node.speaker_id
@@ -236,8 +241,7 @@ func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
     var first_parent := true
     for parent in selected_nodes:
         if first_parent:
-            parent.children.push_back(node)
-            node.parent_id = parent.id
+            parent.add_child(node)
             if node is HearDialogueNode:
                 while not parent is HearDialogueNode and not parent is RootDialogueNode:
                     parent = dialogue.nodes[parent.parent_id]
@@ -246,11 +250,8 @@ func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
                     node.listener_id = parent.listener_id
             first_parent = false
         else:
-            var ref_node := ReferenceDialogueNode.new()
-            ref_node.id = dialogue.get_new_max_id()
-            ref_node.referenced_node_id = _unroll_referenced_node_id(node.id, dialogue.nodes)
-            parent.children.push_back(ref_node)
-            ref_node.parent_id = parent.id
+            var ref_node := _make_reference_node(node.id, dialogue)
+            parent.add_child(ref_node)
 
     dialogue.update_nodes()
 
@@ -283,8 +284,7 @@ func _delete_selected_nodes(dialogue: Dialogue, save_children: bool) -> Dialogue
         if save_children:
             # reassign children to deleted node parent
             for child in node.children:
-                child.parent_id = node.parent_id
-                node_parent.children.push_back(child)
+                node_parent.add_child(child)
         else:
             # add children to delete queue
             for child in node.children:

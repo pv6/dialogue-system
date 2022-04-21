@@ -48,3 +48,8 @@ func clone() -> DialogueNode:
     out.condition_logic = condition_logic.clone()
     out.action_logic = action_logic.clone()
     return out
+
+
+func add_child(node) -> void:
+    children.push_back(node)
+    node.parent_id = id
