@@ -11,6 +11,10 @@ onready var _jump_to_option_button: OptionButton = $JumpToContents/OptionButton
 onready var _referenced_contents: DialogueNodeContentsRenderer
 
 
+func _ready() -> void:
+    self_modulate.v = 1
+
+
 func _on_set_node() -> void:
     _reference_node = node as ReferenceDialogueNode
 
@@ -38,6 +42,7 @@ func _update_contents() -> void:
         assert(parent)
     _referenced_contents = parent.create_contents(_session.dialogue.nodes[_reference_node.referenced_node_id])
     if _referenced_contents:
+        _referenced_contents.modulate.v *= _session.reference_node_brightness
         add_child(_referenced_contents)
 
 

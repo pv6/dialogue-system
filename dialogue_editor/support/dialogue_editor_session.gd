@@ -10,6 +10,8 @@ export(Resource) var dialogue_undo_redo setget set_dialogue_undo_redo
 export(Resource) var global_actors setget set_global_actors
 export(Resource) var global_tags setget set_global_tags
 
+export(float, 0, 1) var reference_node_brightness := 0.8
+
 var dialogue_editor
 
 

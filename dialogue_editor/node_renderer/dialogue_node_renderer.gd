@@ -20,6 +20,8 @@ var contents: DialogueNodeContentsRenderer
 
 var style_manager: DialogueNodeStyleManager = preload("style_manager/style_manager.tres")
 
+var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
+
 
 func _init() -> void:
     theme = Theme.new()
@@ -42,7 +44,7 @@ func set_node(new_node: DialogueNode) -> void:
     set_style(style_manager.get_style(new_node))
 
     if node as ReferenceDialogueNode:
-        modulate.v *= 0.8
+        self_modulate.v *= _session.reference_node_brightness
 
     set_slot(0, true, 0, Color.gray, not is_collapsed, 0, Color.gray)
 
