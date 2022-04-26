@@ -414,3 +414,18 @@ func _on_working_dialogue_manager_has_unsaved_changes_changed(value):
             _tab_container.set_tab_title(0, _get_file_name() + "(*)")
         else:
             _tab_container.set_tab_title(0, _get_file_name())
+
+
+func _on_graph_renderer_copy_nodes_request():
+    copy_selected_nodes()
+
+
+func _on_graph_renderer_paste_nodes_request():
+    paste_nodes()
+
+
+func _on_graph_renderer_delete_nodes_request():
+    if Input.is_key_pressed(KEY_SHIFT):
+        deep_delete_selected_nodes()
+    else:
+        shallow_delete_selected_nodes()
