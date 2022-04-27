@@ -22,7 +22,6 @@ func _init() -> void:
     condition_logic = DialogueNodeLogic.new()
     action_logic = DialogueNodeLogic.new()
 
-    # this was a bug, for SOME reason children was null without it, don't remove
     children = []
 
 
@@ -50,6 +49,16 @@ func clone() -> DialogueNode:
     return out
 
 
-func add_child(node) -> void:
-    children.push_back(node)
+func add_child(node: DialogueNode, position := -1) -> void:
+    if position == -1:
+        children.push_back(node)
+    else:
+        children.insert(position, node)
     node.parent_id = id
+
+
+func get_child_position(child_node_id: int) -> int:
+    for i in range(children.size()):
+        if children[i].id == child_node_id:
+            return i
+    return -1

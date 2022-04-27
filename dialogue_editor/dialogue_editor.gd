@@ -65,6 +65,13 @@ func copy_selected_nodes() -> void:
     OS.clipboard = id_string
 
 
+func shallow_dublicate_selected_nodes() -> void:
+    _working_dialogue_manager.commit_action("Shallow Dublicate Selected Nodes", self, "_shallow_dublicate_nodes")
+
+func deep_dublicate_selected_nodes() -> void:
+    _working_dialogue_manager.commit_action("Deep Dublicate Selected Nodes", self, "_deep_dublicate_nodes")
+
+
 func paste_nodes() -> void:
     _working_dialogue_manager.commit_action("Paste Nodes", self, "_paste_nodes")
 
@@ -159,6 +166,47 @@ func _set_dialogue_editor_version() -> void:
     res.editor_version = _editor_config.get_value("plugin", "version", "0.0.0")
 
 
+func _shallow_dublicate_nodes(dialogue: Dialogue) -> Dialogue:
+    return _dublicate_nodes(dialogue, false)
+
+
+func _deep_dublicate_nodes(dialogue: Dialogue) -> Dialogue:
+    return _dublicate_nodes(dialogue, true)
+
+
+func _dublicate_node(dialogue: Dialogue, node: DialogueNode, deep_dublicate: bool) -> DialogueNode:
+    var new_node: DialogueNode = node.clone()
+    new_node.id = dialogue.get_new_max_id()
+    new_node.children = []
+
+    if deep_dublicate:
+        for child in node.children:
+            new_node.add_child(_dublicate_node(dialogue, child, true))
+
+    return new_node
+
+
+func _dublicate_nodes(dialogue: Dialogue, deep_dublicate: bool) -> Dialogue:
+    var selected_nodes = dialogue.get_nodes_by_ids(graph_renderer.selected_node_ids)
+    if selected_nodes.empty():
+        return null
+
+    var have_dublicated = false
+    for node in selected_nodes:
+        if node.parent_id != -1:
+            var parent: DialogueNode = dialogue.nodes[node.parent_id]
+            var dub = _dublicate_node(dialogue, node, deep_dublicate)
+            parent.add_child(dub, parent.get_child_position(node.id) + 1)
+            have_dublicated = true
+    if not have_dublicated:
+        print("No Nodes Dublicated")
+        return null
+
+    dialogue.update_nodes()
+
+    return dialogue
+
+
 func _paste_nodes(dialogue: Dialogue) -> Dialogue:
     var id_string := OS.clipboard
 
@@ -231,7 +279,7 @@ func _insert_parent_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
 
     dialogue.update_nodes()
 
-    return dialogue as Dialogue
+    return dialogue
 
 
 func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
@@ -261,7 +309,7 @@ func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
 
     dialogue.update_nodes()
 
-    return dialogue as Dialogue
+    return dialogue
 
 
 func _deep_delete_selected_nodes(dialogue: Dialogue) -> Dialogue:
@@ -307,7 +355,7 @@ func _delete_selected_nodes(dialogue: Dialogue, save_children: bool) -> Dialogue
 
     dialogue.update_nodes()
 
-    return dialogue as Dialogue
+    return dialogue
 
 
 func _on_working_dialogue_changed() -> void:
@@ -429,3 +477,10 @@ func _on_graph_renderer_delete_nodes_request():
         deep_delete_selected_nodes()
     else:
         shallow_delete_selected_nodes()
+
+
+func _on_graph_renderer_duplicate_nodes_request():
+    if Input.is_key_pressed(KEY_SHIFT):
+        deep_dublicate_selected_nodes()
+    else:
+        shallow_dublicate_selected_nodes()
