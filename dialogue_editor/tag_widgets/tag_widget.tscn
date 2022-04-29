@@ -53,12 +53,12 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="GridContainer" type="GridContainer" parent="ScrollContainer"]
+[node name="TagContainer" type="GridContainer" parent="ScrollContainer"]
 margin_right = 28.0
 margin_bottom = 24.0
 columns = 2
 
-[node name="AddTagButton" type="ToolButton" parent="ScrollContainer/GridContainer"]
+[node name="AddTagButton" type="ToolButton" parent="ScrollContainer/TagContainer"]
 margin_right = 28.0
 margin_bottom = 24.0
 icon = ExtResource( 6 )
@@ -74,5 +74,5 @@ script = ExtResource( 1 )
 [connection signal="about_to_show" from="Dialogs/AddTagDialog" to="." method="_on_add_tag_dialog_about_to_show"]
 [connection signal="confirmed" from="Dialogs/AddTagDialog" to="." method="_on_add_tag_dialog_confirmed"]
 [connection signal="edit_storage_pressed" from="Dialogs/AddTagDialog/StoragePicker" to="." method="_on_add_tag_storage_picker_edit_storage_pressed"]
-[connection signal="pressed" from="ScrollContainer/GridContainer/AddTagButton" to="." method="_on_add_tag_button_pressed"]
+[connection signal="pressed" from="ScrollContainer/TagContainer/AddTagButton" to="." method="_on_add_tag_button_pressed"]
 [connection signal="pressed" from="EditButton" to="." method="_on_edit_button_pressed"]

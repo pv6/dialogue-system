@@ -6,6 +6,7 @@ const TagRenderer = preload("res://addons/dialogue_system/dialogue_editor/tag_wi
 const StorageEditorDialog = preload("res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor_dialog/storage_editor_dialog.gd")
 
 export(Resource) var text_node: Resource setget set_text_node
+export(bool) var disabled: bool setget set_disabled
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
@@ -14,11 +15,13 @@ var _tag_renderer_scene: PackedScene = preload("res://addons/dialogue_system/dia
 var _tag_id_to_delete: int
 var _tag_to_add: StorageItem
 
-onready var _tag_container: GridContainer = $ScrollContainer/GridContainer
+onready var _tag_container: GridContainer = $ScrollContainer/TagContainer
 
-onready var _add_tag_button: IconButton = $ScrollContainer/GridContainer/AddTagButton
+onready var _add_tag_button: IconButton = $ScrollContainer/TagContainer/AddTagButton
 onready var _add_tag_dialog: ConfirmationDialog = $Dialogs/AddTagDialog
 onready var _add_tag_storage_picker: StoragePicker = $Dialogs/AddTagDialog/StoragePicker
+
+onready var _edit_button: IconButton = $EditButton
 
 
 func _ready() -> void:
@@ -52,6 +55,15 @@ func update_tag_renderers() -> void:
 func set_text_node(new_text_node: TextDialogueNode) -> void:
     text_node = new_text_node
     update_tag_renderers()
+
+
+func set_disabled(new_disabled: bool) -> void:
+    disabled = new_disabled
+    if _edit_button:
+        _edit_button.disabled = new_disabled
+    if _tag_container:
+        for child in _tag_container.get_children():
+            child.disabled = new_disabled
 
 
 func _on_edit_button_pressed() -> void:
