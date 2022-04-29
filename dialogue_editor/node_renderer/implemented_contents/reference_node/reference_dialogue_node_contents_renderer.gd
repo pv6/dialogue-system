@@ -44,6 +44,7 @@ func _update_contents() -> void:
     if _referenced_contents:
         _referenced_contents.modulate.v *= _session.reference_node_brightness
         add_child(_referenced_contents)
+        _referenced_contents.disabled = true
 
 
 func _on_jump_to_option_button_item_selected(index: int):
