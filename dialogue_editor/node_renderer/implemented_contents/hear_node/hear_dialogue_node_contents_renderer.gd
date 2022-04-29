@@ -7,8 +7,8 @@ var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dial
 
 var _id: int
 
-onready var _speaker_picker: StoragePicker = $GridContainer/SpeakerPicker
-onready var _listener_picker: StoragePicker = $GridContainer/ListenerPicker
+onready var _speaker_picker: StoragePicker = $SpeakerPicker
+onready var _listener_picker: StoragePicker = $ListenerPicker
 
 
 func _on_speaker_selected(id: int) -> void:

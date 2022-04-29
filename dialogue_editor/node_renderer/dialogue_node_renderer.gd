@@ -8,6 +8,7 @@ const TEXT_NODE_CONTENTS_SCENE = preload("implemented_contents/text_node/text_di
 const HEAR_NODE_CONTENTS_SCENE = preload("implemented_contents/hear_node/hear_dialogue_node_contents_renderer.tscn")
 const REFERENCE_NODE_CONTENTS_SCENE = preload("implemented_contents/reference_node/reference_dialogue_node_contents_renderer.tscn")
 const COMMENT_CONTENTS_SCENE = preload("implemented_contents/comment_contents/comment_dialogue_node_contents_renderer.tscn")
+const COMBINED_CONTENTS_SCENE = preload("implemented_contents/combined_contents/combined_dialogue_node_contents_renderer.tscn")
 
 const EXPAND_ICON = preload("res://addons/dialogue_system/dialogue_editor/icons/add.svg")
 const COLLAPSE_ICON = preload("res://addons/dialogue_system/dialogue_editor/icons/collapse.svg")
@@ -75,7 +76,7 @@ func set_style(style: DialogueNodeStyle) -> void:
 
 
 static func create_contents(node) -> DialogueNodeContentsRenderer:
-    var contents := CombinedDialogueNodeContentsRenderer.new()
+    var contents = COMBINED_CONTENTS_SCENE.instance()
 
     if node as RootDialogueNode:
         contents.add_child_contents(ROOT_NODE_CONTENTS_SCENE.instance())

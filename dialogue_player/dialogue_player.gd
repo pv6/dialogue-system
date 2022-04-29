@@ -85,6 +85,7 @@ func _get_valid_children(children: Array) -> Array:
                         not referenced_node is RootDialogueNode):
                     output.push_back(referenced_node)
                 else:
+                    assert(not next_node in referenced_node.children)
                     output.append_array(_get_valid_children(referenced_node.children))
             else:
                 output.push_back(next_node)

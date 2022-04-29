@@ -21,7 +21,7 @@ func set_storage(new_storage: Storage) -> void:
 
 func get_item():
     if storage_picker and storage:
-        # check that "None" is not selected 
+        # check that "None" is not selected
         var id = storage_picker.get_selected_item_id()
         if id != -1:
             var storage_item = StorageItem.new()
