@@ -68,8 +68,17 @@ func copy_selected_nodes() -> void:
 func shallow_dublicate_selected_nodes() -> void:
     _working_dialogue_manager.commit_action("Shallow Dublicate Selected Nodes", self, "_shallow_dublicate_nodes")
 
+
 func deep_dublicate_selected_nodes() -> void:
     _working_dialogue_manager.commit_action("Deep Dublicate Selected Nodes", self, "_deep_dublicate_nodes")
+
+
+func move_selected_nodes_up() -> void:
+    _working_dialogue_manager.commit_action("Move Selected Nodes Up", self, "_move_selected_nodes_up")
+
+
+func move_selected_nodes_down() -> void:
+    _working_dialogue_manager.commit_action("Move Selected Nodes Down", self, "_move_selected_nodes_down")
 
 
 func paste_nodes() -> void:
@@ -186,8 +195,12 @@ func _dublicate_node(dialogue: Dialogue, node: DialogueNode, deep_dublicate: boo
     return new_node
 
 
+func _get_selected_nodes(dialogue: Dialogue) -> Array:
+    return dialogue.get_nodes_by_ids(graph_renderer.selected_node_ids)
+
+
 func _dublicate_nodes(dialogue: Dialogue, deep_dublicate: bool) -> Dialogue:
-    var selected_nodes = dialogue.get_nodes_by_ids(graph_renderer.selected_node_ids)
+    var selected_nodes = _get_selected_nodes(dialogue)
     if selected_nodes.empty():
         return null
 
@@ -216,7 +229,7 @@ func _paste_nodes(dialogue: Dialogue) -> Dialogue:
     id_string = id_string.substr(COPY_NODES_STRING_HEADER.length())
 
     # cash selected node ids
-    var selected_nodes := dialogue.get_nodes_by_ids(graph_renderer.selected_node_ids)
+    var selected_nodes := _get_selected_nodes(dialogue)
 
     # add references to copied nodes as children in each currently selected node
     var pasted_node_ids := id_string.split(",", false)
@@ -257,7 +270,7 @@ func _insert_parent_hear_node(dialogue: Dialogue) -> Dialogue:
 
 
 func _insert_parent_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
-    var selected_nodes = dialogue.get_nodes_by_ids(graph_renderer.selected_node_ids)
+    var selected_nodes = _get_selected_nodes(dialogue)
     if selected_nodes.size() != 1:
         return null
 
@@ -283,7 +296,7 @@ func _insert_parent_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
 
 
 func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
-    var selected_nodes = dialogue.get_nodes_by_ids(graph_renderer.selected_node_ids)
+    var selected_nodes = _get_selected_nodes(dialogue)
     if selected_nodes.empty():
         return null
 
@@ -321,7 +334,7 @@ func _shallow_delete_selected_nodes(dialogue: Dialogue) -> Dialogue:
 
 
 func _delete_selected_nodes(dialogue: Dialogue, save_children: bool) -> Dialogue:
-    var nodes_to_delete := dialogue.get_nodes_by_ids(graph_renderer.selected_node_ids)
+    var nodes_to_delete := _get_selected_nodes(dialogue)
     if nodes_to_delete.empty():
         return null
 
@@ -374,7 +387,7 @@ func _update_action_condition_selected_nodes() -> void:
     if action_condition_widget:
         action_condition_widget.clear_selected_node()
         if dialogue and graph_renderer:
-            var selected_nodes = dialogue.get_nodes_by_ids(graph_renderer.selected_node_ids)
+            var selected_nodes = _get_selected_nodes(dialogue)
             for node in selected_nodes:
                 action_condition_widget.select_node(node)
 
@@ -484,3 +497,61 @@ func _on_graph_renderer_duplicate_nodes_request():
         deep_dublicate_selected_nodes()
     else:
         shallow_dublicate_selected_nodes()
+
+
+func _move_selected_nodes_up(dialogue: Dialogue) -> Dialogue:
+    return _move_selected_nodes_vertically(dialogue, -1)
+
+
+func _move_selected_nodes_down(dialogue: Dialogue) -> Dialogue:
+    return _move_selected_nodes_vertically(dialogue, 1)
+
+
+class NodeVerticalSorter:
+    var nodes: Dictionary
+    var reverse
+
+    func _init(nodes: Dictionary, reverse := false) -> void:
+        self.nodes = nodes
+        self.reverse = reverse
+
+    func less_than(a: DialogueNode, b: DialogueNode) -> bool:
+        if reverse:
+            return _get_pos(a) > _get_pos(b)
+        return _get_pos(a) < _get_pos(b)
+
+    func _get_pos(node: DialogueNode) -> int:
+        return nodes[node.parent_id].get_child_position(node.id)
+
+
+func _move_selected_nodes_vertically(dialogue: Dialogue, shift: int) -> Dialogue:
+    var selected_nodes := _get_selected_nodes(dialogue)
+    if selected_nodes.empty():
+        return null
+
+    var filtered_selected_nodes := []
+    for node in selected_nodes:
+        var parent := dialogue.get_node(node.parent_id)
+        if not parent:
+            continue
+        filtered_selected_nodes.append(node)
+        var pos = parent.get_child_position(node.id)
+        var new_pos = clamp(pos + shift, 0, parent.children.size() - 1)
+        shift = sign(shift) * min(abs(new_pos - pos), abs(shift))
+
+    if filtered_selected_nodes.empty() or shift == 0:
+        print("No Nodes Moved")
+        return null
+
+    filtered_selected_nodes.sort_custom(NodeVerticalSorter.new(dialogue.nodes, shift > 0), "less_than")
+
+    for node in filtered_selected_nodes:
+        var parent := dialogue.get_node(node.parent_id)
+        assert(parent)
+        var pos = parent.get_child_position(node.id)
+        assert(0 <= pos + shift)
+        assert(pos + shift <= parent.children.size() - 1)
+        parent.children.erase(node)
+        parent.children.insert(pos + shift, node)
+
+    return dialogue

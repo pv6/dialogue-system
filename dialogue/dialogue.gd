@@ -45,6 +45,12 @@ func set_blackboards(new_blackboards: Storage) -> void:
         emit_signal("blackboards_changed")
 
 
+func get_node(node_id: int) -> DialogueNode:
+    if not nodes.has(node_id):
+        return null
+    return nodes[node_id]
+
+
 func update_nodes() -> void:
     nodes.clear()
     if root_node:
