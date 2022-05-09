@@ -6,6 +6,8 @@ extends Resource
 signal nodes_changed()
 signal blackboards_changed()
 
+export(String) var description
+
 export(Resource) var root_node: Resource setget set_root_node
 export(Resource) var actors: Resource
 export(Resource) var blackboards: Resource setget set_blackboards

@@ -76,6 +76,7 @@ comment = ""
 
 [sub_resource type="Resource" id=8]
 script = ExtResource( 7 )
+description = ""
 root_node = SubResource( 7 )
 actors = SubResource( 1 )
 blackboards = SubResource( 4 )
