@@ -89,6 +89,10 @@ func insert_parent_hear_node() -> void:
     _working_dialogue_manager.commit_action("Insert Parent Hear Node", self, "_insert_parent_hear_node")
 
 
+func insert_parent_say_node() -> void:
+    _working_dialogue_manager.commit_action("Insert Parent Say Node", self, "_insert_parent_say_node")
+
+
 func insert_child_hear_node() -> void:
     _working_dialogue_manager.commit_action("Insert Child Hear Node", self, "_insert_child_hear_node")
 
@@ -267,6 +271,10 @@ func _insert_child_say_node(dialogue: Dialogue) -> Dialogue:
 
 func _insert_parent_hear_node(dialogue: Dialogue) -> Dialogue:
     return _insert_parent_node(dialogue, HearDialogueNode.new())
+
+
+func _insert_parent_say_node(dialogue: Dialogue) -> Dialogue:
+    return _insert_parent_node(dialogue, SayDialogueNode.new())
 
 
 func _insert_parent_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:

@@ -5,6 +5,7 @@ extends MyMenuButton
 signal insert_child_hear_node()
 signal insert_child_say_node()
 signal insert_parent_hear_node()
+signal insert_parent_say_node()
 
 signal move_selected_nodes_up()
 signal move_selected_nodes_down()
@@ -23,6 +24,7 @@ func _ready() -> void:
     _add_button("Insert Child Hear Node", "insert_child_hear_node", KEY_INSERT)
     _add_button("Insert Child Say Node", "insert_child_say_node", KEY_INSERT, true)
     _add_button("Insert Parent Hear Node", "insert_parent_hear_node", KEY_INSERT, false, true)
+    _add_button("Insert Parent Say Node", "insert_parent_say_node", KEY_INSERT, true, true)
 
     _popup.add_separator()
 
