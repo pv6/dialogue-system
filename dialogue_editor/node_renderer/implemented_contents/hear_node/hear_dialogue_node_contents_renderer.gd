@@ -7,8 +7,8 @@ var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dial
 
 var _id: int
 
-onready var _speaker_picker: StoragePicker = $SpeakerPicker
-onready var _listener_picker: StoragePicker = $ListenerPicker
+onready var _speaker_picker: StoragePicker = $SpeakerListener/SpeakerPicker
+onready var _listener_picker: StoragePicker = $SpeakerListener/ListenerPicker
 
 
 func _on_speaker_selected(id: int) -> void:
@@ -70,3 +70,14 @@ func _on_set_node() -> void:
 
 func _on_edit_actors_pressed() -> void:
     _session.dialogue_editor.open_actors_editor()
+
+
+func _on_swap_button_pressed() -> void:
+    _session.dialogue_undo_redo.commit_action("Swap Speaker And Listener", self, "_swap_speaker_listener")
+
+
+func _swap_speaker_listener(dialogue: Dialogue) -> Dialogue:
+    var node = dialogue.nodes[_hear_node.id]
+    node.speaker_id = _hear_node.listener_id
+    node.listener_id = _hear_node.speaker_id
+    return dialogue
