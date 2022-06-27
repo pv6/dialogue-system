@@ -1,13 +1,25 @@
 tool
 class_name DialogueNodeContentsRenderer
-extends VBoxContainer
+extends Control
 
+
+export(bool) var disabled: bool setget set_disabled
 
 var node: DialogueNode setget set_node
 
 
 func _ready():
+    size_flags_vertical = SIZE_EXPAND_FILL
     _update_contents()
+
+
+func set_disabled(new_disabled: bool) -> void:
+    disabled = new_disabled
+    for child in get_children():
+        if "disabled" in child:
+            child.disabled = new_disabled
+        if "readonly" in child:
+            child.readonly = new_disabled
 
 
 func set_node(new_node) -> void:

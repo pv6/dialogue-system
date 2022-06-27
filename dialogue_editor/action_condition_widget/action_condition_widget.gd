@@ -7,9 +7,9 @@ var _nodes: Dictionary
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
-onready var _condition_widget = $ConditionWidget
-onready var _action_widget = $ActionWidget
-onready var _node_name = $NodeName
+onready var _condition_widget = $Contents/ConditionWidget
+onready var _action_widget = $Contents/ActionWidget
+onready var _node_name = $Contents/NodeName
 
 
 func select_node(node: DialogueNode) -> void:
@@ -34,6 +34,11 @@ func _update_widget_node() -> void:
         if node is ReferenceDialogueNode:
             node = _session.dialogue.nodes[node.referenced_node_id]
             assert(not node is ReferenceDialogueNode)
+            _condition_widget.logic_widget.disabled = true
+            _action_widget.logic_widget.disabled = true
+        else:
+            _condition_widget.logic_widget.disabled = false
+            _action_widget.logic_widget.disabled = false
         _set_node(node)
         _node_name.text = node.get_name()
     else:

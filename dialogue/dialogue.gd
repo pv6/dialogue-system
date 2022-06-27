@@ -6,6 +6,8 @@ extends Resource
 signal nodes_changed()
 signal blackboards_changed()
 
+export(String) var description
+
 export(Resource) var root_node: Resource setget set_root_node
 export(Resource) var actors: Resource
 export(Resource) var blackboards: Resource setget set_blackboards
@@ -43,6 +45,12 @@ func set_blackboards(new_blackboards: Storage) -> void:
     if blackboards != new_blackboards:
         blackboards = new_blackboards
         emit_signal("blackboards_changed")
+
+
+func get_node(node_id: int) -> DialogueNode:
+    if not nodes.has(node_id):
+        return null
+    return nodes[node_id]
 
 
 func update_nodes() -> void:

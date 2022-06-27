@@ -36,7 +36,7 @@ func set_has_comment(new_has_comment: bool) -> void:
 
 
 func _edit_comment(dialogue: Dialogue) -> Dialogue:
-    if dialogue.nodes[node.id].comment == _comment_text_edit.text:
+    if not node or dialogue.nodes[node.id].comment == _comment_text_edit.text:
         return null
     dialogue.nodes[node.id].comment = _comment_text_edit.text
     return dialogue

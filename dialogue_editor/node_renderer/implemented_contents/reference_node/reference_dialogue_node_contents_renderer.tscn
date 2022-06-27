@@ -5,10 +5,9 @@
 [node name="ReferenceDialogueNodeContentsRenderer" type="VBoxContainer"]
 margin_right = 40.0
 margin_bottom = 40.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="JumpToContents" type="HBoxContainer" parent="."]
 margin_right = 170.0

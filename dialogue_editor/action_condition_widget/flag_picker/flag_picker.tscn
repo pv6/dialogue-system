@@ -6,67 +6,62 @@
 
 [node name="FlagPicker" type="HBoxContainer"]
 margin_right = 1024.0
-margin_bottom = 600.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
 script = ExtResource( 4 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="BlackboardPicker" parent="." instance=ExtResource( 1 )]
-margin_right = 198.0
-margin_bottom = 600.0
-rect_min_size = Vector2( 192, 0 )
+margin_right = 449.0
+size_flags_horizontal = 3
 
 [node name="VSeparator" type="VSeparator" parent="."]
-margin_left = 202.0
-margin_right = 206.0
-margin_bottom = 600.0
+margin_left = 453.0
+margin_right = 457.0
+margin_bottom = 24.0
 
 [node name="FlagContainer" type="HBoxContainer" parent="."]
-margin_left = 210.0
-margin_right = 431.0
-margin_bottom = 600.0
+margin_left = 461.0
+margin_right = 911.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
 alignment = 2
 
 [node name="FlagLabel" type="Label" parent="FlagContainer"]
-margin_top = 293.0
+margin_top = 5.0
 margin_right = 25.0
-margin_bottom = 307.0
+margin_bottom = 19.0
 text = "Flag"
 align = 1
 
 [node name="FlagStoragePicker" parent="FlagContainer" instance=ExtResource( 2 )]
 anchor_right = 0.0
 margin_left = 29.0
-margin_right = 221.0
-margin_bottom = 600.0
-rect_min_size = Vector2( 192, 0 )
-size_flags_horizontal = 1
+margin_right = 450.0
 can_select_none = false
 
 [node name="VSeparator2" type="VSeparator" parent="."]
-margin_left = 435.0
-margin_right = 439.0
-margin_bottom = 600.0
+margin_left = 915.0
+margin_right = 919.0
+margin_bottom = 24.0
 
 [node name="ValueContainer" type="HBoxContainer" parent="."]
-margin_left = 443.0
-margin_right = 552.0
-margin_bottom = 600.0
+margin_left = 923.0
+margin_right = 1024.0
+margin_bottom = 24.0
 alignment = 2
 
 [node name="ValueLabel" type="Label" parent="ValueContainer"]
-margin_top = 293.0
+margin_top = 5.0
 margin_right = 35.0
-margin_bottom = 307.0
+margin_bottom = 19.0
 text = "Value"
 align = 1
 
 [node name="ValueOptionButton" type="OptionButton" parent="ValueContainer"]
 margin_left = 39.0
-margin_right = 109.0
-margin_bottom = 600.0
-rect_min_size = Vector2( 70, 0 )
+margin_right = 101.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 62, 0 )
 text = "True"
 items = [ "True", null, false, 0, null, "False", null, false, 1, null ]
 selected = 0

@@ -7,6 +7,7 @@ const MultiFlagPicker := preload("res://addons/dialogue_system/dialogue_editor/a
 export(int) var node_id: int setget set_node_id
 export(String, "condition", "action") var property: String setget set_property
 export(Resource) var logic setget set_logic
+export(bool) var disabled: bool setget set_disabled
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
@@ -35,14 +36,26 @@ func set_logic(new_logic: DialogueNodeLogic) -> void:
     _update_values()
 
 
+func set_disabled(new_disabled: bool) -> void:
+    disabled = new_disabled
+    if _flags_check_box:
+        _flags_check_box.disabled = disabled
+    if _script_check_box:
+        _script_check_box.disabled = disabled
+    if _multi_flag_picker:
+        _multi_flag_picker.disabled = disabled or not _flags_check_box.pressed
+    if _script_text_edit:
+        _script_text_edit.readonly = disabled or not _script_check_box.pressed
+
+
 func _set_flag_checkbox(value: bool) -> void:
     _flags_check_box.pressed = value
-    _multi_flag_picker.disabled = not value
+    _multi_flag_picker.disabled = disabled or not value
 
 
 func _set_script_checkbox(value: bool) -> void:
     _script_check_box.pressed = value
-    _script_text_edit.readonly = not value
+    _script_text_edit.readonly = disabled or not value
 
 
 func _update_values() -> void:
@@ -76,8 +89,12 @@ func _on_script_check_box_pressed() -> void:
     _session.dialogue_undo_redo.commit_action("Set Node Logic Use Script", self, "_set_use_script")
 
 
-func _on_script_text_edit_focus_exited():
-    _session.dialogue_undo_redo.commit_action("Set Node Logic Script Text", self, "_set_script_text")
+func _on_script_text_edit_focus_exited() -> void:
+    call_deferred("_call_set_script_text")
+
+
+func _call_set_script_text() -> void:
+    _session.dialogue_undo_redo.commit_action("Set Node " + property.capitalize() + " Script", self, "_set_script_text")
 
 
 func _set_use_flags(dialogue: Dialogue) -> Dialogue:

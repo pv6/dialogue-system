@@ -1,8 +1,12 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/node_renderer/dialogue_node_renderer.gd" type="Script" id=1]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/icons/collapse.svg" type="Texture" id=2]
 
-[sub_resource type="StyleBoxFlat" id=1]
+[sub_resource type="Theme" id=4]
+GraphNode/icons/close = ExtResource( 2 )
+
+[sub_resource type="StyleBoxFlat" id=2]
 content_margin_left = 24.0
 content_margin_right = 24.0
 content_margin_top = 24.0
@@ -14,7 +18,7 @@ border_width_right = 1
 border_width_bottom = 1
 border_color = Color( 0.4, 0.4, 0.4, 1 )
 
-[sub_resource type="StyleBoxFlat" id=2]
+[sub_resource type="StyleBoxFlat" id=3]
 content_margin_left = 24.0
 content_margin_right = 24.0
 content_margin_top = 24.0
@@ -31,11 +35,11 @@ shadow_size = 20
 [node name="DialogueNodeRenderer" type="GraphNode"]
 margin_right = 300.0
 margin_bottom = 200.0
-rect_min_size = Vector2( 300, 200 )
-custom_styles/frame = SubResource( 1 )
-custom_styles/selectedframe = SubResource( 2 )
+theme = SubResource( 4 )
 custom_colors/close_color = Color( 0, 0, 0, 1 )
 custom_colors/title_color = Color( 0, 0, 0, 1 )
+custom_styles/frame = SubResource( 2 )
+custom_styles/selectedframe = SubResource( 3 )
 title = "dummy node"
 show_close = true
 slot/0/left_enabled = true
@@ -45,6 +49,3 @@ slot/0/right_enabled = true
 slot/0/right_type = 0
 slot/0/right_color = Color( 0.75, 0.75, 0.75, 1 )
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
