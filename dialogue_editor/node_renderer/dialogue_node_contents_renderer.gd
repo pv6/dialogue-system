@@ -13,13 +13,19 @@ func _ready():
     _update_contents()
 
 
+static func _recursive_disable(node: Node, disabled: bool) -> void:
+    for child in node.get_children():
+        if "disabled" in child:
+            child.disabled = disabled
+        elif "readonly" in child:
+            child.readonly = disabled
+        else:
+            _recursive_disable(child, disabled)
+
+
 func set_disabled(new_disabled: bool) -> void:
     disabled = new_disabled
-    for child in get_children():
-        if "disabled" in child:
-            child.disabled = new_disabled
-        if "readonly" in child:
-            child.readonly = new_disabled
+    _recursive_disable(self, new_disabled)
 
 
 func set_node(new_node) -> void:
