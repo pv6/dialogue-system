@@ -42,6 +42,6 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[connection signal="pressed" from="FlagsCheckBox" to="." method="_on_flags_check_box_pressed"]
+[connection signal="toggled" from="FlagsCheckBox" to="." method="_on_flags_check_box_toggled"]
 [connection signal="focus_exited" from="ScriptTextEdit" to="." method="_on_script_text_edit_focus_exited"]
-[connection signal="pressed" from="ScriptCheckBox" to="." method="_on_script_check_box_pressed"]
+[connection signal="toggled" from="ScriptCheckBox" to="." method="_on_script_check_box_toggled"]

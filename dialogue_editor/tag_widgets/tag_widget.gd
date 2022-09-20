@@ -12,9 +12,6 @@ var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dial
 
 var _tag_renderer_scene: PackedScene = preload("res://addons/dialogue_system/dialogue_editor/tag_widgets/tag_renderer/tag_renderer.tscn")
 
-var _tag_id_to_delete: int
-var _tag_to_add: StorageItem
-
 onready var _tag_container: GridContainer = $ScrollContainer/TagContainer
 
 onready var _add_tag_button: IconButton = $ScrollContainer/TagContainer/AddTagButton
@@ -71,11 +68,10 @@ func _on_edit_button_pressed() -> void:
 
 
 func _on_delete_button_pressed(tag_id: int) -> void:
-    _tag_id_to_delete = tag_id
-    _session.dialogue_undo_redo.commit_action("Remove Tag", self, "_delete_tag")
+    _session.dialogue_undo_redo.commit_action("Remove Tag", self, "_delete_tag", {"id": tag_id})
 
 
-func _delete_tag(dialogue: Dialogue) -> Dialogue:
+func _delete_tag(dialogue: Dialogue, params: Dictionary) -> Dialogue:
     if not text_node:
         return null
 
@@ -86,15 +82,15 @@ func _delete_tag(dialogue: Dialogue) -> Dialogue:
     # this way, undoredo stores old dialogue with old storage reference
     # and new dialogue with new storage reference
     dialogue.nodes[text_node.id].tags = dialogue.nodes[text_node.id].tags.clone()
-    dialogue.nodes[text_node.id].tags.remove_item(_tag_id_to_delete)
+    dialogue.nodes[text_node.id].tags.remove_item(params["id"])
 
     return dialogue
 
 
-func _add_tag(dialogue: Dialogue) -> Dialogue:
+func _add_tag(dialogue: Dialogue, params: Dictionary) -> Dialogue:
     # look up my "_delete_tag" apology
     dialogue.nodes[text_node.id].tags = dialogue.nodes[text_node.id].tags.clone()
-    if dialogue.nodes[text_node.id].tags.add_item(_tag_to_add) == -1:
+    if dialogue.nodes[text_node.id].tags.add_item(params["tag"]) == -1:
         return null
     return dialogue
 
@@ -104,10 +100,10 @@ func _on_add_tag_button_pressed():
 
 
 func _on_add_tag_dialog_confirmed():
-    _tag_to_add = StorageItem.new()
-    _tag_to_add.storage_id = _add_tag_storage_picker.selected_item_id
-    _tag_to_add.storage_path = _add_tag_storage_picker.storage.resource_path
-    _session.dialogue_undo_redo.commit_action("Add Tag", self, "_add_tag")
+    var tag_to_add = StorageItem.new()
+    tag_to_add.storage_id = _add_tag_storage_picker.selected_item_id
+    tag_to_add.storage_path = _add_tag_storage_picker.storage.resource_path
+    _session.dialogue_undo_redo.commit_action("Add Tag", self, "_add_tag", {"tag": tag_to_add})
 
 
 func _on_add_tag_dialog_about_to_show():

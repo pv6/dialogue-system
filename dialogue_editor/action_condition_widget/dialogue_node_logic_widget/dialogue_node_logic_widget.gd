@@ -81,12 +81,22 @@ func _on_logic_changed() -> void:
     _update_values()
 
 
-func _on_flags_check_box_pressed() -> void:
-    _session.dialogue_undo_redo.commit_action("Set Node Logic Use Flags", self, "_set_use_flags")
+func _on_flags_check_box_toggled(button_pressed: bool) -> void:
+    # this was a bit of a hack, sorry :v(
+    # if you don't have logic, you don't have a node attached to widget
+    # however you might still have a node id, because ~~REASONS~~
+    # (i'm too lazy to set it to -1 and then check for -1 are the reasons)
+    # so simply don't commit actions if don't have a node attached
+    if logic:
+        var name = "Set Node Logic Use Flags To " + str(button_pressed)
+        _session.dialogue_undo_redo.commit_action(name, self, "_set_use_flags", {"value": button_pressed})
 
 
-func _on_script_check_box_pressed() -> void:
-    _session.dialogue_undo_redo.commit_action("Set Node Logic Use Script", self, "_set_use_script")
+func _on_script_check_box_toggled(button_pressed: bool) -> void:
+    # same as '_on_flags_check_box_toggled'
+    if logic:
+        var name = "Set Node Logic Use Script To " + str(button_pressed)
+        _session.dialogue_undo_redo.commit_action(name, self, "_set_use_script", {"value": button_pressed})
 
 
 func _on_script_text_edit_focus_exited() -> void:
@@ -97,17 +107,22 @@ func _call_set_script_text() -> void:
     _session.dialogue_undo_redo.commit_action("Set Node " + property.capitalize() + " Script", self, "_set_script_text")
 
 
-func _set_use_flags(dialogue: Dialogue) -> Dialogue:
-    dialogue.nodes[node_id].get(property + "_logic").use_flags = _flags_check_box.pressed
+func _set_use_flags(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+    return _set_use("flags", dialogue, params)
+
+
+func _set_use_script(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+    return _set_use("script", dialogue, params)
+
+
+func _set_use(field: String, dialogue: Dialogue, params: Dictionary) -> Dialogue:
+    if dialogue.nodes[node_id].get(property + "_logic").get("use_" + field) == params["value"]:
+        return null
+    dialogue.nodes[node_id].get(property + "_logic").set("use_" + field, params["value"])
     return dialogue
 
 
-func _set_use_script(dialogue: Dialogue) -> Dialogue:
-    dialogue.nodes[node_id].get(property + "_logic").use_script = _script_check_box.pressed
-    return dialogue
-
-
-func _set_script_text(dialogue: Dialogue) -> Dialogue:
+func _set_script_text(dialogue: Dialogue, params: Dictionary) -> Dialogue:
     var edited_logic = dialogue.nodes[node_id].get(property + "_logic")
     if edited_logic.node_script == _script_text_edit.text:
         return null

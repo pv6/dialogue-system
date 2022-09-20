@@ -20,10 +20,6 @@ var node_renderers: Dictionary
 
 var collapsed_nodes: Dictionary
 
-var _dragged_node_renderer: DialogueNodeRenderer
-var _from: Vector2
-var _to: Vector2
-
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
 
@@ -175,45 +171,48 @@ func _recursively_add_node_renderers(node: DialogueNode) -> void:
 
 
 func _on_node_dragged(from: Vector2, to: Vector2, node_renderer: DialogueNodeRenderer) -> void:
-    _dragged_node_renderer = node_renderer
-    _from = from
-    _to = to
-    _session.dialogue_undo_redo.commit_action("Drag Node", self, "_drag_node")
+    _session.dialogue_undo_redo.commit_action("Drag Node", self, "_drag_node",
+            {"from": from, "to": to, "node_renderer": node_renderer})
 
 
-func _drag_node(dialogue: Dialogue) -> Dialogue:
+func _drag_node(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+    # cache parameters
+    var dragged_node_renderer: DialogueNodeRenderer = params["node_renderer"]
+    var from: Vector2 = params["from"]
+    var to: Vector2 = params["to"]
+    
     # ignore dragging of root node
-    if _dragged_node_renderer.node.parent_id == DialogueNode.DUMMY_ID:
-        _dragged_node_renderer.offset = _from
+    if dragged_node_renderer.node.parent_id == DialogueNode.DUMMY_ID:
+        dragged_node_renderer.offset = from
         return null
 
-    var parent: DialogueNode = dialogue.nodes[_dragged_node_renderer.node.parent_id]
+    var parent: DialogueNode = dialogue.nodes[dragged_node_renderer.node.parent_id]
 
     # there was a bug idk
-    if _from == Vector2.ZERO:
+    if from == Vector2.ZERO:
         return null
 
     # move child node
-    var move_up := _to.y < _from.y
+    var move_up := to.y < from.y
     var up_range := range(parent.children.size())
     var down_range := range(parent.children.size() - 1, -1, -1)
     for i in up_range if move_up else down_range:
         var sibling_node = parent.children[i]
-        if sibling_node.id == _dragged_node_renderer.node.id:
+        if sibling_node.id == dragged_node_renderer.node.id:
             break
         var sibling_renderer: DialogueNodeRenderer = node_renderers[sibling_node.id]
-        if ((move_up and _to.y < sibling_renderer.offset.y + sibling_renderer.rect_size.y * (1 - dragging_percentage)) or
-                (not move_up and _to.y + _dragged_node_renderer.rect_size.y * (1 - dragging_percentage) > sibling_renderer.offset.y)):
+        if ((move_up and to.y < sibling_renderer.offset.y + sibling_renderer.rect_size.y * (1 - dragging_percentage)) or
+                (not move_up and to.y + dragged_node_renderer.rect_size.y * (1 - dragging_percentage) > sibling_renderer.offset.y)):
             # reference nodes in new dialogue
             parent = dialogue.nodes[parent.id]
-            var dragged_node = dialogue.nodes[_dragged_node_renderer.node.id]
+            var dragged_node = dialogue.nodes[dragged_node_renderer.node.id]
 
             parent.children.erase(dragged_node)
             parent.children.insert(i, dragged_node)
             return dialogue
 
     # ignore dragging if no changes
-    _dragged_node_renderer.offset = _from
+    dragged_node_renderer.offset = from
     return null
 
 

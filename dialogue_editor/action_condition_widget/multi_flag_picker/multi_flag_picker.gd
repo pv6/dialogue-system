@@ -10,7 +10,6 @@ export(bool) var disabled := false setget set_disabled
 export(int) var node_id: int
 export(String, "condition", "action") var property: String
 
-var _pos_to_remove: int
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
 onready var _flag_container: VBoxContainer = $HBoxContainer/FlagContainer
@@ -33,8 +32,7 @@ func add_flag() -> void:
 
 
 func remove_flag(position: int) -> void:
-    _pos_to_remove = position
-    _session.dialogue_undo_redo.commit_action("Remove " + property.capitalize() + " Flag", self, "_remove_flag")
+    _session.dialogue_undo_redo.commit_action("Remove " + property.capitalize() + " Flag", self, "_remove_flag", {"position": position})
 
 
 func set_flags(new_flags) -> void:
@@ -72,14 +70,15 @@ func _on_remove_flag_button_pressed(position: int) -> void:
     remove_flag(position)
 
 
-func _add_flag(dialogue: Dialogue) -> Dialogue:
+func _add_flag(dialogue: Dialogue, params: Dictionary) -> Dialogue:
     var new_flag := DialogueFlag.new()
     dialogue.nodes[node_id].get(property + "_logic").flags.push_back(new_flag)
     return dialogue
 
 
-func _remove_flag(dialogue: Dialogue) -> Dialogue:
-    if _pos_to_remove < 0 or _pos_to_remove >= flags.size():
+func _remove_flag(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+    var pos_to_remove = params["position"]
+    if pos_to_remove < 0 or pos_to_remove >= flags.size():
         return null
-    dialogue.nodes[node_id].get(property + "_logic").flags.remove(_pos_to_remove)
+    dialogue.nodes[node_id].get(property + "_logic").flags.remove(pos_to_remove)
     return dialogue

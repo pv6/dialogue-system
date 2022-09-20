@@ -5,20 +5,16 @@ extends DialogueNodeContentsRenderer
 var _hear_node: HearDialogueNode
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
-var _id: int
-
 onready var _speaker_picker: StoragePicker = $SpeakerListener/SpeakerPicker
 onready var _listener_picker: StoragePicker = $SpeakerListener/ListenerPicker
 
 
 func _on_speaker_selected(id: int) -> void:
-    _id = id
-    _session.dialogue_undo_redo.commit_action("Select Speaker", self, "_select_speaker")
+    _session.dialogue_undo_redo.commit_action("Select Speaker", self, "_select_speaker", {"id": id})
 
 
 func _on_listener_selected(id: int) -> void:
-    _id = id
-    _session.dialogue_undo_redo.commit_action("Select Listener", self, "_select_listener")
+    _session.dialogue_undo_redo.commit_action("Select Listener", self, "_select_listener", {"id": id})
 
 
 func _on_speaker_forced_selected(id: int) -> void:
@@ -31,17 +27,17 @@ func _on_listener_forced_selected(id: int) -> void:
         _hear_node.listener_id = id
 
 
-func _select_speaker(dialogue: Dialogue) -> Dialogue:
+func _select_speaker(dialogue: Dialogue, params: Dictionary) -> Dialogue:
     if not _hear_node:
         return null
-    dialogue.nodes[_hear_node.id].speaker_id = _id
+    dialogue.nodes[_hear_node.id].speaker_id = params["id"]
     return dialogue
 
 
-func _select_listener(dialogue: Dialogue) -> Dialogue:
+func _select_listener(dialogue: Dialogue, params: Dictionary) -> Dialogue:
     if not _hear_node:
         return null
-    dialogue.nodes[_hear_node.id].listener_id = _id
+    dialogue.nodes[_hear_node.id].listener_id = params["id"]
     return dialogue
 
 
@@ -76,7 +72,7 @@ func _on_swap_button_pressed() -> void:
     _session.dialogue_undo_redo.commit_action("Swap Speaker And Listener", self, "_swap_speaker_listener")
 
 
-func _swap_speaker_listener(dialogue: Dialogue) -> Dialogue:
+func _swap_speaker_listener(dialogue: Dialogue, params: Dictionary) -> Dialogue:
     var node = dialogue.nodes[_hear_node.id]
     node.speaker_id = _hear_node.listener_id
     node.listener_id = _hear_node.speaker_id

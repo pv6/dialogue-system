@@ -15,8 +15,7 @@ var has_changes : bool setget ,get_has_changes
 var _index_to_id := {}
 var _to_remove_ids := []
 
-var _item
-var _item_id: int
+var _edited_item_id: int
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
@@ -46,21 +45,17 @@ func set_item_editor_scene(new_storage_item_editor_scene: PackedScene) -> void:
 
 
 func add_item(item) -> void:
-    _item = item
-    _working_storage_manager.commit_action("Add Item \"" + str(item) + "\"", self, "_add_item")
+    _working_storage_manager.commit_action("Add Item \"" + str(item) + "\"", self, "_add_item", {"item": item})
 
 
 func edit_item(id: int, new_item) -> void:
-    _item = new_item
-    _item_id = id
     var action_name = "Edit Item \"" + str(self.storage.get_item(id)) + "\" to " + "\"" + str(new_item) + "\""
-    _working_storage_manager.commit_action(action_name, self, "_edit_item")
+    _working_storage_manager.commit_action(action_name, self, "_edit_item", {"new_item": new_item, "id": id})
 
 
 func remove_item(id: int) -> void:
-    _item_id = id
     var action_name = "Remove Item \"" + str(self.storage.get_item(id)) + "\""
-    _working_storage_manager.commit_action(action_name, self, "_remove_item")
+    _working_storage_manager.commit_action(action_name, self, "_remove_item", {"id": id})
 
 
 func set_storage(new_storage: Storage) -> void:
@@ -82,20 +77,20 @@ func get_has_changes() -> bool:
     return _working_storage_manager.has_unsaved_changes
 
 
-func _add_item(modified_storage: Storage) -> Storage:
-    if modified_storage.add_item(_item) == -1:
+func _add_item(modified_storage: Storage, params: Dictionary) -> Storage:
+    if modified_storage.add_item(params["item"]) == -1:
         return null
     return modified_storage
 
 
-func _edit_item(modified_storage: Storage) -> Storage:
-    if not modified_storage.set_item(_item_id, _item):
+func _edit_item(modified_storage: Storage, params: Dictionary) -> Storage:
+    if not modified_storage.set_item(params["id"], params["new_item"]):
         return null
     return modified_storage
 
 
-func _remove_item(modified_storage: Storage) -> Storage:
-    modified_storage.remove_item(_item_id)
+func _remove_item(modified_storage: Storage, params: Dictionary) -> Storage:
+    modified_storage.remove_item(params["id"])
     return modified_storage
 
 
@@ -138,7 +133,7 @@ func _on_add_item_dialog_confirmed() -> void:
 
 
 func _on_edit_item_dialog_confirmed() -> void:
-    edit_item(_item_id, item_editor.get_item())
+    edit_item(_edited_item_id, item_editor.get_item())
 
 
 func _on_remove_item_dialog_confirmed() -> void:
@@ -160,7 +155,7 @@ func _on_edit_button_pressed() -> void:
     # set as child before setting item name because "ready"
     _set_item_editor_to_dialog(_edit_item_dialog)
     item_editor.set_item(self.storage.get_item(_index_to_id[selected_item_indices[0]]))
-    _item_id = _index_to_id[selected_item_indices[0]]
+    _edited_item_id = _index_to_id[selected_item_indices[0]]
     _edit_item_dialog.popup_centered()
 
 

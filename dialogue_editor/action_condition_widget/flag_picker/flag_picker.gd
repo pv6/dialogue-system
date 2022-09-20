@@ -12,9 +12,6 @@ export(Resource) var flag setget set_flag
 export(bool) var disabled := false setget set_disabled
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
-var _new_blackboard: Blackboard
-var _new_id: int
-var _new_value: bool
 
 onready var _blackboard_picker: BlackboardPicker = $BlackboardPicker
 onready var _flag_storage_picker: StoragePicker = $FlagContainer/FlagStoragePicker
@@ -64,8 +61,7 @@ func _update_values() -> void:
 
 
 func _on_blackboard_selected(blackboard: Blackboard) -> void:
-    _new_blackboard = blackboard
-    _session.dialogue_undo_redo.commit_action("Set Flag Blackboard", self, "_set_flag_blackboard")
+    _session.dialogue_undo_redo.commit_action("Set Flag Blackboard", self, "_set_flag_blackboard", {"blackboard": blackboard})
 
 
 func _on_blackboard_forced_selected(blackboard: Blackboard) -> void:
@@ -73,8 +69,7 @@ func _on_blackboard_forced_selected(blackboard: Blackboard) -> void:
 
 
 func _on_flag_value_selected(value_index: int) -> void:
-    _new_value = VALUES[value_index]
-    _session.dialogue_undo_redo.commit_action("Set Flag Value", self, "_set_flag_value")
+    _session.dialogue_undo_redo.commit_action("Set Flag Value", self, "_set_flag_value", {"value": VALUES[value_index]})
 
 
 func _on_edit_storage_pressed() -> void:
@@ -82,8 +77,7 @@ func _on_edit_storage_pressed() -> void:
 
 
 func _on_flag_storage_picker_item_selected(id):
-    _new_id = id
-    _session.dialogue_undo_redo.commit_action("Set Flag", self, "_set_flag_id")
+    _session.dialogue_undo_redo.commit_action("Set Flag", self, "_set_flag_id", {"id": id})
 
 
 func _on_flag_changed() -> void:
@@ -95,16 +89,16 @@ func _on_flag_storage_picker_item_forced_selected(id):
         flag.id = id
 
 
-func _set_flag_blackboard(dialogue: Dialogue) -> Dialogue:
-    dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].blackboard = _new_blackboard
+func _set_flag_blackboard(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+    dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].blackboard = params["blackboard"]
     return dialogue
 
 
-func _set_flag_id(dialogue: Dialogue) -> Dialogue:
-    dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].id = _new_id
+func _set_flag_id(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+    dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].id = params["id"]
     return dialogue
 
 
-func _set_flag_value(dialogue: Dialogue) -> Dialogue:
-    dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].value = _new_value
+func _set_flag_value(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+    dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].value = params["value"]
     return dialogue

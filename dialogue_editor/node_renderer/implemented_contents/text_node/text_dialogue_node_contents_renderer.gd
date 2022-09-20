@@ -30,7 +30,7 @@ func _call_edit_text() -> void:
     _session.dialogue_undo_redo.commit_action("Edit Node Text", self, "_edit_text")
 
 
-func _edit_text(dialogue: Dialogue) -> Dialogue:
+func _edit_text(dialogue: Dialogue, params: Dictionary) -> Dialogue:
     if not node or dialogue.nodes[node.id].text == _text_edit.text:
         return null
     dialogue.nodes[node.id].text = _text_edit.text

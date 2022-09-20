@@ -12,8 +12,6 @@ var selected_blackboard: Blackboard setget set_selected_blackboard, get_selected
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
-var _blackboards_to_add := []
-
 onready var _open_blackboard_dialog: FileDialog = $Dialogs/OpenBlackboardDialog
 onready var _storage_picker: StoragePicker = $StoragePicker
 onready var _open_button: IconButton = $OpenButton
@@ -62,23 +60,24 @@ func _on_open_blackboard_pressed() -> void:
 
 
 func _on_files_selected(paths):
-    _blackboards_to_add.clear()
+    var blackboards_to_add := []
     for path in paths:
         var new_blackboard = load(path) as Blackboard
         if new_blackboard:
-            _blackboards_to_add.push_back(new_blackboard)
+            blackboards_to_add.push_back(new_blackboard)
     var names = ""
-    for blackboard in _blackboards_to_add:
+    for blackboard in blackboards_to_add:
         names += " \"" + blackboard.name + "\""
-    _session.dialogue_undo_redo.commit_action("Add Blackboards" + names, self, "_add_blackboards")
+    _session.dialogue_undo_redo.commit_action("Add Blackboards" + names, self, "_add_blackboards", {"blackboards": blackboards_to_add})
 
 
-func _add_blackboards(dialogue: Dialogue) -> Dialogue:
-    if _blackboards_to_add.size() == 0:
+func _add_blackboards(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+    var blackboards_to_add: Array = params["blackboards"]
+    if blackboards_to_add.size() == 0:
         return null
 
     var indices := []
-    for blackboard in _blackboards_to_add:
+    for blackboard in blackboards_to_add:
         if not blackboard in dialogue.blackboards.items():
             var index = dialogue.blackboards.add_item(blackboard)
             indices.push_back(index)

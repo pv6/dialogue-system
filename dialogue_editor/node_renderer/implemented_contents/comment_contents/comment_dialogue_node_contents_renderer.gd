@@ -35,10 +35,10 @@ func set_has_comment(new_has_comment: bool) -> void:
         _comment_text_edit.hide()
 
 
-func _edit_comment(dialogue: Dialogue) -> Dialogue:
-    if not node or dialogue.nodes[node.id].comment == _comment_text_edit.text:
+static func _edit_comment(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+    if dialogue.nodes[params["id"]].comment == params["comment"]:
         return null
-    dialogue.nodes[node.id].comment = _comment_text_edit.text
+    dialogue.nodes[params["id"]].comment = params["comment"]
     return dialogue
 
 
@@ -51,4 +51,5 @@ func _on_comment_text_edit_focus_exited():
 
 
 func _call_edit_comment() -> void:
-    _session.dialogue_undo_redo.commit_action("Edit Node Comment", self, "_edit_comment")
+    _session.dialogue_undo_redo.commit_action("Edit Node Comment", self, "_edit_comment",
+                                              {"id": node.id, "comment": _comment_text_edit.text})
