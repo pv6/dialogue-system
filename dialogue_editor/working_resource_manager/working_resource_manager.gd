@@ -110,12 +110,12 @@ func redo() -> void:
         self.has_unsaved_changes = true
 
 
-func commit_action(action_name: String, object, method: String, params: Dictionary = {},
+func commit_action(action_name: String, object, method: String, args: Dictionary = {},
         merge_mode: int = UndoRedo.MERGE_DISABLE) -> void:
     var old_resource = resource.clone()
     var new_resource = resource.clone()
 
-    new_resource = object.call(method, new_resource, params)
+    new_resource = object.call(method, new_resource, args)
     if not new_resource:
         return
 

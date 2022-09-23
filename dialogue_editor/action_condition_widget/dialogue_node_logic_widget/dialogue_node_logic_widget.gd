@@ -107,22 +107,22 @@ func _call_set_script_text() -> void:
     _session.dialogue_undo_redo.commit_action("Set Node " + property.capitalize() + " Script", self, "_set_script_text")
 
 
-func _set_use_flags(dialogue: Dialogue, params: Dictionary) -> Dialogue:
-    return _set_use("flags", dialogue, params)
+func _set_use_flags(dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    return _set_use("flags", dialogue, args)
 
 
-func _set_use_script(dialogue: Dialogue, params: Dictionary) -> Dialogue:
-    return _set_use("script", dialogue, params)
+func _set_use_script(dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    return _set_use("script", dialogue, args)
 
 
-func _set_use(field: String, dialogue: Dialogue, params: Dictionary) -> Dialogue:
-    if dialogue.nodes[node_id].get(property + "_logic").get("use_" + field) == params["value"]:
+func _set_use(field: String, dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    if dialogue.nodes[node_id].get(property + "_logic").get("use_" + field) == args["value"]:
         return null
-    dialogue.nodes[node_id].get(property + "_logic").set("use_" + field, params["value"])
+    dialogue.nodes[node_id].get(property + "_logic").set("use_" + field, args["value"])
     return dialogue
 
 
-func _set_script_text(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _set_script_text(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     var edited_logic = dialogue.nodes[node_id].get(property + "_logic")
     if edited_logic.node_script == _script_text_edit.text:
         return null

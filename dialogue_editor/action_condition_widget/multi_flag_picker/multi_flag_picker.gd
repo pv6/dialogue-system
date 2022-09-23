@@ -70,14 +70,14 @@ func _on_remove_flag_button_pressed(position: int) -> void:
     remove_flag(position)
 
 
-func _add_flag(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _add_flag(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     var new_flag := DialogueFlag.new()
     dialogue.nodes[node_id].get(property + "_logic").flags.push_back(new_flag)
     return dialogue
 
 
-func _remove_flag(dialogue: Dialogue, params: Dictionary) -> Dialogue:
-    var pos_to_remove = params["position"]
+func _remove_flag(dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    var pos_to_remove = args["position"]
     if pos_to_remove < 0 or pos_to_remove >= flags.size():
         return null
     dialogue.nodes[node_id].get(property + "_logic").flags.remove(pos_to_remove)

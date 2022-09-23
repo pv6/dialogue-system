@@ -35,10 +35,10 @@ func set_has_comment(new_has_comment: bool) -> void:
         _comment_text_edit.hide()
 
 
-static func _edit_comment(dialogue: Dialogue, params: Dictionary) -> Dialogue:
-    if dialogue.nodes[params["id"]].comment == params["comment"]:
+static func _edit_comment(dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    if dialogue.nodes[args["id"]].comment == args["comment"]:
         return null
-    dialogue.nodes[params["id"]].comment = params["comment"]
+    dialogue.nodes[args["id"]].comment = args["comment"]
     return dialogue
 
 

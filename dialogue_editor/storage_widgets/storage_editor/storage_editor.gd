@@ -77,20 +77,20 @@ func get_has_changes() -> bool:
     return _working_storage_manager.has_unsaved_changes
 
 
-func _add_item(modified_storage: Storage, params: Dictionary) -> Storage:
-    if modified_storage.add_item(params["item"]) == -1:
+func _add_item(modified_storage: Storage, args: Dictionary) -> Storage:
+    if modified_storage.add_item(args["item"]) == -1:
         return null
     return modified_storage
 
 
-func _edit_item(modified_storage: Storage, params: Dictionary) -> Storage:
-    if not modified_storage.set_item(params["id"], params["new_item"]):
+func _edit_item(modified_storage: Storage, args: Dictionary) -> Storage:
+    if not modified_storage.set_item(args["id"], args["new_item"]):
         return null
     return modified_storage
 
 
-func _remove_item(modified_storage: Storage, params: Dictionary) -> Storage:
-    modified_storage.remove_item(params["id"])
+func _remove_item(modified_storage: Storage, args: Dictionary) -> Storage:
+    modified_storage.remove_item(args["id"])
     return modified_storage
 
 

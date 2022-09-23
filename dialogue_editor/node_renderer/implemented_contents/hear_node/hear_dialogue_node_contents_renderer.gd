@@ -27,17 +27,17 @@ func _on_listener_forced_selected(id: int) -> void:
         _hear_node.listener_id = id
 
 
-func _select_speaker(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _select_speaker(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     if not _hear_node:
         return null
-    dialogue.nodes[_hear_node.id].speaker_id = params["id"]
+    dialogue.nodes[_hear_node.id].speaker_id = args["id"]
     return dialogue
 
 
-func _select_listener(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _select_listener(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     if not _hear_node:
         return null
-    dialogue.nodes[_hear_node.id].listener_id = params["id"]
+    dialogue.nodes[_hear_node.id].listener_id = args["id"]
     return dialogue
 
 
@@ -72,7 +72,7 @@ func _on_swap_button_pressed() -> void:
     _session.dialogue_undo_redo.commit_action("Swap Speaker And Listener", self, "_swap_speaker_listener")
 
 
-func _swap_speaker_listener(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _swap_speaker_listener(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     var node = dialogue.nodes[_hear_node.id]
     node.speaker_id = _hear_node.listener_id
     node.listener_id = _hear_node.speaker_id

@@ -89,16 +89,16 @@ func _on_flag_storage_picker_item_forced_selected(id):
         flag.id = id
 
 
-func _set_flag_blackboard(dialogue: Dialogue, params: Dictionary) -> Dialogue:
-    dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].blackboard = params["blackboard"]
+func _set_flag_blackboard(dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].blackboard = args["blackboard"]
     return dialogue
 
 
-func _set_flag_id(dialogue: Dialogue, params: Dictionary) -> Dialogue:
-    dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].id = params["id"]
+func _set_flag_id(dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].id = args["id"]
     return dialogue
 
 
-func _set_flag_value(dialogue: Dialogue, params: Dictionary) -> Dialogue:
-    dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].value = params["value"]
+func _set_flag_value(dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].value = args["value"]
     return dialogue

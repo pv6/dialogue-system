@@ -175,11 +175,11 @@ func _on_node_dragged(from: Vector2, to: Vector2, node_renderer: DialogueNodeRen
             {"from": from, "to": to, "node_renderer": node_renderer})
 
 
-func _drag_node(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _drag_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     # cache parameters
-    var dragged_node_renderer: DialogueNodeRenderer = params["node_renderer"]
-    var from: Vector2 = params["from"]
-    var to: Vector2 = params["to"]
+    var dragged_node_renderer: DialogueNodeRenderer = args["node_renderer"]
+    var from: Vector2 = args["from"]
+    var to: Vector2 = args["to"]
     
     # ignore dragging of root node
     if dragged_node_renderer.node.parent_id == DialogueNode.DUMMY_ID:

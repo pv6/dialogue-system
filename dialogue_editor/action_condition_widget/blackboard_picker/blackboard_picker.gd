@@ -71,8 +71,8 @@ func _on_files_selected(paths):
     _session.dialogue_undo_redo.commit_action("Add Blackboards" + names, self, "_add_blackboards", {"blackboards": blackboards_to_add})
 
 
-func _add_blackboards(dialogue: Dialogue, params: Dictionary) -> Dialogue:
-    var blackboards_to_add: Array = params["blackboards"]
+func _add_blackboards(dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    var blackboards_to_add: Array = args["blackboards"]
     if blackboards_to_add.size() == 0:
         return null
 

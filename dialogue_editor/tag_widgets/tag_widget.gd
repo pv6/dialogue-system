@@ -71,7 +71,7 @@ func _on_delete_button_pressed(tag_id: int) -> void:
     _session.dialogue_undo_redo.commit_action("Remove Tag", self, "_delete_tag", {"id": tag_id})
 
 
-func _delete_tag(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _delete_tag(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     if not text_node:
         return null
 
@@ -82,15 +82,15 @@ func _delete_tag(dialogue: Dialogue, params: Dictionary) -> Dialogue:
     # this way, undoredo stores old dialogue with old storage reference
     # and new dialogue with new storage reference
     dialogue.nodes[text_node.id].tags = dialogue.nodes[text_node.id].tags.clone()
-    dialogue.nodes[text_node.id].tags.remove_item(params["id"])
+    dialogue.nodes[text_node.id].tags.remove_item(args["id"])
 
     return dialogue
 
 
-func _add_tag(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _add_tag(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     # look up my "_delete_tag" apology
     dialogue.nodes[text_node.id].tags = dialogue.nodes[text_node.id].tags.clone()
-    if dialogue.nodes[text_node.id].tags.add_item(params["tag"]) == -1:
+    if dialogue.nodes[text_node.id].tags.add_item(args["tag"]) == -1:
         return null
     return dialogue
 

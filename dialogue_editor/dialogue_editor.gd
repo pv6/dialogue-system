@@ -179,11 +179,11 @@ func _set_dialogue_editor_version() -> void:
     res.editor_version = _editor_config.get_value("plugin", "version", "0.0.0")
 
 
-func _shallow_dublicate_nodes(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _shallow_dublicate_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _dublicate_nodes(dialogue, false)
 
 
-func _deep_dublicate_nodes(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _deep_dublicate_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _dublicate_nodes(dialogue, true)
 
 
@@ -224,7 +224,7 @@ func _dublicate_nodes(dialogue: Dialogue, deep_dublicate: bool) -> Dialogue:
     return dialogue
 
 
-func _paste_nodes(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _paste_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     var id_string := OS.clipboard
 
     # check that clipboard contains copied node ids
@@ -261,19 +261,19 @@ func _make_reference_node(referenced_node_id: int, dialogue: Dialogue) -> Refere
     return ref_node
 
 
-func _insert_child_hear_node(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _insert_child_hear_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _insert_child_node(dialogue, HearDialogueNode.new())
 
 
-func _insert_child_say_node(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _insert_child_say_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _insert_child_node(dialogue, SayDialogueNode.new())
 
 
-func _insert_parent_hear_node(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _insert_parent_hear_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _insert_parent_node(dialogue, HearDialogueNode.new())
 
 
-func _insert_parent_say_node(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _insert_parent_say_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _insert_parent_node(dialogue, SayDialogueNode.new())
 
 
@@ -333,11 +333,11 @@ func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
     return dialogue
 
 
-func _deep_delete_selected_nodes(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _deep_delete_selected_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _delete_selected_nodes(dialogue, false)
 
 
-func _shallow_delete_selected_nodes(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _shallow_delete_selected_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _delete_selected_nodes(dialogue, true)
 
 
@@ -434,17 +434,17 @@ func _on_dialogue_blackboards_editor_confirmed() -> void:
         _working_dialogue_manager.commit_action("Edit Dialogue Blackboards", self, "_edit_blackboards")
 
 
-func _edit_actors(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _edit_actors(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     dialogue.actors = actors_editor.storage_editor.storage
     return dialogue
 
 
-func _edit_tags(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _edit_tags(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     dialogue.nodes[_edited_text_node_id].tags = tags_editor.storage_editor.storage
     return dialogue
 
 
-func _edit_blackboards(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _edit_blackboards(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     dialogue.blackboards = dialogue_blackboards_editor.storage_editor.storage
     return dialogue
 
@@ -507,11 +507,11 @@ func _on_graph_renderer_duplicate_nodes_request():
         shallow_dublicate_selected_nodes()
 
 
-func _move_selected_nodes_up(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _move_selected_nodes_up(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _move_selected_nodes_vertically(dialogue, -1)
 
 
-func _move_selected_nodes_down(dialogue: Dialogue, params: Dictionary) -> Dialogue:
+func _move_selected_nodes_down(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _move_selected_nodes_vertically(dialogue, 1)
 
 
