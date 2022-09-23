@@ -2,6 +2,10 @@ class_name DialoguePlayer
 extends Reference
 
 
+signal playback_started()
+signal playback_ended()
+
+
 var _dialogue: Dialogue
 var _cur_node: DialogueNode setget _set_cur_node
 
@@ -26,6 +30,12 @@ func play(dialogue: Dialogue, actors: Dictionary, blackboards: Dictionary,
     _base_instance = script_base_instance
 
     self._cur_node = dialogue.root_node
+
+    emit_signal("playback_started")
+
+
+func stop() -> void:
+    emit_signal("playback_ended")
 
 
 func hear() -> HearDialogueNode:
