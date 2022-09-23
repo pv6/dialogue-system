@@ -45,6 +45,7 @@ text = "Tags:"
 margin_left = 40.0
 margin_right = 992.0
 margin_bottom = 38.0
+mouse_filter = 1
 size_flags_horizontal = 3
 size_flags_vertical = 3
 scroll_horizontal_enabled = false
