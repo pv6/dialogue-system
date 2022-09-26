@@ -5,7 +5,6 @@ extends GraphNode
 
 const ROOT_NODE_CONTENTS_SCENE = preload("implemented_contents/root_node/root_dialogue_node_contents_renderer.tscn")
 const TEXT_NODE_CONTENTS_SCENE = preload("implemented_contents/text_node/text_dialogue_node_contents_renderer.tscn")
-const HEAR_NODE_CONTENTS_SCENE = preload("implemented_contents/hear_node/hear_dialogue_node_contents_renderer.tscn")
 const REFERENCE_NODE_CONTENTS_SCENE = preload("implemented_contents/reference_node/reference_dialogue_node_contents_renderer.tscn")
 const COMMENT_CONTENTS_SCENE = preload("implemented_contents/comment_contents/comment_dialogue_node_contents_renderer.tscn")
 const COMBINED_CONTENTS_SCENE = preload("implemented_contents/combined_contents/combined_dialogue_node_contents_renderer.tscn")
@@ -80,8 +79,6 @@ static func create_contents(node) -> DialogueNodeContentsRenderer:
 
     if node as RootDialogueNode:
         contents.add_child_contents(ROOT_NODE_CONTENTS_SCENE.instance())
-    if node as HearDialogueNode:
-        contents.add_child_contents(HEAR_NODE_CONTENTS_SCENE.instance())
     if node as TextDialogueNode:
         contents.add_child_contents(TEXT_NODE_CONTENTS_SCENE.instance())
     if node as ReferenceDialogueNode:

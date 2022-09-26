@@ -2,11 +2,13 @@ tool
 extends DialogueNodeContentsRenderer
 
 
+const SpeakerListenerWidget = preload("res://addons/dialogue_system/dialogue_editor/speaker_listener_widget/speaker_listener_widget.gd")
 const TagWidget = preload("res://addons/dialogue_system/dialogue_editor/tag_widgets/tag_widget.gd")
 
 var _text_node: TextDialogueNode
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
+onready var _speaker_listener_widget: SpeakerListenerWidget = $SpeakerListenerWidget
 onready var _text_edit: TextEdit = $TextEdit
 onready var _tag_widget: TagWidget = $TagWidget
 
@@ -16,6 +18,8 @@ func _update_contents() -> void:
         _text_edit.text = _text_node.text
     if _tag_widget:
         _tag_widget.text_node = _text_node
+    if _speaker_listener_widget:
+        _speaker_listener_widget.text_node = _text_node
 
 
 func _on_set_node() -> void:
