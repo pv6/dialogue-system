@@ -1,0 +1,107 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_player_renderer/column/dialogue_player_column_renderer.gd" type="Script" id=1]
+[ext_resource path="res://addons/dialogue_system/dialogue_player_renderer/column/dialogue_player_column_renderer.tres" type="Theme" id=2]
+[ext_resource path="res://icon.png" type="Texture" id=3]
+
+[node name="DialoguePlayerColumnRenderer" type="PanelContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 2 )
+script = ExtResource( 1 )
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 1017.0
+margin_bottom = 593.0
+scroll_horizontal_enabled = false
+
+[node name="Column" type="VBoxContainer" parent="ScrollContainer"]
+margin_right = 998.0
+margin_bottom = 1098.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="TopPadding" type="Control" parent="ScrollContainer/Column"]
+margin_right = 998.0
+margin_bottom = 400.0
+rect_min_size = Vector2( 0, 400 )
+
+[node name="TextContainer" type="VBoxContainer" parent="ScrollContainer/Column"]
+margin_top = 404.0
+margin_right = 998.0
+margin_bottom = 694.0
+
+[node name="History" type="VBoxContainer" parent="ScrollContainer/Column/TextContainer"]
+margin_right = 998.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="SayOptions" type="VBoxContainer" parent="ScrollContainer/Column/TextContainer"]
+margin_top = 4.0
+margin_right = 998.0
+margin_bottom = 4.0
+size_flags_horizontal = 3
+
+[node name="ContinueButton" type="VBoxContainer" parent="ScrollContainer/Column/TextContainer"]
+margin_top = 8.0
+margin_right = 998.0
+margin_bottom = 147.0
+
+[node name="Button" type="Button" parent="ScrollContainer/Column/TextContainer/ContinueButton"]
+margin_right = 998.0
+margin_bottom = 35.0
+size_flags_horizontal = 3
+text = "CONTINUE"
+align = 0
+
+[node name="Padding" type="Control" parent="ScrollContainer/Column/TextContainer/ContinueButton"]
+margin_top = 39.0
+margin_right = 998.0
+margin_bottom = 139.0
+rect_min_size = Vector2( 0, 100 )
+
+[node name="EndButton" type="VBoxContainer" parent="ScrollContainer/Column/TextContainer"]
+margin_top = 151.0
+margin_right = 998.0
+margin_bottom = 290.0
+
+[node name="Button" type="Button" parent="ScrollContainer/Column/TextContainer/EndButton"]
+margin_right = 998.0
+margin_bottom = 35.0
+size_flags_horizontal = 3
+text = "END"
+align = 0
+
+[node name="Padding" type="Control" parent="ScrollContainer/Column/TextContainer/EndButton"]
+margin_top = 39.0
+margin_right = 998.0
+margin_bottom = 139.0
+rect_min_size = Vector2( 0, 100 )
+
+[node name="BottomPadding" type="Control" parent="ScrollContainer/Column"]
+margin_top = 698.0
+margin_right = 998.0
+margin_bottom = 1098.0
+rect_min_size = Vector2( 0, 400 )
+
+[node name="ScrollTween" type="Tween" parent="."]
+
+[node name="Control" type="Control" parent="."]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 1017.0
+margin_bottom = 593.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="Control"]
+margin_left = -164.0
+margin_top = 111.0
+margin_right = -20.0
+margin_bottom = 295.0
+texture = ExtResource( 3 )
+expand = true
+
+[connection signal="pressed" from="ScrollContainer/Column/TextContainer/ContinueButton/Button" to="." method="_on_continue_button_pressed"]
+[connection signal="pressed" from="ScrollContainer/Column/TextContainer/EndButton/Button" to="." method="_on_end_button_pressed"]

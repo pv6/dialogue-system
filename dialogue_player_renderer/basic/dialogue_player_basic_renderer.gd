@@ -22,18 +22,12 @@ func _clear() -> void:
     _next_button.disabled = true
 
 
-func _spawn_say_button(index: int, text: String, say_node: SayDialogueNode) -> void:
+func _spawn_say_button(index: int, say_node: SayDialogueNode) -> void:
     var say_button = IconButton.new()
     say_button.align = Button.ALIGN_LEFT
     say_button.text = str(index) + ". " + say_node.text
     say_button.connect("pressed", self, "_on_say_option_selected", [say_node])
     _say_button_container.add_child(say_button)
-
-
-func _get_actor_name(id: int) -> String:
-    if id == -1:
-        return "NONE"
-    return str(dialogue.actors.get_item(id))
 
 
 func _set_hear_node(hear_node: HearDialogueNode) -> void:

@@ -6,13 +6,13 @@ signal playback_started()
 signal playback_ended()
 
 
+# name -> class
+var actors: Dictionary
+# template -> implementation
+var blackboards: Dictionary
+
 var _dialogue: Dialogue
 var _cur_node: DialogueNode setget _set_cur_node
-
-# name -> class
-var _actors: Dictionary
-# template -> implementation
-var _blackboards: Dictionary
 
 var _expression := Expression.new()
 var _base_instance
@@ -21,8 +21,8 @@ var _base_instance
 func play(dialogue: Dialogue, actors: Dictionary, blackboards: Dictionary,
         script_base_instance = null) -> void:
     _dialogue = dialogue
-    _actors = actors
-    _blackboards = blackboards
+    self.actors = actors
+    self.blackboards = blackboards
 
     assert(_is_actors_valid())
     assert(_is_blackboards_valid())
@@ -74,6 +74,10 @@ func get_say_options() -> Array:
             break
 
     return output
+
+    
+func can_continue() -> bool:
+    return _cur_node and not _cur_node.children.empty()
 
 
 func say(say_option: SayDialogueNode) -> void:
@@ -148,16 +152,16 @@ func _do_node_action(node) -> void:
     if node.action_logic.use_flags:
         # set flag values
         for flag in node.action_logic.flags:
-            _blackboards[flag.blackboard.name].data[flag.name] = flag.value
+            blackboards[flag.blackboard.name].data[flag.name] = flag.value
     if node.action_logic.use_script:
         _execute_script(node.action_logic.node_script)
 
 
 func _execute_script(script: String):
     var blackboard_names = []
-    for template in _blackboards.keys():
+    for template in blackboards.keys():
         blackboard_names.push_back(str(template))
-    var input_names = _actors.keys()
+    var input_names = actors.keys()
     input_names.append_array(blackboard_names)
 
     var error = _expression.parse(script, input_names)
@@ -166,8 +170,8 @@ func _execute_script(script: String):
         print_debug(_expression.get_error_text())
         return false
 
-    var inputs = _actors.values()
-    inputs.append_array(_blackboards.values())
+    var inputs = actors.values()
+    inputs.append_array(blackboards.values())
     var result = _expression.execute(inputs, _base_instance)
     if not _expression.has_execute_failed():
         return result
@@ -185,7 +189,7 @@ func _is_node_valid(node: DialogueNode) -> bool:
         # check flags
         for flag in node.condition_logic.flags:
             if (flag.blackboard and
-                    _blackboards[flag.blackboard.name].data[flag.name] != flag.value):
+                    blackboards[flag.blackboard.name].data[flag.name] != flag.value):
                 return false
     if node.condition_logic.use_script:
         return bool(_execute_script(node.condition_logic.node_script))
@@ -193,14 +197,14 @@ func _is_node_valid(node: DialogueNode) -> bool:
 
 
 func _is_actors_valid() -> bool:
-    for actor_name in _dialogue.actors.items():
-        if not actor_name in _actors:
+    for actor_item in _dialogue.actors.items():
+        if not actor_item.get_value() in actors:
             return false
     return true
 
 
 func _is_blackboards_valid() -> bool:
     for template in _dialogue.blackboards.items():
-        if not template.name in _blackboards or _blackboards[template.name].template != template:
+        if not template.name in blackboards or blackboards[template.name].template != template:
             return false
     return true

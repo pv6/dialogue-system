@@ -27,6 +27,20 @@ func end_dialogue() -> void:
     _clear()
 
 
+func _get_actor(id: int):
+    var actor_item =  dialogue.actors.get_item(id)
+    if not actor_item or not _dialogue_player.actors.has(actor_item.get_value()):
+        return null
+    return _dialogue_player.actors[actor_item.get_value()]
+    
+
+func _get_actor_name(id: int) -> String:
+    var actor = _get_actor(id)
+    if actor:
+        return str(actor)
+    return "NONE"
+
+
 func _get_blackboard_implementations(blackboard_templates: Storage) -> Dictionary:
     # generate dummy implementations for blackboards
     var blackboards := {}
@@ -37,11 +51,13 @@ func _get_blackboard_implementations(blackboard_templates: Storage) -> Dictionar
     return blackboards
 
 
-func _get_actor_implementations(actor_names: Storage) -> Dictionary:
+func _get_actor_implementations(dialogue_actors: Storage) -> Dictionary:
     # generate dummy implementations for actors
     var actors := {}
-    for actor_name in actor_names.items():
-        actors[actor_name] = actor_name
+    for actor_item in dialogue_actors.items():
+        var actor = DialogueActor.new()
+        actor.name = actor_item.get_value()
+        actors[actor_item.get_value()] = actor
     return actors
 
 
@@ -55,7 +71,7 @@ func _clear_say_options() -> void:
     pass
     
 
-func _spawn_say_button(index: int, text: String, say_node: SayDialogueNode) -> void:
+func _spawn_say_button(index: int, say_node: SayDialogueNode) -> void:
     pass
 
 
@@ -67,22 +83,34 @@ func _clear() -> void:
     pass
 
 
+func _clear_current_node() -> void:
+    pass
+
+
+func _set_continue() -> void:
+    pass
+
+
 func _set_say_options(say_options: Array) -> void:
     var i := 0
     for say_node in say_options:
         i += 1
-        _spawn_say_button(i, say_node.text, say_node)
+        _spawn_say_button(i, say_node)
 
 
 func _set_next_node() -> void:
+    _clear_current_node()
+    
     # try hear
     var hear_node := _dialogue_player.hear()
     if hear_node:
         _set_hear_node(hear_node)
+    # try say
+    var say_options := _dialogue_player.get_say_options()
+    if not say_options.empty():
+        _set_say_options(say_options)
     else:
-        # try say
-        var say_options := _dialogue_player.get_say_options()
-        if not say_options.empty():
-            _set_say_options(say_options)
+        if _dialogue_player.can_continue():
+            _set_continue()
         else:
             end_dialogue()

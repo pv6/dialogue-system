@@ -7,7 +7,7 @@ const FlagPickerItem = preload("res://addons/dialogue_system/dialogue_editor/act
 
 export(Array) var flags := [] setget set_flags
 export(bool) var disabled := false setget set_disabled
-export(int) var node_id: int
+export(int) var node_id: int setget set_node_id
 export(String, "condition", "action") var property: String
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
@@ -26,6 +26,12 @@ func set_disabled(value: bool) -> void:
     for child in _flag_container.get_children():
         child.disabled = value
 
+
+func set_node_id(new_node_id: int) -> void:
+    node_id = new_node_id
+    for item in _flag_container.get_children():
+        item.flag_picker.node_id = node_id
+    
 
 func add_flag() -> void:
     _session.dialogue_undo_redo.commit_action("Add " + property.capitalize() + " Flag", self, "_add_flag")

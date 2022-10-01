@@ -5,7 +5,7 @@ extends Control
 
 const VALUES := [true, false]
 
-export(int) var node_id: int
+export(int) var node_id: int setget set_node_id
 export(String, "condition", "action") var property: String
 export(int) var flag_index
 export(Resource) var flag setget set_flag
@@ -25,6 +25,10 @@ func set_flag(new_flag: DialogueFlag) -> void:
     if flag:
         flag.connect("changed", self, "_on_flag_changed")
     _update_values()
+
+
+func set_node_id(new_node_id: int) -> void:
+    node_id = new_node_id
 
 
 func set_disabled(value: bool) -> void:
