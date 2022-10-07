@@ -45,7 +45,7 @@ func _get_blackboard_implementations(blackboard_templates: Storage) -> Dictionar
     # generate dummy implementations for blackboards
     var blackboards := {}
     for template in blackboard_templates.items():
-        var implementation := BlackboardImplementation.new()
+        var implementation := StorageImplementation.new()
         implementation.template = template
         blackboards[template.name] = implementation
     return blackboards

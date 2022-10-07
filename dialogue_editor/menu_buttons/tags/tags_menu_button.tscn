@@ -7,5 +7,5 @@ margin_right = 37.0
 margin_bottom = 20.0
 focus_mode = 2
 text = "Tags"
-items = [ "Edit Dialogue Actors", null, 0, false, false, 0, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Edit Global Actors", null, 0, false, false, 1, 0, null, "", false ]
+items = [ "Edit Global Tags", null, 0, false, false, 0, 0, null, "", false ]
 script = ExtResource( 1 )

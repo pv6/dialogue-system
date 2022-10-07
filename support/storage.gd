@@ -6,10 +6,28 @@ extends Resource
 export(int) var max_id = 0
 export(bool) var must_be_unique = true
 
+var name: String setget ,get_name
+
 # export data for it to be saved to disk
 export(Dictionary) var _data: Dictionary
 # this is supposed to be a set, but godot doesn't have those
 export(Dictionary) var _locked_indices: Dictionary
+
+
+func _to_string() -> String:
+    return get_name()
+
+
+func get_name() -> String:
+    # I AM SORRY OK
+    # NAME NEEDS TO UPDATE IF FILE NAME CHANGES, HENCE GETTER
+    var ext = "." + resource_path.get_extension()
+    var filename := resource_path.get_file().trim_suffix("." + resource_path.get_extension())
+    if filename != "" and not ":" in ext:
+        return filename
+    # BUT CUSTOMIZABLE EXPORTED NAME GETS BUGGED TO HELL
+    # SO IT'S THIS OR NOTHING BABY IT'S THIS OR NOTHING
+    return "local"
 
 
 func _init() -> void:
@@ -96,6 +114,27 @@ func clone() -> Storage:
 
     return copy
 
+
+func get_storage_reference() -> ResourceReference:
+    var output: ResourceReference
+    
+    if resource_path.is_valid_filename():
+        output = ExternalResourceReference.new()
+        output.external_path = resource_path
+    else:
+        output = DirectResourceReference.new()
+        output.direct_reference = self
+        
+    return output
+
+
+func get_item_reference(id: int) -> StorageItem:
+    var output = StorageItem.new()
+    output.storage_reference = get_storage_reference()
+    output.storage_id = id
+    return output
+    
+
 func _is_item_valid(item) -> bool:
     if not must_be_unique:
         return true
@@ -103,9 +142,9 @@ func _is_item_valid(item) -> bool:
     if not item or str(item) == "":
         return false
 
-    if item is StorageItem:
+    if item is Object and item.has_method("equals"):
         for existing_item in items():
-            if existing_item.storage_id == item.storage_id:
+            if item.equals(existing_item):
                 return false
         return true
 

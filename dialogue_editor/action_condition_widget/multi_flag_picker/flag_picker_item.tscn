@@ -16,12 +16,17 @@ __meta__ = {
 }
 
 [node name="FlagPicker" parent="." instance=ExtResource( 1 )]
-margin_right = 552.0
+margin_right = 546.0
 margin_bottom = 586.0
+node_id = 0
+property = ""
+flag_index = 0
+flag = null
+disabled = false
 
 [node name="RemoveButton" type="ToolButton" parent="."]
-margin_left = 556.0
-margin_right = 584.0
+margin_left = 550.0
+margin_right = 578.0
 margin_bottom = 586.0
 icon = ExtResource( 3 )
 script = ExtResource( 2 )

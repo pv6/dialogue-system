@@ -157,7 +157,7 @@ func open_dialogue_blackboards_editor() -> void:
     dialogue_blackboards_editor.popup_centered()
 
 
-func open_blackboard_editor(blackboard: Blackboard) -> void:
+func open_blackboard_editor(blackboard: Storage) -> void:
     blackboard_editor.blackboard = blackboard
     blackboard_editor.popup_centered()
 

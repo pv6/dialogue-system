@@ -13,8 +13,6 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-disabled = false
-has_comment = false
 
 [node name="AddCommentButton" type="ToolButton" parent="."]
 margin_right = 1024.0
