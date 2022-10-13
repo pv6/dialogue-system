@@ -80,7 +80,7 @@ description = ""
 root_node = SubResource( 7 )
 actors = SubResource( 1 )
 blackboards = SubResource( 4 )
-local_blackboard = SubResource( 2 )
+local_blackboard = SubResource( 3 )
 max_id = 1
 editor_version = "0.0.0"
 
@@ -209,7 +209,6 @@ margin_right = 40.0
 margin_bottom = 40.0
 script = ExtResource( 12 )
 resource_class_name = "Dialogue"
-resource = SubResource( 8 )
 
 [connection signal="new_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="new_dialogue"]
 [connection signal="open_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="open_dialogue"]

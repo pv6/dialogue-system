@@ -16,6 +16,10 @@ func get_resource() -> Resource:
     return null
 
 
+func set_resource(new_resource: Resource) -> void:
+    storage_item.set_value(new_resource)
+
+
 func clone() -> ResourceReference:
     var copy = .clone()
     

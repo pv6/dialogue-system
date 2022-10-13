@@ -74,7 +74,6 @@ func set_resource(new_resource: Resource) -> void:
     if new_resource:
         resource = new_resource.clone()
         resource.take_over_path(save_path)
-#        resource.resource_path = save_path
     else:
         resource = null
     self.has_unsaved_changes = true

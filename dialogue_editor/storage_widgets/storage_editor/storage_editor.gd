@@ -61,6 +61,8 @@ func remove_item(id: int) -> void:
 func set_storage(new_storage: Storage) -> void:
     storage = new_storage
     if _working_storage_manager:
+        # do this not to accidentaly set 'resource_path' of previous resource upon changing 'save_path'
+        _working_storage_manager.resource = null
         if new_storage:
             _working_storage_manager.save_path = new_storage.resource_path
         _working_storage_manager.resource = new_storage

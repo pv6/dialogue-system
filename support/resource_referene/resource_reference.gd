@@ -2,12 +2,19 @@ extends Resource
 class_name ResourceReference
 
 
+var resource: Resource setget set_resource, get_resource
+
+
 func _to_string():
     return str(get_resource())
     
 
 func get_resource() -> Resource:
     return null
+
+
+func set_resource(new_resource: Resource) -> void:
+    pass
 
 
 func equals(other: ResourceReference) -> bool:

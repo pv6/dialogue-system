@@ -157,7 +157,7 @@ func open_dialogue_blackboards_editor() -> void:
     dialogue_blackboards_editor.popup_centered()
 
 
-func open_blackboard_editor(blackboard: Storage) -> void:
+func open_blackboard_editor(blackboard: StorageItem) -> void:
     blackboard_editor.blackboard = blackboard
     blackboard_editor.popup_centered()
 
@@ -563,3 +563,8 @@ func _move_selected_nodes_vertically(dialogue: Dialogue, shift: int) -> Dialogue
         parent.children.insert(pos + shift, node)
 
     return dialogue
+
+
+func _on_blackboard_edited() -> void:
+    # TODO: update blackboards in widget??
+    pass

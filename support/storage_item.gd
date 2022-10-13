@@ -25,18 +25,17 @@ func set_storage_id(new_storage_id: int) -> void:
 
 
 func get_value():
-    # load storage resource from path
     var storage = storage_reference.get_resource()
-
     if not storage:
         return null
+    return storage.get_item(storage_id)
 
-    # get value
-    var value = storage.get_item(storage_id)
-    if not value:
-        return null
 
-    return value
+func set_value(new_value) -> bool:
+    var storage = storage_reference.get_resource()
+    if not storage:
+        return false
+    return storage.set_item(storage_id, new_value)
 
 
 func equals(other: StorageItem) -> bool:

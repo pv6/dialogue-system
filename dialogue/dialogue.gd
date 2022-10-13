@@ -15,7 +15,7 @@ export(Resource) var actors: Resource
 # Storage that contains ResourceReferences pointing to storage resources
 export(Resource) var blackboards: Resource setget set_blackboards
 
-# Storage
+# DirectResourceReference, so that could be changed in StorageEditor
 export(Resource) var local_blackboard: Resource setget set_local_blackboard
 
 export(int) var max_id := 0
@@ -31,22 +31,20 @@ func _init() -> void:
     actors = Storage.new()
     blackboards = Storage.new()
 
-    self.local_blackboard = Storage.new()
+    self.local_blackboard = DirectResourceReference.new(Storage.new())
 
     root_node = RootDialogueNode.new()
     root_node.id = get_new_max_id()
     self.root_node = root_node
 
 
-func set_local_blackboard(new_local_blackboard: Storage) -> void:
+func set_local_blackboard(new_local_blackboard: DirectResourceReference) -> void:
     local_blackboard = new_local_blackboard
-    var local_blackboard_reference = DirectResourceReference.new()
-    local_blackboard_reference.direct_reference = local_blackboard
     
     if blackboards.has_id(0):
-        blackboards.set_item(0, local_blackboard_reference)
+        blackboards.set_item(0, local_blackboard)
     else:
-        blackboards.add_item(local_blackboard_reference)
+        blackboards.add_item(local_blackboard)
         blackboards.lock_item(0)
     
     emit_changed()
@@ -106,10 +104,7 @@ func set_root_node(new_root_node: DialogueNode) -> void:
 
 
 func clone() -> Dialogue:
-    var copy := get_script().new() as Dialogue
-
-    copy.max_id = max_id
-    copy.editor_version = editor_version
+    var copy := duplicate() as Dialogue
     
     # copy blackboard templates
     copy.blackboards = blackboards.clone()
@@ -155,7 +150,8 @@ func clone() -> Dialogue:
     # copy actor storage
     copy.actors = actors.clone()
 
-    # copy local blackboard (reference in 'blackboards' will be update automatically)
+    # copy local blackboard (both ResourceReference and Storage within)
     copy.local_blackboard = local_blackboard.clone()
+    copy.local_blackboard.direct_reference = local_blackboard.direct_reference.clone()
 
     return copy
