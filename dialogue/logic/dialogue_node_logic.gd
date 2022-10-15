@@ -36,10 +36,9 @@ func set_use_script(new_use_script: bool) -> void:
 func clone() -> DialogueNodeLogic:
     var copy := duplicate() as DialogueNodeLogic
 
-    # Array.duplicate doesn't deep copy resources, so have to do this garbo
     var flags_copy = []
     for flag in flags:
-        flags_copy.push_back(flag.duplicate())
+        flags_copy.push_back(flag.clone())
     # set directly to trigger setter function (only once)
     copy.flags = flags_copy
 

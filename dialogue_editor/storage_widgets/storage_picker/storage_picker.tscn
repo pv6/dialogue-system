@@ -9,9 +9,6 @@ anchor_right = 1.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 script = ExtResource( 2 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="OptionButton" type="OptionButton" parent="."]
 margin_right = 992.0

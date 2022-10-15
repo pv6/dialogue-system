@@ -8,7 +8,7 @@ signal playback_ended()
 
 # name -> class
 var actors: Dictionary
-# template -> implementation
+# blackboard name -> implementation
 var blackboards: Dictionary
 
 var _dialogue: Dialogue
@@ -152,7 +152,7 @@ func _do_node_action(node) -> void:
     if node.action_logic.use_flags:
         # set flag values
         for flag in node.action_logic.flags:
-            blackboards[flag.blackboard.name].data[flag.name] = flag.value
+            blackboards[flag.blackboard.resource.name].data[flag.name] = flag.value
     if node.action_logic.use_script:
         _execute_script(node.action_logic.node_script)
 
@@ -189,7 +189,7 @@ func _is_node_valid(node: DialogueNode) -> bool:
         # check flags
         for flag in node.condition_logic.flags:
             if (flag.blackboard and
-                    blackboards[flag.blackboard.name].data[flag.name] != flag.value):
+                    blackboards[flag.blackboard.resource.name].data[flag.name] != flag.value):
                 return false
     if node.condition_logic.use_script:
         return bool(_execute_script(node.condition_logic.node_script))
@@ -204,7 +204,8 @@ func _is_actors_valid() -> bool:
 
 
 func _is_blackboards_valid() -> bool:
-    for template in _dialogue.blackboards.items():
+    for template_reference in _dialogue.blackboards.items():
+        var template: Storage = template_reference.resource
         if not template.name in blackboards or blackboards[template.name].template != template:
             return false
     return true

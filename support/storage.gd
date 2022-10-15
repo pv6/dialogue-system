@@ -6,10 +6,28 @@ extends Resource
 export(int) var max_id = 0
 export(bool) var must_be_unique = true
 
+var name: String setget ,get_name
+
 # export data for it to be saved to disk
 export(Dictionary) var _data: Dictionary
 # this is supposed to be a set, but godot doesn't have those
 export(Dictionary) var _locked_indices: Dictionary
+
+
+func _to_string() -> String:
+    return get_name()
+
+
+func get_name() -> String:
+    # I AM SORRY OK
+    # NAME NEEDS TO UPDATE IF FILE NAME CHANGES, HENCE GETTER
+    var ext = "." + resource_path.get_extension()
+    var filename := resource_path.get_file().trim_suffix("." + resource_path.get_extension())
+    if filename != "" and not ":" in ext:
+        return filename
+    # BUT CUSTOMIZABLE EXPORTED NAME GETS BUGGED TO HELL
+    # SO IT'S THIS OR NOTHING BABY IT'S THIS OR NOTHING
+    return "local"
 
 
 func _init() -> void:
@@ -21,7 +39,7 @@ func add_item(new_item) -> int:
     if not _is_item_valid(new_item):
         return -1
 
-    _data[max_id] = new_item
+    _set_item(max_id, new_item)
     max_id += 1
     emit_changed()
     return max_id - 1
@@ -31,13 +49,14 @@ func set_item(id: int, new_item) -> bool:
     assert(_data.has(id))
     if not _is_item_valid(new_item):
         return false
-    _data[id] = new_item
+    _set_item(id, new_item)
     emit_changed()
     return true
 
 
 func remove_item(id: int) -> void:
     assert(_data.has(id))
+    _set_item(id, null)  # disconnect from 'changed' signal of item
     _data.erase(id)
     emit_changed()
 
@@ -58,10 +77,12 @@ func has_item(item) -> bool:
 
 func lock_item(id: int) -> void:
     _locked_indices[id] = true
+    emit_changed()
 
 
 func unlock_item(id: int) -> void:
     _locked_indices.erase(id)
+    emit_changed()
 
 
 func is_locked(id: int) -> bool:
@@ -86,7 +107,10 @@ func items() -> Array:
 
 func clone() -> Storage:
     var copy := get_script().new() as Storage
-    copy._data = _data.duplicate()
+
+    for id in _data.keys():
+        copy._set_item(id, _data[id])
+    
     copy._locked_indices = _locked_indices.duplicate()
     copy.max_id = max_id
     
@@ -96,6 +120,27 @@ func clone() -> Storage:
 
     return copy
 
+
+func get_storage_reference() -> ResourceReference:
+    var output: ResourceReference
+    
+    if resource_path.is_valid_filename():
+        output = ExternalResourceReference.new()
+        output.external_path = resource_path
+    else:
+        output = DirectResourceReference.new()
+        output.direct_reference = self
+        
+    return output
+
+
+func get_item_reference(id: int) -> StorageItem:
+    var output = StorageItem.new()
+    output.storage_reference = get_storage_reference()
+    output.storage_id = id
+    return output
+    
+
 func _is_item_valid(item) -> bool:
     if not must_be_unique:
         return true
@@ -103,10 +148,18 @@ func _is_item_valid(item) -> bool:
     if not item or str(item) == "":
         return false
 
-    if item is StorageItem:
+    if item is Object and item.has_method("equals"):
         for existing_item in items():
-            if existing_item.storage_id == item.storage_id:
+            if item.equals(existing_item):
                 return false
         return true
 
     return not has_item(item)
+
+
+func _set_item(id: int, new_item) -> void:
+    if _data.has(id) and _data[id] is Resource:
+        _data[id].disconnect("changed", self, "emit_changed")
+    _data[id] = new_item
+    if new_item is Resource:
+        new_item.connect("changed", self, "emit_changed")

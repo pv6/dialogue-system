@@ -12,7 +12,9 @@ export(Array) var children: Array
 export(int) var id := DUMMY_ID setget set_id
 export(int) var parent_id := DUMMY_ID
 
+# DialogueNodeLogic
 export(Resource) var condition_logic: Resource
+# DialogueNodeLogic
 export(Resource) var action_logic: Resource
 
 export(String) var comment: String setget set_comment

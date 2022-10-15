@@ -1,7 +1,8 @@
-class_name BlackboardImplementation
+class_name StorageImplementation
 extends Resource
 
 
+# Storage
 export(Resource) var template: Resource setget set_template
 export(Dictionary) var data: Dictionary
 
@@ -20,8 +21,8 @@ func get(name: String):
     return data[name]
 
 
-func set_template(new_template: Blackboard) -> void:
+func set_template(new_template: Storage) -> void:
     template = new_template
     data.clear()
-    for flag_name in template.field_names.items():
+    for flag_name in template.items():
         data[flag_name] = false

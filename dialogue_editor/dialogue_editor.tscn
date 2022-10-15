@@ -12,7 +12,7 @@
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor_dialog/storage_editor_dialog.tscn" type="PackedScene" id=10]
 [ext_resource path="res://addons/dialogue_system/dialogue/logic/dialogue_node_logic.gd" type="Script" id=11]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/working_resource_manager/working_resource_manager.gd" type="Script" id=12]
-[ext_resource path="res://addons/dialogue_system/support/blackboard.gd" type="Script" id=13]
+[ext_resource path="res://addons/dialogue_system/support/resource_referene/direct_resource_reference.gd" type="Script" id=13]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/file_dialog/storage_item_file_dialog_editor.tscn" type="PackedScene" id=14]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/storage_picker/storage_item_storage_picker_editor.tscn" type="PackedScene" id=15]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/actors/actors_menu_button.tscn" type="PackedScene" id=16]
@@ -38,7 +38,7 @@ _locked_indices = {
 
 [sub_resource type="Resource" id=3]
 script = ExtResource( 13 )
-field_names = SubResource( 2 )
+direct_reference = SubResource( 2 )
 
 [sub_resource type="Resource" id=4]
 script = ExtResource( 8 )
@@ -108,7 +108,7 @@ items = [ "New Dialogue", null, 0, false, false, 0, 0, null, "", false, "Open Di
 [node name="NodeMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 4 )]
 margin_left = 72.0
 margin_right = 118.0
-items = [ "Insert Child Hear Node", null, 0, false, false, 0, 0, null, "", false, "Insert Child Say Node", null, 0, false, false, 1, 0, null, "", false, "Insert Parent Hear Node", null, 0, false, false, 2, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Move Selected Nodes Up", null, 0, false, false, 3, 0, null, "", false, "Move Selected Nodes Down", null, 0, false, false, 4, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Copy Selected Nodes", null, 0, false, false, 5, 0, null, "", false, "Paste Nodes", null, 0, false, false, 6, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Shallow Dublicate Selected Nodes", null, 0, false, false, 7, 0, null, "", false, "Deep Dublicate Selected Nodes", null, 0, false, false, 8, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Shallow Delete Selected Nodes", null, 0, false, false, 9, 0, null, "", false, "Deep Delete Selected Nodes", null, 0, false, false, 10, 0, null, "", false ]
+items = [ "Insert Child Hear Node", null, 0, false, false, 0, 0, null, "", false, "Insert Child Say Node", null, 0, false, false, 1, 0, null, "", false, "Insert Parent Hear Node", null, 0, false, false, 2, 0, null, "", false, "Insert Parent Say Node", null, 0, false, false, 3, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Move Selected Nodes Up", null, 0, false, false, 4, 0, null, "", false, "Move Selected Nodes Down", null, 0, false, false, 5, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Copy Selected Nodes", null, 0, false, false, 6, 0, null, "", false, "Paste Nodes", null, 0, false, false, 7, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Shallow Dublicate Selected Nodes", null, 0, false, false, 8, 0, null, "", false, "Deep Dublicate Selected Nodes", null, 0, false, false, 9, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Shallow Delete Selected Nodes", null, 0, false, false, 10, 0, null, "", false, "Deep Delete Selected Nodes", null, 0, false, false, 11, 0, null, "", false ]
 
 [node name="EditorMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 16 )]
 margin_left = 122.0
@@ -232,7 +232,6 @@ resource = SubResource( 8 )
 [connection signal="open_dialogue_actors_editor" from="VBoxContainer/MenuButtonsContainer/EditorMenuButton" to="." method="open_actors_editor"]
 [connection signal="open_global_actors_editor" from="VBoxContainer/MenuButtonsContainer/EditorMenuButton" to="." method="open_global_actors_editor"]
 [connection signal="open_global_tags_editor" from="VBoxContainer/MenuButtonsContainer/TagsMenuButton" to="." method="open_global_tags_editor"]
-[connection signal="collapsed_nodes_changed" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_collapsed_nodes_changed"]
 [connection signal="copy_nodes_request" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_graph_renderer_copy_nodes_request"]
 [connection signal="delete_nodes_request" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_graph_renderer_delete_nodes_request"]
 [connection signal="duplicate_nodes_request" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_graph_renderer_duplicate_nodes_request"]
