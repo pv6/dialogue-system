@@ -44,7 +44,8 @@ func _get_actor_name(id: int) -> String:
 func _get_blackboard_implementations(blackboard_templates: Storage) -> Dictionary:
     # generate dummy implementations for blackboards
     var blackboards := {}
-    for template in blackboard_templates.items():
+    for template_reference in blackboard_templates.items():
+        var template: Storage = template_reference.resource
         var implementation := StorageImplementation.new()
         implementation.template = template
         blackboards[template.name] = implementation

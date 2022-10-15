@@ -7,6 +7,7 @@ extends Resource
 export(Resource) var blackboard_field: Resource setget set_blackboard_field
 export(bool) var value := true setget set_value
 
+var name: String setget ,get_name
 var field_id: int setget set_field_id, get_field_id
 var blackboard: ResourceReference setget set_blackboard, get_blackboard
 
@@ -46,6 +47,12 @@ func get_field_id() -> int:
     if blackboard_field:
         return blackboard_field.storage_id
     return -1
+
+
+func get_name() -> String:
+    if blackboard_field:
+        return blackboard_field.value
+    return ""
 
 
 func set_blackboard(new_blackboard: ResourceReference) -> void:

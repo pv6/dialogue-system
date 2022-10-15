@@ -2,6 +2,7 @@ class_name StorageImplementation
 extends Resource
 
 
+# Storage
 export(Resource) var template: Resource setget set_template
 export(Dictionary) var data: Dictionary
 
