@@ -209,6 +209,7 @@ margin_right = 40.0
 margin_bottom = 40.0
 script = ExtResource( 12 )
 resource_class_name = "Dialogue"
+resource = SubResource( 8 )
 
 [connection signal="new_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="new_dialogue"]
 [connection signal="open_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="open_dialogue"]
@@ -231,7 +232,6 @@ resource_class_name = "Dialogue"
 [connection signal="open_dialogue_actors_editor" from="VBoxContainer/MenuButtonsContainer/EditorMenuButton" to="." method="open_actors_editor"]
 [connection signal="open_global_actors_editor" from="VBoxContainer/MenuButtonsContainer/EditorMenuButton" to="." method="open_global_actors_editor"]
 [connection signal="open_global_tags_editor" from="VBoxContainer/MenuButtonsContainer/TagsMenuButton" to="." method="open_global_tags_editor"]
-[connection signal="collapsed_nodes_changed" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_collapsed_nodes_changed"]
 [connection signal="copy_nodes_request" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_graph_renderer_copy_nodes_request"]
 [connection signal="delete_nodes_request" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_graph_renderer_delete_nodes_request"]
 [connection signal="duplicate_nodes_request" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_graph_renderer_duplicate_nodes_request"]
@@ -241,7 +241,6 @@ resource_class_name = "Dialogue"
 [connection signal="confirmed" from="ActorsEditor" to="." method="_on_actors_editor_confirmed"]
 [connection signal="confirmed" from="TagsEditor" to="." method="_on_tags_editor_confirmed"]
 [connection signal="confirmed" from="DialogueBlackboardsEditor" to="." method="_on_dialogue_blackboards_editor_confirmed"]
-[connection signal="blackboard_edited" from="BlackboardEditor" to="." method="_on_blackboard_edited"]
 [connection signal="confirmed" from="GlobalActorsEditor" to="." method="_on_global_actors_editor_confirmed"]
 [connection signal="confirmed" from="GlobalTagsEditor" to="." method="_on_global_actors_tags_confirmed"]
 [connection signal="file_changed" from="WorkingDialogueManager" to="." method="_on_working_dialogue_manager_file_changed"]

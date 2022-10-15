@@ -54,7 +54,7 @@ func _set_blackboard(blackboard: StorageItem) -> void:
     _blackboard_picker.selected_blackboard = blackboard
     blackboard = _blackboard_picker.selected_blackboard
 
-    _flag_storage_picker.storage = blackboard.get_value()
+    _flag_storage_picker.storage = blackboard.get_value().get_resource()
 
 
 func _update_values() -> void:

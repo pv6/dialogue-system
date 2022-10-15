@@ -50,7 +50,7 @@ func get_field_id() -> int:
 
 func set_blackboard(new_blackboard: ResourceReference) -> void:
     if not blackboard_field:
-        blackboard_field = StorageItem.new(new_blackboard)
+        self.blackboard_field = StorageItem.new(new_blackboard)
     else:   
         # reset field field_id to -1 if assigned a new blackboard
         if not new_blackboard.equals(blackboard_field.storage_reference):

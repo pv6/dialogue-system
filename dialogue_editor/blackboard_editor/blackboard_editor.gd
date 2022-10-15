@@ -3,8 +3,6 @@ class_name BlackboardEditor
 extends AcceptDialog
 
 
-signal blackboard_edited()
-
 # StorageItem
 export(Resource) var blackboard setget set_blackboard
 
@@ -39,4 +37,3 @@ func _on_blackboard_edited():
         var reference: ResourceReference = blackboard.get_value()
         if reference:
             reference.set_resource(_storage_edior.storage)
-        emit_signal("blackboard_edited")

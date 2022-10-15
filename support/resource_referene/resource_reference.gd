@@ -10,7 +10,10 @@ func _to_string():
     
 
 func get_resource() -> Resource:
-    return null
+    var res = _get_resource()
+    if res and res.has_method("get_resource"):
+        return res.get_resource()
+    return res
 
 
 func set_resource(new_resource: Resource) -> void:
@@ -35,3 +38,7 @@ func equals(other: ResourceReference) -> bool:
 func clone() -> ResourceReference:
     var copy = duplicate()
     return copy
+
+
+func _get_resource() -> Resource:
+    return null

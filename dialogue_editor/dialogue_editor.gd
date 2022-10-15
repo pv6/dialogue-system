@@ -563,8 +563,3 @@ func _move_selected_nodes_vertically(dialogue: Dialogue, shift: int) -> Dialogue
         parent.children.insert(pos + shift, node)
 
     return dialogue
-
-
-func _on_blackboard_edited() -> void:
-    # TODO: update blackboards in widget??
-    pass

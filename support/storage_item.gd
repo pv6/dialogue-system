@@ -4,8 +4,10 @@ extends Resource
 
 
 # ResourceReference
-export(Resource) var storage_reference: Resource
+export(Resource) var storage_reference: Resource setget set_storage_reference
 export(int) var storage_id := -1 setget set_storage_id
+
+var value setget set_value, get_value
 
 
 func _init(storage_reference: ResourceReference = null, storage_id := -1) -> void:
@@ -25,17 +27,15 @@ func set_storage_id(new_storage_id: int) -> void:
 
 
 func get_value():
-    var storage = storage_reference.get_resource()
-    if not storage:
+    if not storage():
         return null
-    return storage.get_item(storage_id)
+    return storage().get_item(storage_id)
 
 
 func set_value(new_value) -> bool:
-    var storage = storage_reference.get_resource()
-    if not storage:
+    if not storage():
         return false
-    return storage.set_item(storage_id, new_value)
+    return storage().set_item(storage_id, new_value)
 
 
 func equals(other: StorageItem) -> bool:
@@ -44,7 +44,20 @@ func equals(other: StorageItem) -> bool:
 
 func clone() -> StorageItem:
     var copy: StorageItem = duplicate()
-    
     copy.storage_reference = storage_reference.clone()
-    
     return copy
+
+
+func storage() -> Resource:
+    if storage_reference:
+        return storage_reference.resource
+    return null
+
+
+func set_storage_reference(new_storage_reference: ResourceReference) -> void:
+    if storage_reference:
+        storage_reference.disconnect("changed", self, "emit_changed")
+    storage_reference = new_storage_reference
+    if storage_reference:
+        storage_reference.connect("changed", self, "emit_changed")
+    emit_changed()
