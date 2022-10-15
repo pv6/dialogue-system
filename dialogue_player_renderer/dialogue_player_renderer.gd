@@ -27,17 +27,10 @@ func end_dialogue() -> void:
     _clear()
 
 
-func _get_actor(id: int):
-    var actor_item =  dialogue.actors.get_item(id)
-    if not actor_item or not _dialogue_player.actors.has(actor_item.get_value()):
-        return null
-    return _dialogue_player.actors[actor_item.get_value()]
-    
-
-func _get_actor_name(id: int) -> String:
-    var actor = _get_actor(id)
-    if actor:
-        return str(actor)
+func _get_actor_name(actor: StorageItem) -> String:
+    var actor_impl = _dialogue_player.get_actor_implementation(actor)
+    if actor_impl:
+        return str(actor_impl)
     return "NONE"
 
 
@@ -56,9 +49,10 @@ func _get_actor_implementations(dialogue_actors: Storage) -> Dictionary:
     # generate dummy implementations for actors
     var actors := {}
     for actor_item in dialogue_actors.items():
+        assert(actor_item is StorageItem)
         var actor = DialogueActor.new()
-        actor.name = actor_item.get_value()
-        actors[actor_item.get_value()] = actor
+        actor.name = str(actor_item)
+        actors[str(actor_item)] = actor
     return actors
 
 

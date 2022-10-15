@@ -134,7 +134,7 @@ func _save() -> void:
         return
     assert(save_path.get_file().is_valid_filename())
 
-    ResourceSaver.save(save_path, resource.clone())
+    ResourceSaver.save(save_path, resource)
 
     self.has_unsaved_changes = false
 

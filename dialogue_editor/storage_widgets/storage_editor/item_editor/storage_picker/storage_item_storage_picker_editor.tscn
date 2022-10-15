@@ -12,9 +12,6 @@ margin_right = -10.0
 margin_bottom = -5.0
 size_flags_horizontal = 3
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="StoragePicker" parent="." instance=ExtResource( 2 )]
 anchor_right = 0.0
@@ -23,3 +20,5 @@ margin_bottom = 33.0
 can_select_none = false
 
 [connection signal="edit_storage_pressed" from="StoragePicker" to="." method="_on_storage_picker_edit_storage_pressed"]
+[connection signal="item_forced_selected" from="StoragePicker" to="." method="_on_storage_picker_item_forced_selected"]
+[connection signal="item_selected" from="StoragePicker" to="." method="_on_storage_picker_item_selected"]

@@ -108,6 +108,8 @@ func clone() -> Dialogue:
     
     # copy blackboard templates
     copy.blackboards = blackboards.clone()
+    # copy actor storage
+    copy.actors = actors.clone()
 
     # copy all nodes for references to exist
     for node in nodes.values():
@@ -119,6 +121,12 @@ func clone() -> Dialogue:
                 if flag.blackboard:
                     flag.blackboard.storage_item.storage_reference.direct_reference = copy.blackboards
         # TODO: update 'actors' direct reference in speaker and listener
+        if node is TextDialogueNode:
+            var actors = ["speaker", "listener"]
+            for actor_type in actors:
+                if copy_node.get(actor_type):
+                    copy_node.get(actor_type).storage_reference.direct_reference = copy.actors
+        
         
         copy.nodes[node.id] = copy_node
 
@@ -146,9 +154,6 @@ func clone() -> Dialogue:
 
     # set root node
     copy.root_node = copy.nodes[root_node.id]
-
-    # copy actor storage
-    copy.actors = actors.clone()
 
     # copy local blackboard (both ResourceReference and Storage within)
     copy.local_blackboard = local_blackboard.clone()

@@ -1,203 +1,201 @@
-[gd_resource type="Resource" load_steps=35 format=2]
+[gd_resource type="Resource" load_steps=43 format=2]
 
 [ext_resource path="res://addons/dialogue_system/dialogue/dialogue.gd" type="Script" id=1]
-[ext_resource path="res://addons/dialogue_system/support/storage.gd" type="Script" id=2]
-[ext_resource path="res://addons/dialogue_system/support/blackboard.gd" type="Script" id=3]
-[ext_resource path="res://addons/dialogue_system/dialogue/logic/dialogue_node_logic.gd" type="Script" id=4]
-[ext_resource path="res://addons/dialogue_system/dialogue/implemented_nodes/root_dialogue_node.gd" type="Script" id=5]
-[ext_resource path="res://addons/dialogue_system/dialogue/implemented_nodes/reference_dialogue_node.gd" type="Script" id=6]
-[ext_resource path="res://addons/dialogue_system/dialogue/implemented_nodes/hear_dialogue_node.gd" type="Script" id=7]
-[ext_resource path="res://addons/dialogue_system/dialogue/implemented_nodes/say_dialogue_node.gd" type="Script" id=8]
+[ext_resource path="res://addons/dialogue_system/support/resource_referene/direct_resource_reference.gd" type="Script" id=2]
+[ext_resource path="res://addons/dialogue_system/support/storage.gd" type="Script" id=3]
+[ext_resource path="res://addons/dialogue_system/support/storage_item.gd" type="Script" id=4]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/global_actors.tres" type="Resource" id=5]
+[ext_resource path="res://addons/dialogue_system/dialogue/logic/dialogue_node_logic.gd" type="Script" id=6]
+[ext_resource path="res://addons/dialogue_system/dialogue/implemented_nodes/root_dialogue_node.gd" type="Script" id=7]
+[ext_resource path="res://addons/dialogue_system/dialogue/implemented_nodes/reference_dialogue_node.gd" type="Script" id=8]
+[ext_resource path="res://addons/dialogue_system/dialogue/implemented_nodes/hear_dialogue_node.gd" type="Script" id=9]
+[ext_resource path="res://addons/dialogue_system/dialogue/implemented_nodes/say_dialogue_node.gd" type="Script" id=10]
 
-[sub_resource type="Resource" id=24]
+[sub_resource type="Resource" id=1]
 script = ExtResource( 2 )
-max_id = 0
-must_be_unique = true
-_data = {
-}
-_locked_indices = {
-}
+direct_reference = ExtResource( 5 )
 
-[sub_resource type="Resource" id=25]
-script = ExtResource( 2 )
-max_id = 0
-must_be_unique = true
-_data = {
-}
-_locked_indices = {
-}
+[sub_resource type="Resource" id=2]
+script = ExtResource( 4 )
+storage_reference = SubResource( 1 )
+storage_id = 0
 
-[sub_resource type="Resource" id=26]
+[sub_resource type="Resource" id=3]
 script = ExtResource( 3 )
-field_names = SubResource( 25 )
-
-[sub_resource type="Resource" id=27]
-script = ExtResource( 2 )
 max_id = 1
 must_be_unique = true
 _data = {
-0: SubResource( 26 )
+0: SubResource( 2 )
+}
+_locked_indices = {
+}
+
+[sub_resource type="Resource" id=4]
+script = ExtResource( 3 )
+max_id = 0
+must_be_unique = true
+_data = {
+}
+_locked_indices = {
+}
+
+[sub_resource type="Resource" id=5]
+script = ExtResource( 2 )
+direct_reference = SubResource( 4 )
+
+[sub_resource type="Resource" id=6]
+script = ExtResource( 3 )
+max_id = 1
+must_be_unique = true
+_data = {
+0: SubResource( 5 )
 }
 _locked_indices = {
 0: true
 }
 
-[sub_resource type="Resource" id=28]
-script = ExtResource( 4 )
-flags = [  ]
-node_script = ""
-use_flags = true
-use_script = false
-
-[sub_resource type="Resource" id=29]
-script = ExtResource( 4 )
-flags = [  ]
-node_script = ""
-use_flags = true
-use_script = false
-
-[sub_resource type="Resource" id=30]
-script = ExtResource( 4 )
-flags = [  ]
-node_script = ""
-use_flags = true
-use_script = false
-
-[sub_resource type="Resource" id=31]
-script = ExtResource( 4 )
-flags = [  ]
-node_script = ""
-use_flags = true
-use_script = false
-
-[sub_resource type="Resource" id=32]
-script = ExtResource( 4 )
-flags = [  ]
-node_script = ""
-use_flags = true
-use_script = false
-
-[sub_resource type="Resource" id=33]
-script = ExtResource( 4 )
-flags = [  ]
-node_script = ""
-use_flags = true
-use_script = false
-
-[sub_resource type="Resource" id=34]
+[sub_resource type="Resource" id=7]
 script = ExtResource( 6 )
-children = [  ]
-id = 5
-parent_id = 4
-condition_logic = SubResource( 33 )
-action_logic = SubResource( 32 )
-comment = ""
-jump_to = 0
-referenced_node_id = 3
+flags = [  ]
+node_script = ""
+use_flags = true
+use_script = false
 
-[sub_resource type="Resource" id=35]
-script = ExtResource( 4 )
+[sub_resource type="Resource" id=8]
+script = ExtResource( 6 )
+flags = [  ]
+node_script = ""
+use_flags = true
+use_script = false
+
+[sub_resource type="Resource" id=9]
+script = ExtResource( 6 )
+flags = [  ]
+node_script = ""
+use_flags = true
+use_script = false
+
+[sub_resource type="Resource" id=10]
+script = ExtResource( 6 )
+flags = [  ]
+node_script = ""
+use_flags = true
+use_script = false
+
+[sub_resource type="Resource" id=11]
+script = ExtResource( 6 )
+flags = [  ]
+node_script = ""
+use_flags = true
+use_script = false
+
+[sub_resource type="Resource" id=12]
+script = ExtResource( 6 )
 flags = [  ]
 node_script = ""
 use_flags = true
 use_script = false
 
 [sub_resource type="Resource" id=13]
-script = ExtResource( 2 )
-max_id = 0
-must_be_unique = true
-_data = {
-}
-_locked_indices = {
-}
-
-[sub_resource type="Resource" id=36]
-script = ExtResource( 7 )
-children = [ SubResource( 34 ) ]
-id = 4
-parent_id = 2
-condition_logic = SubResource( 35 )
-action_logic = SubResource( 31 )
-comment = ""
-text = "bye!"
-tags = SubResource( 13 )
-speaker_id = -1
-listener_id = -1
-
-[sub_resource type="Resource" id=37]
-script = ExtResource( 4 )
-flags = [  ]
-node_script = ""
-use_flags = true
-use_script = false
-
-[sub_resource type="Resource" id=16]
-script = ExtResource( 2 )
-max_id = 0
-must_be_unique = true
-_data = {
-}
-_locked_indices = {
-}
-
-[sub_resource type="Resource" id=38]
-script = ExtResource( 8 )
-children = [ SubResource( 36 ) ]
-id = 2
-parent_id = 1
-condition_logic = SubResource( 37 )
-action_logic = SubResource( 30 )
-comment = ""
-text = "hi!"
-tags = SubResource( 16 )
-speaker_id = -1
-listener_id = -1
-
-[sub_resource type="Resource" id=39]
-script = ExtResource( 4 )
-flags = [  ]
-node_script = ""
-use_flags = true
-use_script = false
-
-[sub_resource type="Resource" id=40]
-script = ExtResource( 4 )
-flags = [  ]
-node_script = ""
-use_flags = true
-use_script = false
-
-[sub_resource type="Resource" id=20]
-script = ExtResource( 2 )
-max_id = 0
-must_be_unique = true
-_data = {
-}
-_locked_indices = {
-}
-
-[sub_resource type="Resource" id=41]
 script = ExtResource( 8 )
 children = [  ]
-id = 3
-parent_id = 1
-condition_logic = SubResource( 40 )
-action_logic = SubResource( 39 )
+id = 5
+parent_id = 4
+condition_logic = SubResource( 12 )
+action_logic = SubResource( 11 )
 comment = ""
-text = "bye!"
-tags = SubResource( 20 )
-speaker_id = -1
-listener_id = -1
+jump_to = 0
+referenced_node_id = 3
 
-[sub_resource type="Resource" id=42]
+[sub_resource type="Resource" id=14]
+script = ExtResource( 6 )
+flags = [  ]
+node_script = ""
+use_flags = true
+use_script = false
+
+[sub_resource type="Resource" id=15]
+script = ExtResource( 3 )
+max_id = 0
+must_be_unique = true
+_data = {
+}
+_locked_indices = {
+}
+
+[sub_resource type="Resource" id=16]
+script = ExtResource( 9 )
+children = [ SubResource( 13 ) ]
+id = 4
+parent_id = 2
+condition_logic = SubResource( 14 )
+action_logic = SubResource( 10 )
+comment = ""
+text = "bye"
+tags = SubResource( 15 )
+
+[sub_resource type="Resource" id=17]
+script = ExtResource( 6 )
+flags = [  ]
+node_script = ""
+use_flags = true
+use_script = false
+
+[sub_resource type="Resource" id=18]
+script = ExtResource( 2 )
+direct_reference = SubResource( 3 )
+
+[sub_resource type="Resource" id=19]
 script = ExtResource( 4 )
+storage_reference = SubResource( 18 )
+storage_id = 0
+
+[sub_resource type="Resource" id=20]
+script = ExtResource( 3 )
+max_id = 0
+must_be_unique = true
+_data = {
+}
+_locked_indices = {
+}
+
+[sub_resource type="Resource" id=21]
+script = ExtResource( 10 )
+children = [ SubResource( 16 ) ]
+id = 2
+parent_id = 1
+condition_logic = SubResource( 17 )
+action_logic = SubResource( 9 )
+comment = ""
+text = "hi"
+tags = SubResource( 20 )
+speaker = SubResource( 19 )
+
+[sub_resource type="Resource" id=22]
+script = ExtResource( 6 )
 flags = [  ]
 node_script = ""
 use_flags = true
 use_script = false
 
 [sub_resource type="Resource" id=23]
+script = ExtResource( 6 )
+flags = [  ]
+node_script = ""
+use_flags = true
+use_script = false
+
+[sub_resource type="Resource" id=24]
 script = ExtResource( 2 )
+direct_reference = SubResource( 3 )
+
+[sub_resource type="Resource" id=25]
+script = ExtResource( 4 )
+storage_reference = SubResource( 24 )
+storage_id = 0
+
+[sub_resource type="Resource" id=26]
+script = ExtResource( 3 )
 max_id = 0
 must_be_unique = true
 _data = {
@@ -205,41 +203,67 @@ _data = {
 _locked_indices = {
 }
 
-[sub_resource type="Resource" id=43]
-script = ExtResource( 7 )
-children = [ SubResource( 38 ), SubResource( 41 ) ]
-id = 1
-parent_id = 0
-condition_logic = SubResource( 42 )
-action_logic = SubResource( 29 )
+[sub_resource type="Resource" id=27]
+script = ExtResource( 10 )
+children = [  ]
+id = 3
+parent_id = 1
+condition_logic = SubResource( 23 )
+action_logic = SubResource( 22 )
 comment = ""
-text = "hi!"
-tags = SubResource( 23 )
-speaker_id = -1
-listener_id = -1
+text = "bye"
+tags = SubResource( 26 )
+speaker = SubResource( 25 )
 
-[sub_resource type="Resource" id=44]
-script = ExtResource( 4 )
+[sub_resource type="Resource" id=28]
+script = ExtResource( 6 )
 flags = [  ]
 node_script = ""
 use_flags = true
 use_script = false
 
-[sub_resource type="Resource" id=45]
-script = ExtResource( 5 )
-children = [ SubResource( 43 ) ]
+[sub_resource type="Resource" id=29]
+script = ExtResource( 3 )
+max_id = 0
+must_be_unique = true
+_data = {
+}
+_locked_indices = {
+}
+
+[sub_resource type="Resource" id=30]
+script = ExtResource( 9 )
+children = [ SubResource( 21 ), SubResource( 27 ) ]
+id = 1
+parent_id = 0
+condition_logic = SubResource( 28 )
+action_logic = SubResource( 8 )
+comment = ""
+text = "hi"
+tags = SubResource( 29 )
+
+[sub_resource type="Resource" id=31]
+script = ExtResource( 6 )
+flags = [  ]
+node_script = ""
+use_flags = true
+use_script = false
+
+[sub_resource type="Resource" id=32]
+script = ExtResource( 7 )
+children = [ SubResource( 30 ) ]
 id = 0
 parent_id = -1
-condition_logic = SubResource( 44 )
-action_logic = SubResource( 28 )
+condition_logic = SubResource( 31 )
+action_logic = SubResource( 7 )
 comment = ""
 
 [resource]
 script = ExtResource( 1 )
 description = ""
-root_node = SubResource( 45 )
-actors = SubResource( 24 )
-blackboards = SubResource( 27 )
-local_blackboard = SubResource( 26 )
+root_node = SubResource( 32 )
+actors = SubResource( 3 )
+blackboards = SubResource( 6 )
+local_blackboard = SubResource( 5 )
 max_id = 6
 editor_version = "0.6.1"

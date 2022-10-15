@@ -58,14 +58,14 @@ func _set_say_options(say_options: Array) -> void:
 
 
 func _set_hear_node(hear_node: HearDialogueNode) -> void:
-    var actor = _get_actor(hear_node.speaker_id)
+    var actor = _dialogue_player.get_actor_implementation(hear_node.speaker)
     if actor and "portrait" in actor:
-        _portrait.texture = _get_actor(hear_node.speaker_id).portrait
+        _portrait.texture = actor.portrait
     else:
         _portrait.texture = null
     
     var node_renderer: ColumnNodeRenderer = COLUMN_NODE_RENDERER_SCENE.instance()
-    node_renderer.speaker = _get_actor(hear_node.speaker_id)
+    node_renderer.speaker = _dialogue_player.get_actor_implementation(hear_node.speaker)
     node_renderer.node_text = hear_node.text
     _history.add_child(node_renderer)
     _scroll_down()
@@ -88,7 +88,7 @@ func _on_say_option_selected(say_node: SayDialogueNode) -> void:
     
     # save selected say option into history
     var node_renderer: ColumnNodeRenderer = COLUMN_NODE_RENDERER_SCENE.instance()
-    node_renderer.speaker = _get_actor(say_node.speaker_id)
+    node_renderer.speaker = _dialogue_player.get_actor_implementation(say_node.speaker)
     node_renderer.node_text = say_node.text
     node_renderer.text_color = player_text_color
     _history.add_child(node_renderer)

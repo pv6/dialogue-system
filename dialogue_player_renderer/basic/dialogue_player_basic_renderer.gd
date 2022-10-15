@@ -34,8 +34,8 @@ func _set_hear_node(hear_node: HearDialogueNode) -> void:
     _text_label.text = hear_node.text
     _next_button.disabled = false
 
-    _speaker_label.text = _get_actor_name(hear_node.speaker_id)
-    _listener_label.text = _get_actor_name(hear_node.listener_id)
+    _speaker_label.text = _get_actor_name(hear_node.speaker)
+    _listener_label.text = _get_actor_name(hear_node.listener)
 
 
 func _clear_say_options() -> void:

@@ -158,7 +158,7 @@ func _is_item_valid(item) -> bool:
 
 
 func _set_item(id: int, new_item) -> void:
-    if _data.has(id) and _data[id] is Resource:
+    if _data.has(id) and _data[id] is Resource and _data[id].is_connected("changed", self, "emit_changed"):
         _data[id].disconnect("changed", self, "emit_changed")
     _data[id] = new_item
     if new_item is Resource:

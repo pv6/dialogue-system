@@ -295,8 +295,8 @@ func _insert_parent_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
     node.add_child(cur_node)
 
     if node is HearDialogueNode and cur_node is HearDialogueNode:
-        node.speaker_id = cur_node.speaker_id
-        node.listener_id = cur_node.listener_id
+        node.speaker = cur_node.speaker
+        node.listener = cur_node.listener
 
     dialogue.update_nodes()
 
@@ -321,8 +321,8 @@ func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
                 while not parent is HearDialogueNode and not parent is RootDialogueNode:
                     parent = dialogue.nodes[parent.parent_id]
                 if parent is HearDialogueNode:
-                    node.speaker_id = parent.speaker_id
-                    node.listener_id = parent.listener_id
+                    node.speaker = parent.speaker
+                    node.listener = parent.listener
             first_parent = false
         else:
             var ref_node := _make_reference_node(node.id, dialogue)
