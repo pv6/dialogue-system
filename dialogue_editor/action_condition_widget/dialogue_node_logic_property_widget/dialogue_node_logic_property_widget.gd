@@ -28,7 +28,7 @@ func set_node(new_node: DialogueNode) -> void:
     node = new_node
     if new_node:
         logic_widget.logic = new_node.get(property + "_logic")
-        logic_widget.node_id = node.id
+        logic_widget.node_id = new_node.id
         logic_widget.property = property
         logic_widget.show()
     else:
