@@ -70,7 +70,7 @@ func save_as() -> void:
     _save_as_dialog.popup_centered()
 
 
-func set_resource(new_resource: Resource) -> void:
+func set_resource(new_resource: Clonable) -> void:
     if new_resource:
         resource = new_resource.clone()
         resource.take_over_path(save_path)
@@ -80,7 +80,7 @@ func set_resource(new_resource: Resource) -> void:
     emit_signal("resource_changed")
 
 
-func set_resource_class_name(new_resource_class_name) -> void:
+func set_resource_class_name(new_resource_class_name: String) -> void:
     resource_class_name = new_resource_class_name
 
     _resource_script_path = ""
@@ -139,12 +139,12 @@ func _save() -> void:
     self.has_unsaved_changes = false
 
 
-func _on_save_as_file_selected(save_path):
+func _on_save_as_file_selected(save_path: String):
     self.save_path = save_path
     _save()
 
 
-func _on_open_file_selected(save_path):
+func _on_open_file_selected(save_path: String):
     var res = ResourceLoader.load(save_path, "", true)
 #    var res = load(save_path)
     if res:

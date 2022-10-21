@@ -39,3 +39,15 @@ func set_listener(new_listener: Resource) -> void:
     if new_listener != listener:
         listener = new_listener
         emit_signal("contents_changed")
+
+
+func clone() -> Clonable:
+    var copy = .clone()
+    
+    copy.tags = tags.clone()
+    if speaker:
+        copy.speaker = speaker.clone()
+    if listener:
+        copy.listener = listener.clone()
+    
+    return copy

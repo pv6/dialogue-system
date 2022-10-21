@@ -5,7 +5,7 @@
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/blackboard_picker/blackboard_picker.gd" type="Script" id=3]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_picker/storage_picker.tscn" type="PackedScene" id=4]
 [ext_resource path="res://addons/dialogue_system/support/storage.gd" type="Script" id=5]
-[ext_resource path="res://addons/dialogue_system/support/resource_referene/direct_resource_reference.gd" type="Script" id=6]
+[ext_resource path="res://addons/dialogue_system/support/resource_reference/direct_resource_reference.gd" type="Script" id=6]
 
 [sub_resource type="Resource" id=2]
 script = ExtResource( 5 )

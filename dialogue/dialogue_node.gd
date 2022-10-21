@@ -1,6 +1,6 @@
 tool
 class_name DialogueNode
-extends Resource
+extends Clonable
 
 
 signal id_changed(old_id, new_id)
@@ -44,11 +44,11 @@ func get_name() -> String:
     return "Node " + str(id)
 
 
-func clone() -> DialogueNode:
-    var out := duplicate() as DialogueNode
-    out.condition_logic = condition_logic.clone()
-    out.action_logic = action_logic.clone()
-    return out
+func clone() -> Clonable:
+    var copy := .clone() as DialogueNode
+    copy.condition_logic = condition_logic.clone()
+    copy.action_logic = action_logic.clone()
+    return copy
 
 
 func add_child(node: DialogueNode, position := -1) -> void:

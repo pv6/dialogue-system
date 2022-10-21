@@ -1,6 +1,6 @@
 tool
 class_name Dialogue
-extends Resource
+extends Clonable
 
 
 signal nodes_changed()
@@ -103,7 +103,7 @@ func set_root_node(new_root_node: DialogueNode) -> void:
     update_nodes()
 
 
-func clone() -> Dialogue:
+func clone() -> Clonable:
     var copy := duplicate() as Dialogue
     
     # copy blackboard templates

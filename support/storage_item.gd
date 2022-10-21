@@ -1,6 +1,6 @@
 tool
 class_name StorageItem
-extends Resource
+extends Clonable
 
 
 # ResourceReference
@@ -42,7 +42,7 @@ func equals(other: StorageItem) -> bool:
     return storage_reference.equals(other.storage_reference) and storage_id == other.storage_id
 
 
-func clone() -> StorageItem:
+func clone() -> Clonable:
     var copy: StorageItem = duplicate()
     copy.storage_reference = storage_reference.clone()
     return copy

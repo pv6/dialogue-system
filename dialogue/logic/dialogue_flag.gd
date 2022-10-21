@@ -1,6 +1,6 @@
 tool
 class_name DialogueFlag
-extends Resource
+extends Clonable
 
 
 # StorageItem that points to field within blackboard
@@ -71,8 +71,8 @@ func get_blackboard() -> ResourceReference:
     return null
 
 
-func clone() -> DialogueFlag:
-    var copy: DialogueFlag = duplicate()
+func clone() -> Clonable:
+    var copy: DialogueFlag = .clone()
     
     if blackboard_field:
         copy.blackboard_field = blackboard_field.clone()

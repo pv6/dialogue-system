@@ -1,6 +1,6 @@
 tool
 class_name DialogueNodeLogic
-extends Resource
+extends Clonable
 
 
 export(Array) var flags setget set_flags
@@ -33,7 +33,7 @@ func set_use_script(new_use_script: bool) -> void:
         emit_changed()
 
 
-func clone() -> DialogueNodeLogic:
+func clone() -> Clonable:
     var copy := duplicate() as DialogueNodeLogic
 
     var flags_copy = []

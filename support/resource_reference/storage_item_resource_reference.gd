@@ -16,7 +16,7 @@ func set_resource(new_resource: Resource) -> void:
     emit_changed()
 
 
-func clone() -> ResourceReference:
+func clone() -> Clonable:
     var copy = .clone()
     copy.storage_item = storage_item.clone()
     return copy

@@ -1,6 +1,6 @@
 tool
 class_name Storage
-extends Resource
+extends Clonable
 
 
 export(int) var max_id = 0
@@ -105,18 +105,17 @@ func items() -> Array:
     return _data.values()
 
 
-func clone() -> Storage:
-    var copy := get_script().new() as Storage
+func clone() -> Clonable:
+    var copy := .clone()
 
     for id in _data.keys():
         copy._set_item(id, _data[id])
     
     copy._locked_indices = _locked_indices.duplicate()
-    copy.max_id = max_id
     
     var path = resource_path
-    resource_path = ""
-    copy.resource_path = path
+    take_over_path("")
+    copy.take_over_path(path)
 
     return copy
 
@@ -124,7 +123,7 @@ func clone() -> Storage:
 func get_storage_reference() -> ResourceReference:
     var output: ResourceReference
     
-    if resource_path.is_valid_filename():
+    if resource_path.get_extension().is_valid_filename():
         output = ExternalResourceReference.new()
         output.external_path = resource_path
     else:

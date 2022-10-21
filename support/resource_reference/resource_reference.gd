@@ -1,5 +1,5 @@
 tool
-extends Resource
+extends Clonable
 class_name ResourceReference
 
 
@@ -34,11 +34,6 @@ func equals(other: ResourceReference) -> bool:
 
     # if resource doesn't exist, other should be null or contain null
     return not other or not other.get_resource()
-
-
-func clone() -> ResourceReference:
-    var copy = duplicate()
-    return copy
 
 
 func _get_resource() -> Resource:

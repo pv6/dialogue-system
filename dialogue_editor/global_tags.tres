@@ -6,6 +6,7 @@
 script = ExtResource( 1 )
 max_id = 2
 must_be_unique = false
+must_be_unique = true
 _data = {
 0: "Happy :)",
 1: "Sad :("

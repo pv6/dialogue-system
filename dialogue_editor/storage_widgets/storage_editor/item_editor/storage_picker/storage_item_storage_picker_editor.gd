@@ -29,8 +29,11 @@ func get_item():
 
 
 func set_item(item: StorageItem) -> void:
-    if storage_picker and storage and item:
-        storage_picker.select(item.storage_id)
+    if storage_picker:
+        if item:
+            storage_picker.select(item.storage_id)
+        else:
+            storage_picker.select(-1)
 
 
 func select(item: StorageItem) -> void:

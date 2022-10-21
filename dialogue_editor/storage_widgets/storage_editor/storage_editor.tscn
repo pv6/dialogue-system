@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/storage_editor.gd" type="Script" id=1]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/support/icon_button.gd" type="Script" id=2]
@@ -7,15 +7,12 @@
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/icons/remove.svg" type="Texture" id=5]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/working_resource_manager/working_resource_manager.gd" type="Script" id=6]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/storage_editor_menu_button.gd" type="Script" id=7]
-[ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/line_edit/storage_item_line_edit_editor.tscn" type="PackedScene" id=8]
 
 [node name="StorageEditor" type="VBoxContainer"]
 margin_right = 1024.0
 margin_bottom = 600.0
 size_flags_horizontal = 3
 script = ExtResource( 1 )
-storage = null
-item_editor_scene = ExtResource( 8 )
 
 [node name="Menu" type="HBoxContainer" parent="."]
 margin_right = 1024.0
