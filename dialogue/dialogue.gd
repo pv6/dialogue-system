@@ -120,8 +120,8 @@ func clone() -> Clonable:
             for flag in copy_node.get(logic_type + "_logic").flags:
                 if flag.blackboard:
                     flag.blackboard.storage_item.storage_reference.direct_reference = copy.blackboards
-        # TODO: update 'actors' direct reference in speaker and listener
-        if node is TextDialogueNode:
+        # update 'actors' direct reference in speaker and listener
+        if copy_node is TextDialogueNode:
             var actors = ["speaker", "listener"]
             for actor_type in actors:
                 if copy_node.get(actor_type):

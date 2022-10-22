@@ -1,7 +1,13 @@
+tool
 extends Node
 
 
-export(Resource) var dialogue: Resource
+# Dialogue
+export(Resource) var dialogue: Resource setget set_dialogue
+# StorageImplementation
+export(Resource) var blackboards_implementation: Resource
+# StorageImplementation
+export(Resource) var actors_implementation: Resource
 
 var _dialogue_player: DialoguePlayer
 
@@ -10,14 +16,22 @@ func _init() -> void:
     _dialogue_player = DialoguePlayer.new()
 
 
+func set_dialogue(new_dialogue: Dialogue) -> void:
+    dialogue = new_dialogue
+    if dialogue:
+        blackboards_implementation = _generate_blackboards_implementation(dialogue.blackboards)
+        actors_implementation = _generate_actors_implementation(dialogue.actors)
+    else:
+        blackboards_implementation = null
+        actors_implementation = null
+    property_list_changed_notify()
+    
+
 func start_dialogue() -> void:
     if not dialogue:
         return
 
-    var blackboards := _get_blackboard_implementations(dialogue.blackboards)
-    var actors := _get_actor_implementations(dialogue.actors)
-
-    _dialogue_player.play(dialogue, actors, blackboards)
+    _dialogue_player.play(dialogue, actors_implementation, blackboards_implementation)
 
     _set_next_node()
 
@@ -34,25 +48,24 @@ func _get_actor_name(actor: StorageItem) -> String:
     return "NONE"
 
 
-func _get_blackboard_implementations(blackboard_templates: Storage) -> Dictionary:
+func _generate_blackboards_implementation(blackboard_templates: Storage) -> StorageImplementation:
     # generate dummy implementations for blackboards
-    var blackboards := {}
+    var blackboards := StorageImplementation.new(blackboard_templates)
     for template_reference in blackboard_templates.items():
         var template: Storage = template_reference.resource
-        var implementation := StorageImplementation.new()
-        implementation.template = template
-        blackboards[template.name] = implementation
+        var implementation := StorageImplementation.new(template)
+        blackboards.s(template, implementation)
     return blackboards
 
 
-func _get_actor_implementations(dialogue_actors: Storage) -> Dictionary:
+func _generate_actors_implementation(dialogue_actors: Storage) -> StorageImplementation:
     # generate dummy implementations for actors
-    var actors := {}
+    var actors := StorageImplementation.new(dialogue_actors)
     for actor_item in dialogue_actors.items():
         assert(actor_item is StorageItem)
         var actor = DialogueActor.new()
         actor.name = str(actor_item)
-        actors[str(actor_item)] = actor
+        actors.s(actor_item, actor)
     return actors
 
 

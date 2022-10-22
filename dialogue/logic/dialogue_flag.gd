@@ -50,9 +50,7 @@ func get_field_id() -> int:
 
 
 func get_name() -> String:
-    if blackboard_field:
-        return blackboard_field.value
-    return ""
+    return str(self)
 
 
 func set_blackboard(new_blackboard: ResourceReference) -> void:

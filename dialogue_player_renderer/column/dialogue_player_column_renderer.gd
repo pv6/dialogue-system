@@ -1,3 +1,4 @@
+tool
 extends "res://addons/dialogue_system/dialogue_player_renderer/dialogue_player_renderer.gd"
 
 
@@ -27,7 +28,8 @@ onready var _portrait: TextureRect = $Control/Portrait
 
 
 func _ready():
-    start_dialogue()
+    if not Engine.editor_hint:
+        start_dialogue()
     
 
 func _clear() -> void:
