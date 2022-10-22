@@ -112,10 +112,6 @@ func clone() -> Clonable:
         copy._set_item(id, _data[id])
     
     copy._locked_indices = _locked_indices.duplicate()
-    
-    var path = resource_path
-    take_over_path("")
-    copy.take_over_path(path)
 
     return copy
 
