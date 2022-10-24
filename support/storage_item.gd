@@ -39,6 +39,8 @@ func set_value(new_value) -> bool:
 
 
 func equals(other: StorageItem) -> bool:
+    if not other:
+        return storage_reference.equals(null)
     return storage_reference.equals(other.storage_reference) and storage_id == other.storage_id
 
 
