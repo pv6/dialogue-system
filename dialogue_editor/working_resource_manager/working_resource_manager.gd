@@ -134,7 +134,7 @@ func _save() -> void:
         return
     assert(save_path.get_file().is_valid_filename())
 
-    ResourceSaver.save(save_path, resource)
+    ResourceSaver.save(save_path, resource.clone(), ResourceSaver.FLAG_REPLACE_SUBRESOURCE_PATHS)
 
     self.has_unsaved_changes = false
 
@@ -148,7 +148,7 @@ func _on_open_file_selected(save_path: String):
     var res = ResourceLoader.load(save_path, "", true)
 #    var res = load(save_path)
     if res:
-        self.resource = res.clone()
+        self.resource = res
         self.save_path = save_path
         clear_undo_redo_history()
         emit_signal("file_changed")

@@ -11,7 +11,7 @@ func _init(external_path: String = "") -> void:
   
 
 func set_resource(new_resource: Resource) -> void:
-    ResourceSaver.save(external_path, new_resource)
+    ResourceSaver.save(external_path, new_resource, ResourceSaver.FLAG_REPLACE_SUBRESOURCE_PATHS)
     emit_changed()
 
 
