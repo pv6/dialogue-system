@@ -18,18 +18,25 @@ func _init() -> void:
 
 func set_dialogue(new_dialogue: Dialogue) -> void:
     dialogue = new_dialogue
-    if dialogue:
-        blackboards_implementation = _generate_blackboards_implementation(dialogue.blackboards)
-        actors_implementation = _generate_actors_implementation(dialogue.actors)
-    else:
-        blackboards_implementation = null
-        actors_implementation = null
+#    if dialogue:
+#        blackboards_implementation = _generate_blackboards_implementation(dialogue.blackboards)
+#        actors_implementation = _generate_actors_implementation(dialogue.actors)
+#    else:
+#        blackboards_implementation = null
+#        actors_implementation = null
     property_list_changed_notify()
     
 
 func start_dialogue() -> void:
     if not dialogue:
         return
+
+    if not actors_implementation:
+        actors_implementation = _generate_actors_implementation(dialogue.actors)
+        property_list_changed_notify()
+    if not blackboards_implementation:
+        blackboards_implementation = _generate_blackboards_implementation(dialogue.blackboards)
+        property_list_changed_notify()
 
     _dialogue_player.play(dialogue, actors_implementation, blackboards_implementation)
 

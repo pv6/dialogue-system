@@ -34,6 +34,7 @@ func set_template(new_template: Storage) -> void:
     if template:
         for item in template.items():
             data[str(item)] = false
+    property_list_changed_notify()
             
             
 func is_valid(template: Storage) -> bool:
