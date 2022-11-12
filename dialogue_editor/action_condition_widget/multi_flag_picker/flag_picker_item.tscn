@@ -2,7 +2,7 @@
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/flag_picker/flag_picker.tscn" type="PackedScene" id=1]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/support/icon_button.gd" type="Script" id=2]
-[ext_resource path="res://addons/dialogue_system/dialogue_editor/icons/remove.svg" type="Texture" id=3]
+[ext_resource path="res://addons/dialogue_system/assets/icons/remove.svg" type="Texture" id=3]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/multi_flag_picker/flag_picker_item.gd" type="Script" id=4]
 
 [node name="FlagPickerItem" type="HBoxContainer"]

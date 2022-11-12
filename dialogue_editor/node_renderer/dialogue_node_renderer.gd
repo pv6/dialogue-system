@@ -9,8 +9,8 @@ const REFERENCE_NODE_CONTENTS_SCENE = preload("implemented_contents/reference_no
 const COMMENT_CONTENTS_SCENE = preload("implemented_contents/comment_contents/comment_dialogue_node_contents_renderer.tscn")
 const COMBINED_CONTENTS_SCENE = preload("implemented_contents/combined_contents/combined_dialogue_node_contents_renderer.tscn")
 
-const EXPAND_ICON = preload("res://addons/dialogue_system/dialogue_editor/icons/add.svg")
-const COLLAPSE_ICON = preload("res://addons/dialogue_system/dialogue_editor/icons/collapse.svg")
+const EXPAND_ICON = preload("res://addons/dialogue_system/assets/icons/add.svg")
+const COLLAPSE_ICON = preload("res://addons/dialogue_system/assets/icons/collapse.svg")
 
 export(Resource) var node setget set_node
 

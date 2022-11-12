@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/close.svg-afbda48269e139436ca54014ac61b8db.stex"
+path="res://.import/close.svg-cf1f712115c1f826271a5e916aa28f3b.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/dialogue_system/dialogue_editor/icons/close.svg"
-dest_files=[ "res://.import/close.svg-afbda48269e139436ca54014ac61b8db.stex" ]
+source_file="res://addons/dialogue_system/assets/icons/close.svg"
+dest_files=[ "res://.import/close.svg-cf1f712115c1f826271a5e916aa28f3b.stex" ]
 
 [params]
 

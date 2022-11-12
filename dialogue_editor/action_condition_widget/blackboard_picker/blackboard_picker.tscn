@@ -1,7 +1,7 @@
 [gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/support/icon_button.gd" type="Script" id=1]
-[ext_resource path="res://addons/dialogue_system/dialogue_editor/icons/load.svg" type="Texture" id=2]
+[ext_resource path="res://addons/dialogue_system/assets/icons/load.svg" type="Texture" id=2]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/blackboard_picker/blackboard_picker.gd" type="Script" id=3]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_picker/storage_picker.tscn" type="PackedScene" id=4]
 [ext_resource path="res://addons/dialogue_system/support/storage.gd" type="Script" id=5]
