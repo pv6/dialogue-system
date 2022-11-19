@@ -456,14 +456,19 @@ func _edit_blackboards(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return dialogue
 
 
+func _save_global_storage(storage: Storage) -> void:
+    var ref = ExternalResourceReference.new(storage.resource_path)
+    ref.set_resource(storage)
+    
+
 func _on_global_actors_editor_confirmed() -> void:
     session.global_actors = global_actors_editor.storage_editor.storage
-    ResourceSaver.save(session.global_actors.resource_path, session.global_actors)
+    _save_global_storage(session.global_actors)
 
 
 func _on_global_actors_tags_confirmed():
     session.global_tags = global_tags_editor.storage_editor.storage
-    ResourceSaver.save(session.global_tags.resource_path, session.global_tags)
+    _save_global_storage(session.global_tags)
 
 
 func _on_session_changed() -> void:
