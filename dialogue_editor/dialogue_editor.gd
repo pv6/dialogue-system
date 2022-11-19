@@ -6,9 +6,12 @@ signal open_dialogue_error()
 
 const COPY_NODES_STRING_HEADER := "node ids:"
 
+var settings: DialogueEditorSettings setget set_settings
 var session: DialogueEditorSession = preload("session.tres")
 
 var _editor_config := ConfigFile.new()
+
+var _need_to_redraw_graph := true
 
 # for tag editor
 # i am sorry ok i just didn't care to make a whole new class for this one field
@@ -38,6 +41,7 @@ func _init() -> void:
 func _ready() -> void:
     _working_dialogue_manager.connect("resource_changed", self, "_on_working_dialogue_changed")
     session.dialogue_undo_redo = _working_dialogue_manager
+    set_settings(session.settings)
 
     # set open global editors callback functions to GUI buttons
     actors_editor.storage_editor.item_editor.connect(
@@ -46,6 +50,27 @@ func _ready() -> void:
         "edit_storage_pressed", self, "open_global_tags_editor")
 
     new_dialogue()
+
+
+func _process(delta):
+    if _need_to_redraw_graph:
+        graph_renderer.update_graph()
+        _need_to_redraw_graph = false
+
+
+func _notification(what) -> void:
+    if what == NOTIFICATION_PREDELETE:
+        set_settings(null)
+
+
+func set_settings(new_settings: DialogueEditorSettings) -> void:
+    if settings:
+        settings.disconnect("changed", self, "_on_settings_changed")
+    settings = new_settings
+    if settings:
+        settings.connect("changed", self, "_on_settings_changed")
+
+    _apply_settings()
 
 
 func undo() -> void:
@@ -143,12 +168,12 @@ func open_tags_editor(text_node: TextDialogueNode) -> void:
 
 
 func open_global_actors_editor() -> void:
-    global_actors_editor.storage_editor.storage = session.global_actors
+    global_actors_editor.storage_editor.storage = settings.global_actors
     global_actors_editor.popup_centered()
 
 
 func open_global_tags_editor() -> void:
-    global_tags_editor.storage_editor.storage = session.global_tags
+    global_tags_editor.storage_editor.storage = settings.global_tags
     global_tags_editor.popup_centered()
 
 
@@ -459,22 +484,24 @@ func _edit_blackboards(dialogue: Dialogue, args: Dictionary) -> Dialogue:
 func _save_global_storage(storage: Storage) -> void:
     var ref = ExternalResourceReference.new(storage.resource_path)
     ref.set_resource(storage)
-    
+
 
 func _on_global_actors_editor_confirmed() -> void:
-    session.global_actors = global_actors_editor.storage_editor.storage
-    _save_global_storage(session.global_actors)
+    session.settings.global_actors = global_actors_editor.storage_editor.storage
+    _save_global_storage(session.settings.global_actors)
 
 
 func _on_global_actors_tags_confirmed():
-    session.global_tags = global_tags_editor.storage_editor.storage
-    _save_global_storage(session.global_tags)
+    session.settings.global_tags = global_tags_editor.storage_editor.storage
+    _save_global_storage(session.settings.global_tags)
 
 
 func _on_session_changed() -> void:
-    actors_editor.storage_editor.item_editor.storage = session.global_actors
-    tags_editor.storage_editor.item_editor.storage = session.global_tags
-    _working_dialogue_manager.autosave = session.autosave
+    set_settings(session.settings)
+
+
+func _on_settings_changed() -> void:
+    _apply_settings()
 
 
 func _get_file_name() -> String:
@@ -576,3 +603,14 @@ func _move_selected_nodes_vertically(dialogue: Dialogue, shift: int) -> Dialogue
         parent.children.insert(pos + shift, node)
 
     return dialogue
+
+
+func _apply_settings() -> void:
+    if not settings:
+        return
+
+    actors_editor.storage_editor.item_editor.storage = settings.global_actors
+    tags_editor.storage_editor.item_editor.storage = settings.global_tags
+    _working_dialogue_manager.autosave = settings.autosave
+
+    _need_to_redraw_graph = true

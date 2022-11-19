@@ -44,7 +44,7 @@ func set_node(new_node: DialogueNode) -> void:
     set_style(style_manager.get_style(new_node))
 
     if node as ReferenceDialogueNode:
-        self_modulate.v *= _session.reference_node_brightness
+        self_modulate.v *= _session.settings.reference_node_brightness
 
     set_slot(0, true, 0, Color.gray, not is_collapsed, 0, Color.gray)
 

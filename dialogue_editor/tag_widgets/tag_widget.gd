@@ -101,7 +101,7 @@ func _on_add_tag_dialog_about_to_show():
 
 func _update_tag_picker() -> void:
     # set selectable tags to global tags
-    _add_tag_picker.storage = _session.global_tags
+    _add_tag_picker.storage = _session.settings.global_tags
     update_tag_renderers()
 
 

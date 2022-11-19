@@ -1,10 +1,8 @@
-[gd_resource type="Resource" load_steps=4 format=2]
+[gd_resource type="Resource" load_steps=3 format=2]
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/support/dialogue_editor_session.gd" type="Script" id=1]
-[ext_resource path="res://addons/dialogue_system/dialogue_editor/global_actors.tres" type="Resource" id=7]
-[ext_resource path="res://addons/dialogue_system/dialogue_editor/global_tags.tres" type="Resource" id=8]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/settings.tres" type="Resource" id=2]
 
 [resource]
 script = ExtResource( 1 )
-global_actors = ExtResource( 7 )
-global_tags = ExtResource( 8 )
+settings = ExtResource( 2 )

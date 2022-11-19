@@ -6,13 +6,7 @@ extends Resource
 export(Resource) var dialogue setget ,get_dialogue
 export(Resource) var dialogue_undo_redo setget set_dialogue_undo_redo
 
-# these should be in the editor settings
-export(Resource) var global_actors setget set_global_actors
-export(Resource) var global_tags setget set_global_tags
-
-export(float, 0, 1) var reference_node_brightness := 0.8
-
-export(bool) var autosave := false setget set_autosave
+export(Resource) var settings setget set_settings
 
 var dialogue_editor
 
@@ -32,21 +26,9 @@ func set_dialogue_undo_redo(new_undo_redo: WorkingResourceManager) -> void:
     emit_changed()
 
 
-func set_global_actors(new_global_actors: Storage) -> void:
-    if global_actors != new_global_actors:
-        global_actors = new_global_actors
-        emit_changed()
-
-
-func set_global_tags(new_global_tags: Storage) -> void:
-    if global_tags != new_global_tags:
-        global_tags = new_global_tags
-        emit_changed()
-
-
-func set_autosave(new_autosave: bool) -> void:
-    if autosave != new_autosave:
-        autosave = new_autosave
+func set_settings(new_settings: DialogueEditorSettings) -> void:
+    if settings != new_settings:
+        settings = new_settings
         emit_changed()
 
 

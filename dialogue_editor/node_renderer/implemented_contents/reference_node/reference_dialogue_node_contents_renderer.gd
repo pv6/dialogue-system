@@ -42,7 +42,7 @@ func _update_contents() -> void:
         assert(parent)
     _referenced_contents = parent.create_contents(_session.dialogue.nodes[_reference_node.referenced_node_id])
     if _referenced_contents:
-        _referenced_contents.modulate.v *= _session.reference_node_brightness
+        _referenced_contents.modulate.v *= _session.settings.reference_node_brightness
         add_child(_referenced_contents)
         _referenced_contents.disabled = true
 
