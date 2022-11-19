@@ -5,7 +5,9 @@ extends Control
 signal open_dialogue_error()
 
 const COPY_NODES_STRING_HEADER := "node ids:"
-const DEFAULT_SETTINGS_PATH := "res://addons/dialogue_system/dialogue_editor/settings.tres"
+const DEFAULT_SETTINGS_PATH := "res://dialogue_editor_settings.tres"
+const DEFAULT_GLOBAL_ACTORS_PATH := "res://dialogue_global_actors.tres"
+const DEFAULT_GLOBAL_TAGS_PATH := "res://dialogue_global_tags.tres"
 
 export(Resource) var settings: Resource setget set_settings
 
@@ -43,12 +45,7 @@ func _ready() -> void:
     _working_dialogue_manager.connect("resource_changed", self, "_on_working_dialogue_changed")
     session.dialogue_undo_redo = _working_dialogue_manager
 
-    if not settings:
-        if ResourceLoader.exists(DEFAULT_SETTINGS_PATH):
-            set_settings(ResourceLoader.load(DEFAULT_SETTINGS_PATH, "", true))
-        else:
-            set_settings(DialogueEditorSettings.new())
-            ResourceSaver.save(DEFAULT_SETTINGS_PATH, settings)
+    set_settings(_init_settings())
 
     # set open global editors callback functions to GUI buttons
     actors_editor.storage_editor.item_editor.connect(
@@ -488,19 +485,19 @@ func _edit_blackboards(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return dialogue
 
 
-func _save_global_storage(storage: Storage) -> void:
-    var ref = ExternalResourceReference.new(storage.resource_path)
-    ref.set_resource(storage)
+func _save_external_resource(resource: Resource) -> void:
+    var ref = ExternalResourceReference.new(resource.resource_path)
+    ref.set_resource(resource)
 
 
 func _on_global_actors_editor_confirmed() -> void:
     session.settings.global_actors = global_actors_editor.storage_editor.storage
-    _save_global_storage(session.settings.global_actors)
+    _save_external_resource(session.settings.global_actors)
 
 
 func _on_global_actors_tags_confirmed():
     session.settings.global_tags = global_tags_editor.storage_editor.storage
-    _save_global_storage(session.settings.global_tags)
+    _save_external_resource(session.settings.global_tags)
 
 
 func _on_settings_changed() -> void:
@@ -617,3 +614,31 @@ func _apply_settings() -> void:
     _working_dialogue_manager.autosave = settings.autosave
 
     _need_to_redraw_graph = true
+
+
+func _open_or_create_external_resource(path: String, default_value: Resource) -> Resource:
+    var ref := ExternalResourceReference.new(path)
+    if not ref.get_resource():
+        ref.set_resource(default_value)
+    return ref.get_resource()
+
+
+func _init_settings() -> DialogueEditorSettings:
+    var output: DialogueEditorSettings = settings
+
+    if not output:
+        output = _open_or_create_external_resource(
+                DEFAULT_SETTINGS_PATH, DialogueEditorSettings.new()
+        )
+    if not output.global_actors:
+        output.global_actors = _open_or_create_external_resource(
+                DEFAULT_GLOBAL_ACTORS_PATH, Storage.new()
+        )
+    if not output.global_tags:
+        output.global_tags = _open_or_create_external_resource(
+                DEFAULT_GLOBAL_TAGS_PATH, Storage.new()
+        )
+
+    _save_external_resource(output)
+
+    return output

@@ -22,4 +22,6 @@ func set_external_path(new_external_path: String) -> void:
 
 
 func _get_resource() -> Resource:
-    return ResourceLoader.load(external_path)
+    if ResourceLoader.exists(external_path):
+        return ResourceLoader.load(external_path)
+    return null

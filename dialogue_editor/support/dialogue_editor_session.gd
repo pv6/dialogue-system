@@ -3,17 +3,16 @@ class_name DialogueEditorSession
 extends Resource
 
 
-export(Resource) var dialogue setget ,get_dialogue
-export(Resource) var dialogue_undo_redo setget set_dialogue_undo_redo
-
-export(Resource) var settings setget ,get_settings
+var dialogue: Dialogue setget ,get_dialogue
+var dialogue_undo_redo: WorkingResourceManager setget set_dialogue_undo_redo
+var settings: DialogueEditorSettings setget ,get_settings
 
 var dialogue_editor
 
 
 func get_dialogue() -> Dialogue:
     if dialogue_undo_redo and is_instance_valid(dialogue_undo_redo):
-        return dialogue_undo_redo.resource
+        return dialogue_undo_redo.resource as Dialogue
     return null
 
 
