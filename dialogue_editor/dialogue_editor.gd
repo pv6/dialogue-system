@@ -5,8 +5,10 @@ extends Control
 signal open_dialogue_error()
 
 const COPY_NODES_STRING_HEADER := "node ids:"
+const DEFAULT_SETTINGS_PATH := "res://addons/dialogue_system/dialogue_editor/settings.tres"
 
-var settings: DialogueEditorSettings setget set_settings
+export(Resource) var settings: Resource setget set_settings
+
 var session: DialogueEditorSession = preload("session.tres")
 
 var _editor_config := ConfigFile.new()
@@ -33,7 +35,6 @@ onready var _tab_container: TabContainer = $VBoxContainer/TabContainer
 func _init() -> void:
     session.clear_connections()
     session.dialogue_editor = self
-    session.connect("changed", self, "_on_session_changed")
 
     _editor_config.load("res://addons/dialogue_system/plugin.cfg")
 
@@ -41,7 +42,13 @@ func _init() -> void:
 func _ready() -> void:
     _working_dialogue_manager.connect("resource_changed", self, "_on_working_dialogue_changed")
     session.dialogue_undo_redo = _working_dialogue_manager
-    set_settings(session.settings)
+
+    if not settings:
+        if ResourceLoader.exists(DEFAULT_SETTINGS_PATH):
+            set_settings(ResourceLoader.load(DEFAULT_SETTINGS_PATH, "", true))
+        else:
+            set_settings(DialogueEditorSettings.new())
+            ResourceSaver.save(DEFAULT_SETTINGS_PATH, settings)
 
     # set open global editors callback functions to GUI buttons
     actors_editor.storage_editor.item_editor.connect(
@@ -53,7 +60,7 @@ func _ready() -> void:
 
 
 func _process(delta):
-    if _need_to_redraw_graph:
+    if _need_to_redraw_graph and graph_renderer:
         graph_renderer.update_graph()
         _need_to_redraw_graph = false
 
@@ -494,10 +501,6 @@ func _on_global_actors_editor_confirmed() -> void:
 func _on_global_actors_tags_confirmed():
     session.settings.global_tags = global_tags_editor.storage_editor.storage
     _save_global_storage(session.settings.global_tags)
-
-
-func _on_session_changed() -> void:
-    set_settings(session.settings)
 
 
 func _on_settings_changed() -> void:

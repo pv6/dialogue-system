@@ -6,7 +6,7 @@ extends Resource
 export(Resource) var dialogue setget ,get_dialogue
 export(Resource) var dialogue_undo_redo setget set_dialogue_undo_redo
 
-export(Resource) var settings setget set_settings
+export(Resource) var settings setget ,get_settings
 
 var dialogue_editor
 
@@ -26,10 +26,10 @@ func set_dialogue_undo_redo(new_undo_redo: WorkingResourceManager) -> void:
     emit_changed()
 
 
-func set_settings(new_settings: DialogueEditorSettings) -> void:
-    if settings != new_settings:
-        settings = new_settings
-        emit_changed()
+func get_settings() -> DialogueEditorSettings:
+    if dialogue_editor and is_instance_valid(dialogue_editor):
+        return dialogue_editor.settings
+    return null
 
 
 func clear_connections() -> void:
