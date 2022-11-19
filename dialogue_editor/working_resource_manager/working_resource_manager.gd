@@ -11,6 +11,7 @@ signal save_path_changed()
 export(String) var resource_class_name := "Resource" setget set_resource_class_name
 export(Resource) var resource: Resource setget set_resource
 export(String) var save_path := "" setget set_save_path
+export(bool) var autosave := false
 
 var has_unsaved_changes := false setget set_has_unsaved_changes
 
@@ -29,13 +30,11 @@ func _init():
 func set_has_unsaved_changes(value: bool) -> void:
     has_unsaved_changes = value
     emit_signal("has_unsaved_changes_changed", value)
+    if has_unsaved_changes and autosave and save_path != "":
+        save()
 
 
 func set_save_path(new_save_path: String) -> void:
-    if resource:
-        resource.take_over_path(new_save_path)
-#    if save_path == new_save_path:
-#        return
     save_path = new_save_path
     emit_signal("save_path_changed")
 
@@ -73,7 +72,6 @@ func save_as() -> void:
 func set_resource(new_resource: Clonable) -> void:
     if new_resource:
         resource = new_resource.clone()
-        resource.take_over_path(save_path)
     else:
         resource = null
     self.has_unsaved_changes = true
@@ -148,8 +146,8 @@ func _on_open_file_selected(save_path: String):
     var res = ResourceLoader.load(save_path, "", true)
 #    var res = load(save_path)
     if res:
-        self.resource = res
         self.save_path = save_path
+        self.resource = res
         clear_undo_redo_history()
         emit_signal("file_changed")
 

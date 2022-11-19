@@ -469,6 +469,7 @@ func _on_global_actors_tags_confirmed():
 func _on_session_changed() -> void:
     actors_editor.storage_editor.item_editor.storage = session.global_actors
     tags_editor.storage_editor.item_editor.storage = session.global_tags
+    _working_dialogue_manager.autosave = session.autosave
 
 
 func _get_file_name() -> String:

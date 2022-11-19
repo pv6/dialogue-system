@@ -12,6 +12,8 @@ export(Resource) var global_tags setget set_global_tags
 
 export(float, 0, 1) var reference_node_brightness := 0.8
 
+export(bool) var autosave := false setget set_autosave
+
 var dialogue_editor
 
 
@@ -39,6 +41,12 @@ func set_global_actors(new_global_actors: Storage) -> void:
 func set_global_tags(new_global_tags: Storage) -> void:
     if global_tags != new_global_tags:
         global_tags = new_global_tags
+        emit_changed()
+
+
+func set_autosave(new_autosave: bool) -> void:
+    if autosave != new_autosave:
+        autosave = new_autosave
         emit_changed()
 
 
