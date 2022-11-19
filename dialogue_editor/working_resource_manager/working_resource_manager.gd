@@ -35,6 +35,10 @@ func set_has_unsaved_changes(value: bool) -> void:
 
 
 func set_save_path(new_save_path: String) -> void:
+    if resource:
+        resource.take_over_path(new_save_path)
+#    if save_path == new_save_path:
+#        return
     save_path = new_save_path
     emit_signal("save_path_changed")
 
@@ -72,6 +76,7 @@ func save_as() -> void:
 func set_resource(new_resource: Clonable) -> void:
     if new_resource:
         resource = new_resource.clone()
+        resource.take_over_path(save_path)
     else:
         resource = null
     self.has_unsaved_changes = true
@@ -146,8 +151,9 @@ func _on_open_file_selected(save_path: String):
     var res = ResourceLoader.load(save_path, "", true)
 #    var res = load(save_path)
     if res:
-        self.save_path = save_path
+        save_path = ""
         self.resource = res
+        self.save_path = save_path
         clear_undo_redo_history()
         emit_signal("file_changed")
 
