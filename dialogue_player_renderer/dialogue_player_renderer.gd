@@ -60,7 +60,7 @@ func _generate_blackboards_implementation(blackboard_templates: Storage) -> Stor
     var blackboards := StorageImplementation.new(blackboard_templates)
     for template_reference in blackboard_templates.items():
         var template: Storage = template_reference.resource
-        var implementation := StorageImplementation.new(template)
+        var implementation := StorageImplementation.new(template, false)
         blackboards.s(template, implementation)
     return blackboards
 

@@ -7,8 +7,11 @@ extends Resource
 export(Resource) var template: Resource setget set_template
 export(Dictionary) var data: Dictionary
 
+var default_value = null
 
-func _init(template: Storage = null) -> void:
+
+func _init(template: Storage = null, default_value = Reference.new()) -> void:
+    self.default_value = default_value
     self.template = template
 
 
@@ -28,12 +31,17 @@ func has(item) -> bool:
     return str(item) in data
 
 
+func clear(value = default_value) -> void:
+    for key in data.keys():
+        data[key] = value
+
+
 func set_template(new_template: Storage) -> void:
     template = new_template
-    data = {}
     if template:
         for item in template.items():
-            data[str(item)] = false
+            if not has(item):
+                data[str(item)] = default_value
     property_list_changed_notify()
             
             
