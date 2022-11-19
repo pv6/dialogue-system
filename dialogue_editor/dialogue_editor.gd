@@ -277,6 +277,21 @@ func _insert_parent_say_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _insert_parent_node(dialogue, SayDialogueNode.new())
 
 
+func _auto_set_actors(target_node: TextDialogueNode, reference_node: TextDialogueNode) -> void:
+    if not target_node or not reference_node:
+        return
+
+    if (
+            (target_node is HearDialogueNode and reference_node is HearDialogueNode)
+            or (target_node is SayDialogueNode and reference_node is SayDialogueNode)
+    ):
+        target_node.speaker = reference_node.speaker
+        target_node.listener = reference_node.listener
+    else:
+        target_node.speaker = reference_node.listener
+        target_node.listener = reference_node.speaker
+
+
 func _insert_parent_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
     var selected_nodes = _get_selected_nodes(dialogue)
     if selected_nodes.size() != 1:
@@ -293,10 +308,7 @@ func _insert_parent_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
     cur_parent.children[indx] = node
     node.parent_id = cur_node.parent_id
     node.add_child(cur_node)
-
-    if node is HearDialogueNode and cur_node is HearDialogueNode:
-        node.speaker = cur_node.speaker
-        node.listener = cur_node.listener
+    _auto_set_actors(node, cur_node)
 
     dialogue.update_nodes()
 
@@ -317,12 +329,7 @@ func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
             return null
         if first_parent:
             parent.add_child(node)
-            if node is HearDialogueNode:
-                while not parent is HearDialogueNode and not parent is RootDialogueNode:
-                    parent = dialogue.nodes[parent.parent_id]
-                if parent is HearDialogueNode:
-                    node.speaker = parent.speaker
-                    node.listener = parent.listener
+            _auto_set_actors(node, parent)
             first_parent = false
         else:
             var ref_node := _make_reference_node(node.id, dialogue)
