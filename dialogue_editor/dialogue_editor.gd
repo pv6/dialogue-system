@@ -493,7 +493,7 @@ func _on_graph_renderer_paste_nodes_request():
     paste_nodes()
 
 
-func _on_graph_renderer_delete_nodes_request(nodes: Array):
+func _on_graph_renderer_delete_nodes_request(nodes: Array = []):
     if Input.is_key_pressed(KEY_SHIFT):
         deep_delete_selected_nodes()
     else:
