@@ -83,8 +83,8 @@ func set_resource(new_resource: Clonable) -> void:
         resource.take_over_path(save_path)
     else:
         resource = null
-    self.has_unsaved_changes = true
     emit_signal("resource_changed")
+    self.has_unsaved_changes = true
 
 
 func set_resource_class_name(new_resource_class_name: String) -> void:

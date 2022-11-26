@@ -5,21 +5,21 @@
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/dialogue/dialogue_menu_button.tscn" type="PackedScene" id=3]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/node/node_menu_button.tscn" type="PackedScene" id=4]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/blackboard_editor/blackboard_editor.tscn" type="PackedScene" id=5]
-[ext_resource path="res://addons/dialogue_system/dialogue/implemented_nodes/root_dialogue_node.gd" type="Script" id=6]
-[ext_resource path="res://addons/dialogue_system/support/resource_reference/direct_resource_reference.gd" type="Script" id=7]
-[ext_resource path="res://addons/dialogue_system/support/storage.gd" type="Script" id=8]
+[ext_resource path="res://addons/dialogue_system/dialogue/implemented_nodes/root_dialogue_node.gd" type="Script" id=7]
+[ext_resource path="res://addons/dialogue_system/dialogue/logic/dialogue_node_logic.gd" type="Script" id=8]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/action_condition_widget.tscn" type="PackedScene" id=9]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor_dialog/storage_editor_dialog.tscn" type="PackedScene" id=10]
-[ext_resource path="res://addons/dialogue_system/dialogue/logic/dialogue_node_logic.gd" type="Script" id=11]
+[ext_resource path="res://addons/dialogue_system/support/storage.gd" type="Script" id=11]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/working_resource_manager/working_resource_manager.gd" type="Script" id=12]
-[ext_resource path="res://addons/dialogue_system/dialogue/dialogue.gd" type="Script" id=13]
+[ext_resource path="res://addons/dialogue_system/support/resource_reference/direct_resource_reference.gd" type="Script" id=13]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/file_dialog/storage_item_file_dialog_editor.tscn" type="PackedScene" id=14]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/storage_picker/storage_item_storage_picker_editor.tscn" type="PackedScene" id=15]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/actors/actors_menu_button.tscn" type="PackedScene" id=16]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/tags/tags_menu_button.tscn" type="PackedScene" id=17]
+[ext_resource path="res://addons/dialogue_system/dialogue/dialogue.gd" type="Script" id=18]
 
 [sub_resource type="Resource" id=1]
-script = ExtResource( 8 )
+script = ExtResource( 11 )
 max_id = 0
 must_be_unique = true
 _data = {
@@ -28,7 +28,7 @@ _locked_indices = {
 }
 
 [sub_resource type="Resource" id=2]
-script = ExtResource( 8 )
+script = ExtResource( 11 )
 max_id = 0
 must_be_unique = true
 _data = {
@@ -37,11 +37,11 @@ _locked_indices = {
 }
 
 [sub_resource type="Resource" id=3]
-script = ExtResource( 7 )
+script = ExtResource( 13 )
 direct_reference = SubResource( 2 )
 
 [sub_resource type="Resource" id=4]
-script = ExtResource( 8 )
+script = ExtResource( 11 )
 max_id = 1
 must_be_unique = true
 _data = {
@@ -52,21 +52,21 @@ _locked_indices = {
 }
 
 [sub_resource type="Resource" id=5]
-script = ExtResource( 11 )
+script = ExtResource( 8 )
 flags = [  ]
 node_script = ""
 use_flags = true
 use_script = false
 
 [sub_resource type="Resource" id=6]
-script = ExtResource( 11 )
+script = ExtResource( 8 )
 flags = [  ]
 node_script = ""
 use_flags = true
 use_script = false
 
 [sub_resource type="Resource" id=7]
-script = ExtResource( 6 )
+script = ExtResource( 7 )
 children = [  ]
 id = 0
 parent_id = -1
@@ -75,7 +75,7 @@ action_logic = SubResource( 5 )
 comment = ""
 
 [sub_resource type="Resource" id=8]
-script = ExtResource( 13 )
+script = ExtResource( 18 )
 description = ""
 root_node = SubResource( 7 )
 actors = SubResource( 1 )
@@ -245,6 +245,7 @@ resource = SubResource( 8 )
 [connection signal="confirmed" from="GlobalTagsEditor" to="." method="_on_global_actors_tags_confirmed"]
 [connection signal="file_changed" from="WorkingDialogueManager" to="." method="_on_working_dialogue_manager_file_changed"]
 [connection signal="has_unsaved_changes_changed" from="WorkingDialogueManager" to="." method="_on_working_dialogue_manager_has_unsaved_changes_changed"]
+[connection signal="resource_changed" from="WorkingDialogueManager" to="." method="_on_working_dialogue_changed"]
 [connection signal="save_path_changed" from="WorkingDialogueManager" to="." method="_on_working_dialogue_manager_save_path_changed"]
 
 [editable path="ActorsEditor"]

@@ -42,7 +42,6 @@ func _init() -> void:
 
 
 func _ready() -> void:
-    _working_dialogue_manager.connect("resource_changed", self, "_on_working_dialogue_changed")
     session.dialogue_undo_redo = _working_dialogue_manager
 
     set_settings(_init_settings())
@@ -606,7 +605,7 @@ func _move_selected_nodes_vertically(dialogue: Dialogue, shift: int) -> Dialogue
 
 
 func _apply_settings() -> void:
-    if not settings:
+    if not settings or not actors_editor:
         return
 
     actors_editor.storage_editor.item_editor.storage = settings.global_actors
