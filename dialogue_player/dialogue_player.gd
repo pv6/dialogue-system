@@ -74,7 +74,7 @@ func get_say_options() -> Array:
 
     return output
 
-    
+
 func can_continue() -> bool:
     return _cur_node and not _cur_node.children.empty()
 
@@ -86,7 +86,7 @@ func say(say_option: SayDialogueNode) -> void:
 
 func is_over() -> bool:
     return not _cur_node
-    
+
 
 func get_actor_implementation(actor: StorageItem):
     if not actor or not _actors.has(actor):
@@ -154,6 +154,9 @@ func _set_cur_node(new_cur_node: DialogueNode) -> void:
 
 
 func _do_node_action(node) -> void:
+    for flag in node.action_logic.auto_flags:
+        _blackboards.g(flag.blackboard).s(flag, flag.value)
+
     if node.action_logic.use_flags:
         # set flag values
         for flag in node.action_logic.flags:
@@ -189,6 +192,10 @@ func _is_node_valid(node: DialogueNode) -> bool:
     # for reference nodes, check referenced node validity
     if node is ReferenceDialogueNode:
         return _is_node_valid(_dialogue.nodes[node.referenced_node_id])
+
+    for flag in node.condition_logic.auto_flags:
+        if (flag.blackboard and _blackboards.g(flag.blackboard).g(flag) != flag.value):
+                return false
 
     if node.condition_logic.use_flags:
         # check flags

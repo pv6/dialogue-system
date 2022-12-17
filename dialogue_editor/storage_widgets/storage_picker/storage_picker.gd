@@ -62,10 +62,11 @@ func _update_options() -> void:
         return
     _option_button.clear()
     if storage:
-        if can_select_none or storage.items().empty():
+        if can_select_none or storage.is_all_hidden():
             _option_button.add_item("None", -2)
         for id in storage.ids():
-            _option_button.add_item(str(storage.get_item(id)), id)
+            if not storage.is_hidden(id):
+                _option_button.add_item(str(storage.get_item(id)), id)
     else:
         _option_button.add_item("None", -2)
 

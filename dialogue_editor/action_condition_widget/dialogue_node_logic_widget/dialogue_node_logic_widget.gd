@@ -1,5 +1,5 @@
 tool
-extends GridContainer
+extends Control
 
 
 const MultiFlagPicker := preload("res://addons/dialogue_system/dialogue_editor/action_condition_widget/multi_flag_picker/multi_flag_picker.gd")
@@ -11,24 +11,28 @@ export(bool) var disabled: bool setget set_disabled
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
-onready var _flags_check_box: CheckBox = $FlagsCheckBox
-onready var _script_check_box: CheckBox = $ScriptCheckBox
-onready var _script_text_edit: TextEdit = $ScriptTextEdit
-onready var _multi_flag_picker: MultiFlagPicker = $MultiFlagPicker
+onready var _flags_check_box: CheckBox = $FlagsContainer/FlagsCheckBox
+onready var _script_check_box: CheckBox = $ScriptContainer/ScriptCheckBox
+onready var _script_text_edit: TextEdit = $ScriptContainer/ScriptTextEdit
+onready var _multi_flag_picker: MultiFlagPicker = $FlagsContainer/MultiFlagPicker
 
 
 func _ready():
+    self.node_id = node_id
+    self.property = property
     self.logic = logic
 
 
 func set_node_id(new_node_id: int) -> void:
     node_id = new_node_id
-    _multi_flag_picker.node_id = new_node_id
+    if _multi_flag_picker:
+        _multi_flag_picker.node_id = new_node_id
 
 
 func set_property(new_property: String) -> void:
     property = new_property
-    _multi_flag_picker.property = new_property
+    if _multi_flag_picker:
+        _multi_flag_picker.property = new_property
 
 
 func set_logic(new_logic: DialogueNodeLogic) -> void:

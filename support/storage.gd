@@ -12,6 +12,8 @@ var name: String setget ,get_name
 export(Dictionary) var _data: Dictionary
 # this is supposed to be a set, but godot doesn't have those
 export(Dictionary) var _locked_indices: Dictionary
+# this is supposed to be a set, but godot doesn't have those
+export(Dictionary) var _hidden_indices: Dictionary
 
 
 func _to_string() -> String:
@@ -67,6 +69,13 @@ func get_item(id: int):
     return _data[id]
 
 
+func find_item(item) -> int:
+    for id in _data.keys():
+        if item == _data[id]:
+            return id
+    return -1
+
+
 func has_id(id: int) -> bool:
     return _data.has(id)
 
@@ -85,8 +94,29 @@ func unlock_item(id: int) -> void:
     emit_changed()
 
 
+func hide_item(id: int) -> void:
+    _hidden_indices[id] = true
+    emit_changed()
+
+
+func show_item(id: int) -> void:
+    _hidden_indices.erase(id)
+    emit_changed()
+
+
 func is_locked(id: int) -> bool:
     return _locked_indices.has(id)
+
+
+func is_hidden(id: int) -> bool:
+    return _hidden_indices.has(id)
+
+
+func is_all_hidden() -> bool:
+    for id in ids():
+        if not is_hidden(id):
+            return false
+    return true
 
 
 func get_item_ids(reference_item) -> PoolIntArray:
@@ -110,7 +140,7 @@ func clone() -> Clonable:
 
     for id in _data.keys():
         copy._set_item(id, _data[id])
-    
+
     copy._locked_indices = _locked_indices.duplicate()
 
     return copy
@@ -118,14 +148,14 @@ func clone() -> Clonable:
 
 func get_storage_reference() -> ResourceReference:
     var output: ResourceReference
-    
+
     if resource_path.get_extension().is_valid_filename():
         output = ExternalResourceReference.new()
         output.external_path = resource_path
     else:
         output = DirectResourceReference.new()
         output.direct_reference = self
-        
+
     return output
 
 
@@ -134,14 +164,14 @@ func get_item_reference(id: int) -> StorageItem:
     output.storage_reference = get_storage_reference()
     output.storage_id = id
     return output
-    
+
 
 func _is_item_valid(item) -> bool:
-    if not must_be_unique:
-        return true
-
     if not item or str(item) == "":
         return false
+
+    if not must_be_unique:
+        return true
 
     if item is Object and item.has_method("equals"):
         for existing_item in items():

@@ -1,0 +1,52 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/dialogue_node_logic_widget/dialogue_node_logic_widget.tscn" type="PackedScene" id=1]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/dialogue_node_logic_widget/condition_logic_widget/dialogue_node_condition_logic_widget.gd" type="Script" id=2]
+
+[node name="DialogueNodeLogicWidget" instance=ExtResource( 1 )]
+script = ExtResource( 2 )
+
+[node name="AutoFlagsLabel" type="Label" parent="." index="0"]
+visible = false
+margin_right = 1024.0
+margin_bottom = 14.0
+text = "Auto Flags"
+align = 2
+
+[node name="CanOnlyVisitOnceContainer" type="HBoxContainer" parent="." index="1"]
+margin_right = 1024.0
+margin_bottom = 24.0
+
+[node name="Label" type="Label" parent="CanOnlyVisitOnceContainer" index="0"]
+margin_top = 5.0
+margin_right = 127.0
+margin_bottom = 19.0
+text = "Can Only Visit Once"
+
+[node name="CheckBox" type="CheckBox" parent="CanOnlyVisitOnceContainer" index="1"]
+margin_left = 131.0
+margin_right = 155.0
+margin_bottom = 24.0
+
+[node name="FlagsLabel" parent="." index="2"]
+margin_top = 28.0
+margin_bottom = 42.0
+
+[node name="FlagsContainer" parent="." index="3"]
+margin_top = 28.0
+margin_bottom = 74.0
+
+[node name="ScriptLabel" parent="." index="4"]
+margin_top = 96.0
+margin_bottom = 110.0
+
+[node name="ScriptContainer" parent="." index="5"]
+margin_top = 78.0
+
+[node name="ScriptTextEdit" parent="ScriptContainer" index="0"]
+margin_bottom = 504.0
+
+[node name="ScriptCheckBox" parent="ScriptContainer" index="1"]
+margin_bottom = 504.0
+
+[connection signal="toggled" from="CanOnlyVisitOnceContainer/CheckBox" to="." method="_on_can_only_visit_once_check_box_toggled"]

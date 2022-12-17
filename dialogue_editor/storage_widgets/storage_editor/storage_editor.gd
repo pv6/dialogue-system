@@ -113,6 +113,8 @@ func _update_item_list() -> void:
         return
     var ids = self.storage.ids()
     for i in range(ids.size()):
+        if self.storage.is_hidden(ids[i]):
+            continue
         _item_list.add_item(str(self.storage.get_item(ids[i])))
         _index_to_id[i] = ids[i]
 

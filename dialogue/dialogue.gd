@@ -12,16 +12,15 @@ export(String) var description
 export(Resource) var root_node: Resource setget set_root_node
 # Storage that contains StorageItems pointing to global actors storage
 export(Resource) var actors: Resource
-# Storage that contains ResourceReferences pointing to storage resources
+# Storage that contains ResourceReferences pointing to storages
 export(Resource) var blackboards: Resource setget set_blackboards
-
-# DirectResourceReference, so that could be changed in StorageEditor
-export(Resource) var local_blackboard: Resource setget set_local_blackboard
 
 export(int) var max_id := 0
 
 export(String) var editor_version = "0.0.0"
 
+# DirectResourceReference, so that could be changed in StorageEditor
+export(Resource) var _local_blackboard_ref: Resource setget _set_local_blackboard_ref
 
 # id -> node
 var nodes := {}
@@ -31,22 +30,22 @@ func _init() -> void:
     actors = Storage.new()
     blackboards = Storage.new()
 
-    self.local_blackboard = DirectResourceReference.new(Storage.new())
+    self._local_blackboard_ref = DirectResourceReference.new(Storage.new())
 
     root_node = RootDialogueNode.new()
     root_node.id = get_new_max_id()
     self.root_node = root_node
 
 
-func set_local_blackboard(new_local_blackboard: DirectResourceReference) -> void:
-    local_blackboard = new_local_blackboard
-    
+func _set_local_blackboard_ref(new_local_blackboard_ref: DirectResourceReference) -> void:
+    _local_blackboard_ref = new_local_blackboard_ref
+
     if blackboards.has_id(0):
-        blackboards.set_item(0, local_blackboard)
+        blackboards.set_item(0, _local_blackboard_ref)
     else:
-        blackboards.add_item(local_blackboard)
+        blackboards.add_item(_local_blackboard_ref)
         blackboards.lock_item(0)
-    
+
     emit_changed()
 
 
@@ -87,6 +86,8 @@ func update_nodes() -> void:
                 assert(child_node as DialogueNode)
                 assert(not nodes.has(child_node.id))
                 node_stack.push_back(child_node)
+
+    _update_auto_flags()
     emit_signal("nodes_changed")
 
 
@@ -105,7 +106,7 @@ func set_root_node(new_root_node: DialogueNode) -> void:
 
 func clone() -> Clonable:
     var copy := duplicate() as Dialogue
-    
+
     # copy blackboard templates
     copy.blackboards = blackboards.clone()
     # copy actor storage
@@ -116,18 +117,20 @@ func clone() -> Clonable:
         var copy_node = node.clone()
         # update 'blackboards' direct reference in nodes flags
         var logics = ["condition", "action"]
+        var flags = ["", "auto_"]
         for logic_type in logics:
-            for flag in copy_node.get(logic_type + "_logic").flags:
-                if flag.blackboard:
-                    flag.blackboard.storage_item.storage_reference.direct_reference = copy.blackboards
+            for flag_type in flags:
+                for flag in copy_node.get(logic_type + "_logic").get(flag_type + "flags"):
+                    if flag.blackboard:
+                        flag.blackboard.storage_item.storage_reference.direct_reference = copy.blackboards
         # update 'actors' direct reference in speaker and listener
         if copy_node is TextDialogueNode:
             var actors = ["speaker", "listener"]
             for actor_type in actors:
                 if copy_node.get(actor_type):
                     copy_node.get(actor_type).storage_reference.direct_reference = copy.actors
-        
-        
+
+
         copy.nodes[node.id] = copy_node
 
     # set new child-parent references
@@ -156,7 +159,29 @@ func clone() -> Clonable:
     copy.root_node = copy.nodes[root_node.id]
 
     # copy local blackboard (both ResourceReference and Storage within)
-    copy.local_blackboard = local_blackboard.clone()
-    copy.local_blackboard.direct_reference = local_blackboard.direct_reference.clone()
+    copy._local_blackboard_ref = _local_blackboard_ref.clone()
+    copy._local_blackboard_ref.direct_reference = _local_blackboard_ref.direct_reference.clone()
 
     return copy
+
+
+func get_local_blackboard_ref() -> StorageItemResourceReference:
+    return StorageItemResourceReference.new(blackboards.get_item_reference(0))
+
+
+func _update_auto_flags() -> void:
+    for node in nodes.values():
+        var visited_flag_name = "auto_visited_node_%d" % node.id
+        var flag_id = _local_blackboard_ref.resource.add_item(visited_flag_name)
+        if flag_id == -1:
+            continue
+
+        _local_blackboard_ref.resource.hide_item(flag_id)
+
+        # set visited flag to true on action
+        var visited_flag := DialogueFlag.new()
+        visited_flag.blackboard = get_local_blackboard_ref()
+        visited_flag.field_id = flag_id
+        visited_flag.value = true
+        node.action_logic.auto_flags.push_back(visited_flag)
+

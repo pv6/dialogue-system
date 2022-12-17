@@ -4,6 +4,7 @@ extends Clonable
 
 
 export(Array) var flags setget set_flags
+export(Array) var auto_flags setget set_auto_flags
 export(String) var node_script := "" setget set_node_script
 export(bool) var use_flags := true setget set_use_flags
 export(bool) var use_script := false setget set_use_script
@@ -12,6 +13,12 @@ export(bool) var use_script := false setget set_use_script
 func set_flags(new_flags: Array) -> void:
     if new_flags != flags:
         flags = new_flags
+        emit_changed()
+
+
+func set_auto_flags(new_auto_flags: Array) -> void:
+    if new_auto_flags != auto_flags:
+        auto_flags = new_auto_flags
         emit_changed()
 
 

@@ -7,7 +7,7 @@ extends Clonable
 export(Resource) var blackboard_field: Resource setget set_blackboard_field
 export(bool) var value := true setget set_value
 
-var name: String setget ,get_name
+var name: String setget set_name, get_name
 var field_id: int setget set_field_id, get_field_id
 var blackboard: ResourceReference setget set_blackboard, get_blackboard
 
@@ -49,6 +49,13 @@ func get_field_id() -> int:
     return -1
 
 
+func set_name(new_name: String) -> void:
+    var blackboard_ref := get_blackboard()
+    if not blackboard_ref or not blackboard_ref.resource:
+        return
+    set_field_id(blackboard_ref.resource.find_item(new_name))
+
+
 func get_name() -> String:
     return str(self)
 
@@ -56,7 +63,7 @@ func get_name() -> String:
 func set_blackboard(new_blackboard: ResourceReference) -> void:
     if not blackboard_field:
         self.blackboard_field = StorageItem.new(new_blackboard)
-    else:   
+    else:
         # reset field field_id to -1 if assigned a new blackboard
         if not new_blackboard.equals(blackboard_field.storage_reference):
             self.field_id = -1
@@ -71,8 +78,8 @@ func get_blackboard() -> ResourceReference:
 
 func clone() -> Clonable:
     var copy: DialogueFlag = .clone()
-    
+
     if blackboard_field:
         copy.blackboard_field = blackboard_field.clone()
-    
+
     return copy

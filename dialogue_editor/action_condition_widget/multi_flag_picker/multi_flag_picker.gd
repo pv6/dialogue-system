@@ -31,7 +31,7 @@ func set_node_id(new_node_id: int) -> void:
     node_id = new_node_id
     for item in _flag_container.get_children():
         item.flag_picker.node_id = node_id
-    
+
 
 func add_flag() -> void:
     _session.dialogue_undo_redo.commit_action("Add " + property.capitalize() + " Flag", self, "_add_flag")

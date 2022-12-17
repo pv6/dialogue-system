@@ -20,7 +20,7 @@ onready var _value_option_button: OptionButton = $ValueContainer/ValueOptionButt
 
 func _ready():
     _update_values()
-    
+
 
 func set_flag(new_flag: DialogueFlag) -> void:
     if flag:
@@ -60,7 +60,7 @@ func _set_blackboard(blackboard: StorageItem) -> void:
 func _update_values() -> void:
     if not _flag_storage_picker or not _value_option_button:
         return
-    
+
     if flag:
         var item: StorageItem
         if flag.blackboard and flag.blackboard is StorageItemResourceReference:
@@ -105,7 +105,7 @@ func _on_flag_storage_picker_item_forced_selected(id):
 func _set_flag_blackboard(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     if property == "":
         return null
-    
+
     dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].blackboard = args["blackboard_reference"]
     return dialogue
 
@@ -113,7 +113,7 @@ func _set_flag_blackboard(dialogue: Dialogue, args: Dictionary) -> Dialogue:
 func _set_flag_id(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     if property == "":
         return null
-    
+
     dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].field_id = args["id"]
     return dialogue
 
@@ -121,6 +121,6 @@ func _set_flag_id(dialogue: Dialogue, args: Dictionary) -> Dialogue:
 func _set_flag_value(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     if property == "":
         return null
-    
+
     dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].value = args["value"]
     return dialogue
