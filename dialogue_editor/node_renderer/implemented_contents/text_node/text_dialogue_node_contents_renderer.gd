@@ -13,6 +13,11 @@ onready var _text_edit: TextEdit = $TextEdit
 onready var _tag_widget: TagWidget = $TagWidget
 
 
+func update_size() -> void:
+    var text_lines = max(_text_edit.get_total_visible_rows(), _session.settings.text_node_min_lines)
+    _text_edit.rect_min_size.y = (text_lines + 0.5) * _text_edit.get_line_height()
+
+
 func _update_contents() -> void:
     if _text_node and _text_edit:
         _text_edit.text = _text_node.text

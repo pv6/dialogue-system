@@ -10,6 +10,9 @@ export(bool) var autosave := false setget set_autosave
 
 export(float, 0, 1) var reference_node_brightness := 0.8 setget set_reference_node_brightness
 
+export(int) var text_node_min_lines := 4 setget set_text_node_min_lines
+export(int) var comment_min_lines := 4 setget set_comment_min_lines
+
 
 func set_global_actors(new_global_actors: Storage) -> void:
     if global_actors != new_global_actors:
@@ -32,4 +35,16 @@ func set_autosave(new_autosave: bool) -> void:
 func set_reference_node_brightness(new_reference_node_brightness: float) -> void:
     if reference_node_brightness != new_reference_node_brightness:
         reference_node_brightness = new_reference_node_brightness
+        emit_changed()
+
+
+func set_text_node_min_lines(new_text_node_min_lines: int) -> void:
+    if text_node_min_lines != new_text_node_min_lines:
+        text_node_min_lines = new_text_node_min_lines
+        emit_changed()
+
+
+func set_comment_min_lines(new_comment_min_lines: int) -> void:
+    if comment_min_lines != new_comment_min_lines:
+        comment_min_lines = new_comment_min_lines
         emit_changed()

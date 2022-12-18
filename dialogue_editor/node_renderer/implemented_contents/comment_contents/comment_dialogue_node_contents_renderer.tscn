@@ -10,9 +10,6 @@ anchor_bottom = 1.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="AddCommentButton" type="ToolButton" parent="."]
 margin_right = 1024.0
@@ -25,9 +22,10 @@ script = ExtResource( 2 )
 
 [node name="CommentTextEdit" type="TextEdit" parent="."]
 visible = false
+margin_top = 28.0
 margin_right = 1024.0
 margin_bottom = 600.0
-rect_min_size = Vector2( 0, 64 )
+rect_min_size = Vector2( 69, 69 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_colors/font_color = Color( 0.3174, 0.69, 0.3174, 1 )

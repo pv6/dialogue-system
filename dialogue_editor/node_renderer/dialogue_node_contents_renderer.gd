@@ -23,6 +23,10 @@ static func _recursive_disable(node: Node, disabled: bool) -> void:
             _recursive_disable(child, disabled)
 
 
+func update_size() -> void:
+    pass
+
+
 func set_disabled(new_disabled: bool) -> void:
     disabled = new_disabled
     _recursive_disable(self, new_disabled)

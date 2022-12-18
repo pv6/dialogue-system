@@ -55,6 +55,12 @@ func set_selected_node_ids(new_ids: Array) -> void:
         node_renderers[id].selected = true
 
 
+func update_node_sizes() -> void:
+    for renderer in node_renderers.values():
+        renderer.contents.update_size()
+    _update_renderer_offsets()
+
+
 func update_graph() -> void:
     # save selected node ids (node references get deprecated on dialogue cloning)
     var selected := self.selected_node_ids
@@ -92,9 +98,13 @@ func update_graph() -> void:
         for child in node_renderer.node.children:
             connect_node(node_renderer.name, 0, node_renderers[child.id].name, 0)
 
+    call_deferred("update_node_sizes")
+
+
+func _update_renderer_offsets() -> void:
     _calculate_node_position(dialogue.root_node, Vector2(0, 0))
     var root_renderer = node_renderers[dialogue.root_node.id]
-    var root_offset = root_renderer.offset + Vector2(0, root_renderer.rect_size.y / 2)
+    var root_offset = root_renderer.offset + Vector2(root_renderer.rect_size.x / 2, -root_renderer.rect_size.y / 2)
     for renderer in node_renderers.values():
         renderer.offset -= root_offset
 

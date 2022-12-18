@@ -10,6 +10,11 @@ onready var _add_comment_button: IconButton = $AddCommentButton
 onready var _comment_text_edit: TextEdit = $CommentTextEdit
 
 
+func update_size() -> void:
+    var text_lines = max(_comment_text_edit.get_total_visible_rows(), _session.settings.comment_min_lines)
+    _comment_text_edit.rect_min_size.y = (text_lines + 0.5) * _comment_text_edit.get_line_height()
+
+
 func _update_contents() -> void:
     if not node:
         self.has_comment = false
@@ -51,5 +56,6 @@ func _on_comment_text_edit_focus_exited():
 
 
 func _call_edit_comment() -> void:
-    _session.dialogue_undo_redo.commit_action("Edit Node Comment", self, "_edit_comment",
-                                              {"id": node.id, "comment": _comment_text_edit.text})
+    if node:
+        _session.dialogue_undo_redo.commit_action("Edit Node Comment", self, "_edit_comment",
+                                                {"id": node.id, "comment": _comment_text_edit.text})

@@ -15,10 +15,15 @@ func add_child_contents(contents: DialogueNodeContentsRenderer) -> void:
         add_child(HSeparator.new())
 
     child_contents.push_back(contents)
-    
+
     # add as child, then set node, so contents' children are created
     add_child(contents)
     contents.node = node
+
+
+func update_size() -> void:
+    for contents in child_contents:
+        contents.update_size()
 
 
 func _on_set_node() -> void:
