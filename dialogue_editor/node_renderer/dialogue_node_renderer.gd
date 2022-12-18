@@ -28,10 +28,6 @@ func _init() -> void:
     theme.set_icon("close", "GraphNode", COLLAPSE_ICON)
 
 
-func _ready() -> void:
-    self.node = node
-
-
 func set_node(new_node: DialogueNode) -> void:
     node = new_node
 
@@ -56,12 +52,10 @@ func set_is_collapsed(new_is_collapsed: bool) -> void:
             theme.set_icon("close", "GraphNode", EXPAND_ICON)
         else:
             theme.set_icon("close", "GraphNode", COLLAPSE_ICON)
-    update_contents()
 
 
 func update_contents() -> void:
     if contents:
-        contents.node = null
         remove_child(contents)
         contents.queue_free()
     contents = create_contents(node)

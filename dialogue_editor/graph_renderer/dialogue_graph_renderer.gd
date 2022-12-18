@@ -177,7 +177,7 @@ func _calculate_children_local_offset(node: DialogueNode) -> void:
     for child in node.children:
         _calculate_children_local_offset(child)
 
-        var y_offset = _calculate_bellow_node_offset(child, prev_child)
+        var y_offset = _calculate_below_node_offset(child, prev_child)
         if not prev_child:
             y_offset -= (children_height - renderer.rect_size.y) / 2
         node_renderers[child.id].offset = Vector2(renderer.rect_size.x + horizontal_spacing, y_offset)
@@ -189,7 +189,7 @@ func _calculate_children_local_offset(node: DialogueNode) -> void:
 #    _shift_children_offset(node, Vector2(0, max((renderer_height - children_height) / 2, 0)))
 
 
-func _calculate_bellow_node_offset(node, above_node) -> int:
+func _calculate_below_node_offset(node: DialogueNode, above_node: DialogueNode) -> int:
     var renderer = node_renderers[node.id]
     var children_height = _get_children_height(node)
     var delta = 0

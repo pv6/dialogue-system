@@ -8,6 +8,10 @@ signal blackboards_changed()
 
 export(String) var description
 
+# '_local_blackboard_ref' is positioned above 'root_node' because it needs to be
+#  copied in 'duplicate' before 'root_node' for auto flags to be set up properply sorryyy
+# DirectResourceReference, so that could be changed in StorageEditor
+export(Resource) var _local_blackboard_ref: Resource setget _set_local_blackboard_ref
 # DialogueNode
 export(Resource) var root_node: Resource setget set_root_node
 # Storage that contains StorageItems pointing to global actors storage
@@ -18,9 +22,6 @@ export(Resource) var blackboards: Resource setget set_blackboards
 export(int) var max_id := 0
 
 export(String) var editor_version = "0.0.0"
-
-# DirectResourceReference, so that could be changed in StorageEditor
-export(Resource) var _local_blackboard_ref: Resource setget _set_local_blackboard_ref
 
 # id -> node
 var nodes := {}
@@ -115,48 +116,23 @@ func clone() -> Clonable:
     # copy all nodes for references to exist
     for node in nodes.values():
         var copy_node = node.clone()
-        # update 'blackboards' direct reference in nodes flags
-        var logics = ["condition", "action"]
-        var flags = ["", "auto_"]
-        for logic_type in logics:
-            for flag_type in flags:
-                for flag in copy_node.get(logic_type + "_logic").get(flag_type + "flags"):
-                    if flag.blackboard:
-                        flag.blackboard.storage_item.storage_reference.direct_reference = copy.blackboards
-        # update 'actors' direct reference in speaker and listener
-        if copy_node is TextDialogueNode:
-            var actors = ["speaker", "listener"]
-            for actor_type in actors:
-                if copy_node.get(actor_type):
-                    copy_node.get(actor_type).storage_reference.direct_reference = copy.actors
 
+        # update 'blackboards' direct reference in nodes flags
+        _update_flags(copy_node, copy)
+#        # update 'actors' direct reference in speaker and listener
+        _update_actors(copy_node, copy)
 
         copy.nodes[node.id] = copy_node
 
-    # set new child-parent references
-    assert(root_node)
-    var id_stack := [root_node.id]
-    while not id_stack.empty():
-        var cur_id = id_stack.pop_front()
-
-        var orig_node := nodes[cur_id] as DialogueNode
-        var copy_node := copy.nodes[cur_id] as DialogueNode
-
-        # set children references
+    # set new child references
+    for copy_node in copy.nodes.values():
+        var orig_node := nodes[copy_node.id] as DialogueNode
         copy_node.children.clear()
         for child_node in orig_node.children:
             copy_node.children.push_back(copy.nodes[child_node.id])
-            id_stack.push_back(child_node.id)
-
-        # set reference node reference
-        var orig_ref_node := orig_node as ReferenceDialogueNode
-        if orig_ref_node:
-            var copy_ref_node := copy_node as ReferenceDialogueNode
-            assert(copy_ref_node)
-            copy_ref_node.referenced_node_id = orig_ref_node.referenced_node_id
 
     # set root node
-    copy.root_node = copy.nodes[root_node.id]
+    copy._set_root_node_directly(copy.nodes[root_node.id])
 
     # copy local blackboard (both ResourceReference and Storage within)
     copy._local_blackboard_ref = _local_blackboard_ref.clone()
@@ -185,3 +161,24 @@ func _update_auto_flags() -> void:
         visited_flag.value = true
         node.action_logic.auto_flags.push_back(visited_flag)
 
+
+func _set_root_node_directly(new_root_node: DialogueNode) -> void:
+    root_node = new_root_node
+
+
+func _update_flags(copy_node: DialogueNode, copy: Dialogue) -> void:
+    var logics = ["condition", "action"]
+    var flags = ["", "auto_"]
+    for logic_type in logics:
+        for flag_type in flags:
+            for flag in copy_node.get(logic_type + "_logic").get(flag_type + "flags"):
+                if flag.blackboard:
+                    flag.blackboard.storage_item.storage_reference.direct_reference = copy.blackboards
+
+
+func _update_actors(copy_node: DialogueNode, copy: Dialogue) -> void:
+    if copy_node is TextDialogueNode:
+        var actors = ["speaker", "listener"]
+        for actor_type in actors:
+            if copy_node.get(actor_type):
+                copy_node.get(actor_type).storage_reference.direct_reference = copy.actors
