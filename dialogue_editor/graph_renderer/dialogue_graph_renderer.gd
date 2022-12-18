@@ -98,6 +98,7 @@ func update_graph() -> void:
         for child in node_renderer.node.children:
             connect_node(node_renderer.name, 0, node_renderers[child.id].name, 0)
 
+    _update_renderer_offsets()
     call_deferred("update_node_sizes")
 
 
