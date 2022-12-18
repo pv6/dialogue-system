@@ -22,6 +22,9 @@ var collapsed_nodes: Dictionary
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
+var _cached_node_heights := {}
+var _cached_children_heights := {}
+
 
 func _init() -> void:
     collapsed_nodes = {}
@@ -72,10 +75,7 @@ func update_graph() -> void:
 
     # remove old renderers
     for renderer in node_renderers.values():
-        renderer.node = null
         remove_child(renderer)
-        renderer.disconnect("dragged", self, "_on_node_dragged")
-        renderer.disconnect("close_request", self, "_on_node_collapsed")
         renderer.queue_free()
     node_renderers.clear()
 
@@ -103,7 +103,11 @@ func update_graph() -> void:
 
 
 func _update_renderer_offsets() -> void:
-    _calculate_node_position(dialogue.root_node, Vector2(0, 0))
+    _cached_node_heights = {}
+    _cached_children_heights = {}
+
+    _calculate_children_local_offset(dialogue.root_node)
+    _calculate_children_global_offset(dialogue.root_node)
     var root_renderer = node_renderers[dialogue.root_node.id]
     var root_offset = root_renderer.offset + Vector2(root_renderer.rect_size.x / 2, -root_renderer.rect_size.y / 2)
     for renderer in node_renderers.values():
@@ -113,30 +117,39 @@ func _update_renderer_offsets() -> void:
 func _get_children_height(node: DialogueNode) -> int:
     if node.children.empty() or collapsed_nodes.has(node.id):
         return 0
-    var sum = 0
-    for child in node.children:
-        sum += _get_height(child)
-    return sum + (node.children.size() - 1) * vertical_spacing
+    if not _cached_children_heights.has(node):
+        var sum = 0
+        for child in node.children:
+            sum += _get_height(child)
+        _cached_children_heights[node] = sum + (node.children.size() - 1) * vertical_spacing
+    return _cached_children_heights[node]
 
 
 func _get_height(node: DialogueNode) -> int:
     if not node:
         return 0
-    return int(max(node_renderers[node.id].rect_size.y, _get_children_height(node)))
+    if not _cached_node_heights.has(node):
+        _cached_node_heights[node] = int(max(node_renderers[node.id].rect_size.y, _get_children_height(node)))
+    return _cached_node_heights[node]
 
 
 func _get_bottom(node: DialogueNode) -> int:
     if not node:
         return 0
     var renderer = node_renderers[node.id]
-    return renderer.offset.y + renderer.rect_size.y / 2 + _get_height(node) / 2 + vertical_spacing
+    var children_height = _get_children_height(node)
+
+    var delta = renderer.rect_size.y
+    if children_height > renderer.rect_size.y:
+        delta = renderer.rect_size.y / 2 + children_height / 2
+    return renderer.offset.y + delta + vertical_spacing
 
 
 func _shift_offset(node: DialogueNode, shift: Vector2) -> void:
     if not node:
         return
     node_renderers[node.id].offset += shift
-    _shift_children_offset(node, shift)
+#    _shift_children_offset(node, shift)
 
 
 func _shift_children_offset(node: DialogueNode, shift: Vector2) -> void:
@@ -146,21 +159,43 @@ func _shift_children_offset(node: DialogueNode, shift: Vector2) -> void:
         _shift_offset(child, shift)
 
 
-func _calculate_node_position(node: DialogueNode, start_pos: Vector2) -> void:
-    if not node:
+func _calculate_children_global_offset(node) -> void:
+    if collapsed_nodes.has(node.id):
         return
-    var prev_child = null
-    if not collapsed_nodes.has(node.id):
-        for child in node.children:
-            _calculate_node_position(child, Vector2(node_renderers[node.id].rect_size.x + horizontal_spacing, _get_bottom(prev_child)))
-            prev_child = child
-    var cur_height = _get_height(node)
+    for child in node.children:
+        _shift_offset(child, node_renderers[node.id].offset)
+        _calculate_children_global_offset(child)
+
+
+func _calculate_children_local_offset(node: DialogueNode) -> void:
+    if not node or collapsed_nodes.has(node.id):
+        return
     var renderer = node_renderers[node.id]
-    var renderer_height = renderer.rect_size.y
     var children_height = _get_children_height(node)
-    renderer.offset = Vector2(0, cur_height / 2 - renderer_height / 2)
-    _shift_offset(node, Vector2(start_pos.x, start_pos.y))
-    _shift_children_offset(node, Vector2(0, max((renderer_height - children_height) / 2, 0)))
+
+    var prev_child = null
+    for child in node.children:
+        _calculate_children_local_offset(child)
+
+        var y_offset = _calculate_bellow_node_offset(child, prev_child)
+        if not prev_child:
+            y_offset -= (children_height - renderer.rect_size.y) / 2
+        node_renderers[child.id].offset = Vector2(renderer.rect_size.x + horizontal_spacing, y_offset)
+        prev_child = child
+
+#    var cur_height = _get_height(node)
+#    var children_height = _get_children_height(node)
+#    renderer.offset = Vector2(0, cur_height / 2 - renderer_height / 2)
+#    _shift_children_offset(node, Vector2(0, max((renderer_height - children_height) / 2, 0)))
+
+
+func _calculate_bellow_node_offset(node, above_node) -> int:
+    var renderer = node_renderers[node.id]
+    var children_height = _get_children_height(node)
+    var delta = 0
+    if renderer.rect_size.y < children_height:
+        delta = children_height / 2 - renderer.rect_size.y / 2
+    return _get_bottom(above_node) + delta
 
 
 func _add_node_renderer(node: DialogueNode) -> void:
@@ -174,11 +209,22 @@ func _add_node_renderer(node: DialogueNode) -> void:
 
 
 func _recursively_add_node_renderers(node: DialogueNode) -> void:
-    _add_node_renderer(node)
-    if collapsed_nodes.has(node.id):
-        return
-    for child in node.children:
-        _recursively_add_node_renderers(child)
+    var stack := [node]
+    while not stack.empty():
+        node = stack.pop_back()
+        _add_node_renderer(node)
+        if collapsed_nodes.has(node.id):
+            continue
+        for child in node.children:
+            stack.push_back(child)
+
+
+#func _recursively_add_node_renderers(node: DialogueNode) -> void:
+#    _add_node_renderer(node)
+#    if collapsed_nodes.has(node.id):
+#        return
+#    for child in node.children:
+#        _recursively_add_node_renderers(child)
 
 
 func _on_node_dragged(from: Vector2, to: Vector2, node_renderer: DialogueNodeRenderer) -> void:
