@@ -58,7 +58,7 @@ func set_selected_node_ids(new_ids: Array) -> void:
 func update_node_sizes() -> void:
     for renderer in node_renderers.values():
         renderer.contents.update_size()
-    _update_renderer_offsets()
+    call_deferred("_update_renderer_offsets")
 
 
 func update_graph() -> void:
