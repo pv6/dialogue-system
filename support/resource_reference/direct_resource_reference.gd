@@ -8,8 +8,8 @@ export(Resource) var direct_reference: Resource setget set_direct_reference
 
 func _init(direct_reference: Resource = null) -> void:
     self.direct_reference = direct_reference
-    
-    
+
+
 func set_resource(new_resource: Resource) -> void:
     self.direct_reference = new_resource
 

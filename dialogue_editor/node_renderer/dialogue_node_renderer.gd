@@ -55,12 +55,15 @@ func set_is_collapsed(new_is_collapsed: bool) -> void:
 
 
 func update_contents() -> void:
-    if contents:
-        remove_child(contents)
-        contents.queue_free()
-    contents = create_contents(node)
-    if contents:
-        add_child(contents)
+    if not node or not contents or not contents.node or node.get_script().get_path() != contents.node.get_script().get_path():
+        if contents:
+            remove_child(contents)
+            contents.queue_free()
+        contents = create_contents(node)
+        if contents:
+            add_child(contents)
+    else:
+        contents.node = node
 
 
 func set_style(style: DialogueNodeStyle) -> void:

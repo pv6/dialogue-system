@@ -6,6 +6,7 @@ extends GraphEdit
 signal collapsed_nodes_changed()
 
 const NODE_RENDERER_SCENE := preload("../node_renderer/dialogue_node_renderer.tscn")
+const CACHED_RENDERER_OFFSET := Vector2(-690, 0)
 
 export(int) var vertical_spacing := 30
 export(int) var horizontal_spacing := 30
@@ -24,6 +25,9 @@ var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dial
 
 var _cached_node_heights := {}
 var _cached_children_heights := {}
+
+var _cached_node_renderers: Array
+var _used_node_renderers: int
 
 
 func _init() -> void:
@@ -74,9 +78,6 @@ func update_graph() -> void:
             disconnect_node(node_renderer_a.name, 0, node_renderer_b.name, 0)
 
     # remove old renderers
-    for renderer in node_renderers.values():
-        remove_child(renderer)
-        renderer.queue_free()
     node_renderers.clear()
 
     if not dialogue:
@@ -84,7 +85,12 @@ func update_graph() -> void:
     assert(dialogue.root_node)
 
     # create node renderers
+    var old_used_renderers = _used_node_renderers
     _recursively_add_node_renderers(dialogue.root_node)
+    for i in range(_used_node_renderers, old_used_renderers):
+        _cached_node_renderers[i].node = null
+        _cached_node_renderers[i].hide()
+        _cached_node_renderers[i].offset = CACHED_RENDERER_OFFSET
 
     # restore selected nodes
     for id in selected:
@@ -198,17 +204,36 @@ func _calculate_below_node_offset(node: DialogueNode, above_node: DialogueNode) 
     return _get_bottom(above_node) + delta
 
 
+func _allocate_node_renderer() -> DialogueNodeRenderer:
+    _used_node_renderers += 1
+
+    if _used_node_renderers > _cached_node_renderers.size():
+        _cached_node_renderers.resize(_used_node_renderers * 2)
+        for i in range(_used_node_renderers - 1, _cached_node_renderers.size()):
+            var node_renderer = NODE_RENDERER_SCENE.instance() as DialogueNodeRenderer
+            _cached_node_renderers[i] = node_renderer
+            add_child(node_renderer)
+            node_renderer.connect("dragged", self, "_on_node_dragged", [node_renderer])
+            node_renderer.connect("close_request", self, "_on_node_collapsed", [node_renderer])
+            node_renderer.hide()
+            node_renderer.offset = CACHED_RENDERER_OFFSET
+
+
+    var res = _cached_node_renderers[_used_node_renderers - 1]
+    res.show()
+
+    return res
+
+
 func _add_node_renderer(node: DialogueNode) -> void:
-    var node_renderer := NODE_RENDERER_SCENE.instance() as DialogueNodeRenderer
+    var node_renderer = _allocate_node_renderer()
     node_renderers[node.id] = node_renderer
     node_renderer.node = node
     node_renderer.is_collapsed = collapsed_nodes.has(node.id)
-    node_renderer.connect("dragged", self, "_on_node_dragged", [node_renderer])
-    node_renderer.connect("close_request", self, "_on_node_collapsed", [node_renderer.node.id])
-    add_child(node_renderer)
 
 
 func _recursively_add_node_renderers(node: DialogueNode) -> void:
+    _used_node_renderers = 0
     var stack := [node]
     while not stack.empty():
         node = stack.pop_back()
