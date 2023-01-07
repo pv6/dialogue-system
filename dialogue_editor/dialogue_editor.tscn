@@ -232,6 +232,7 @@ resource = SubResource( 8 )
 [connection signal="open_dialogue_actors_editor" from="VBoxContainer/MenuButtonsContainer/EditorMenuButton" to="." method="open_actors_editor"]
 [connection signal="open_global_actors_editor" from="VBoxContainer/MenuButtonsContainer/EditorMenuButton" to="." method="open_global_actors_editor"]
 [connection signal="open_global_tags_editor" from="VBoxContainer/MenuButtonsContainer/TagsMenuButton" to="." method="open_global_tags_editor"]
+[connection signal="collapsed_nodes_changed" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_collapsed_nodes_changed"]
 [connection signal="copy_nodes_request" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_graph_renderer_copy_nodes_request"]
 [connection signal="delete_nodes_request" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_graph_renderer_delete_nodes_request"]
 [connection signal="duplicate_nodes_request" from="VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer" to="." method="_on_graph_renderer_duplicate_nodes_request"]

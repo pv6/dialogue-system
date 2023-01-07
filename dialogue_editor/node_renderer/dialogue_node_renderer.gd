@@ -39,10 +39,10 @@ func set_node(new_node: DialogueNode) -> void:
 
     set_style(style_manager.get_style(new_node))
 
-    if node as ReferenceDialogueNode:
+    if node is ReferenceDialogueNode:
         self_modulate.v *= _session.settings.reference_node_brightness
 
-    set_slot(0, true, 0, Color.gray, not is_collapsed, 0, Color.gray)
+    _update_slots()
 
 
 func set_is_collapsed(new_is_collapsed: bool) -> void:
@@ -52,6 +52,7 @@ func set_is_collapsed(new_is_collapsed: bool) -> void:
             theme.set_icon("close", "GraphNode", EXPAND_ICON)
         else:
             theme.set_icon("close", "GraphNode", COLLAPSE_ICON)
+    _update_slots()
 
 
 func update_contents() -> void:
@@ -85,3 +86,7 @@ static func create_contents(node) -> DialogueNodeContentsRenderer:
 
     contents.node = node
     return contents
+
+
+func _update_slots() -> void:
+    set_slot(0, not node is RootDialogueNode, 0, Color.gray, not is_collapsed, 0, Color.gray)

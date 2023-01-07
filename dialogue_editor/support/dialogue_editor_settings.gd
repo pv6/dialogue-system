@@ -13,6 +13,8 @@ export(float, 0, 1) var reference_node_brightness := 0.8 setget set_reference_no
 export(int) var text_node_min_lines := 4 setget set_text_node_min_lines
 export(int) var comment_min_lines := 4 setget set_comment_min_lines
 
+export(Vector2) var node_min_size := Vector2(300, 200) setget set_node_min_size
+
 
 func set_global_actors(new_global_actors: Storage) -> void:
     if global_actors != new_global_actors:
@@ -47,4 +49,10 @@ func set_text_node_min_lines(new_text_node_min_lines: int) -> void:
 func set_comment_min_lines(new_comment_min_lines: int) -> void:
     if comment_min_lines != new_comment_min_lines:
         comment_min_lines = new_comment_min_lines
+        emit_changed()
+
+
+func set_node_min_size(new_node_min_size: Vector2) -> void:
+    if node_min_size != new_node_min_size:
+        node_min_size = new_node_min_size
         emit_changed()

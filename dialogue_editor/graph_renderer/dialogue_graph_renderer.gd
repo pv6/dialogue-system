@@ -62,9 +62,14 @@ func set_selected_node_ids(new_ids: Array) -> void:
         node_renderers[id].selected = true
 
 
+func deselect_all() -> void:
+    set_selected_node_ids([])
+
+
 func update_node_sizes() -> void:
     for renderer in node_renderers.values():
         renderer.contents.update_size()
+        renderer.rect_size = _session.settings.node_min_size
     call_deferred("_update_renderer_offsets")
 
 
@@ -88,9 +93,7 @@ func update_graph() -> void:
     var old_used_renderers = _used_node_renderers
     _recursively_add_node_renderers(dialogue.root_node)
     for i in range(_used_node_renderers, old_used_renderers):
-        _cached_node_renderers[i].node = null
-        _cached_node_renderers[i].hide()
-        _cached_node_renderers[i].offset = CACHED_RENDERER_OFFSET
+        _reset_node_renderer(_cached_node_renderers[i])
 
     # restore selected nodes
     for id in selected:
@@ -208,19 +211,18 @@ func _allocate_node_renderer() -> DialogueNodeRenderer:
     _used_node_renderers += 1
 
     if _used_node_renderers > _cached_node_renderers.size():
-        _cached_node_renderers.resize(_used_node_renderers * 2)
+        _cached_node_renderers.resize(_used_node_renderers)
         for i in range(_used_node_renderers - 1, _cached_node_renderers.size()):
             var node_renderer = NODE_RENDERER_SCENE.instance() as DialogueNodeRenderer
             _cached_node_renderers[i] = node_renderer
             add_child(node_renderer)
             node_renderer.connect("dragged", self, "_on_node_dragged", [node_renderer])
             node_renderer.connect("close_request", self, "_on_node_collapsed", [node_renderer])
-            node_renderer.hide()
-            node_renderer.offset = CACHED_RENDERER_OFFSET
+            _reset_node_renderer(node_renderer)
 
-
-    var res = _cached_node_renderers[_used_node_renderers - 1]
+    var res: DialogueNodeRenderer = _cached_node_renderers[_used_node_renderers - 1]
     res.show()
+    res.selected = false
 
     return res
 
@@ -298,10 +300,23 @@ func _drag_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return null
 
 
-func _on_node_collapsed(node_id: int) -> void:
-    if collapsed_nodes.has(node_id):
-        collapsed_nodes.erase(node_id)
+func _on_node_collapsed(node_renderer: DialogueNodeRenderer) -> void:
+    if not node_renderer or not node_renderer.node:
+        return
+
+    if collapsed_nodes.has(node_renderer.node.id):
+        collapsed_nodes.erase(node_renderer.node.id)
     else:
-        collapsed_nodes[node_id] = true
+        collapsed_nodes[node_renderer.node.id] = true
+
     update_graph()
     emit_signal("collapsed_nodes_changed")
+
+
+func _reset_node_renderer(node_renderer: DialogueNodeRenderer) -> void:
+    if not node_renderer:
+        return
+    node_renderer.node = null
+    node_renderer.selected = false
+    node_renderer.offset = CACHED_RENDERER_OFFSET
+    node_renderer.hide()

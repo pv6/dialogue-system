@@ -13,11 +13,15 @@ onready var _node_name = $Contents/NodeName
 
 
 func select_node(node: DialogueNode) -> void:
+    if not node:
+        return
     _nodes[node.id] = node
     _update_widget_node()
 
 
 func unselect_node(node: DialogueNode) -> void:
+    if not node:
+        return
     _nodes.erase(node.id)
     _update_widget_node()
 

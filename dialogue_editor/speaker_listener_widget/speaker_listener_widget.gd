@@ -12,7 +12,7 @@ onready var _listener_picker: StorageItemEditor = $SpeakerListener/ListenerPicke
 
 func set_text_node(new_text_node: TextDialogueNode) -> void:
     text_node = new_text_node
-    
+
     if not _speaker_picker or not _listener_picker:
         return
 
@@ -73,7 +73,7 @@ func _on_swap_button_pressed() -> void:
 
 func _swap_speaker_listener(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     var node = dialogue.nodes[text_node.id]
-    
+
     # don't commit action if speaker and listener are equal
     if not node.listener:
         if not node.speaker:
@@ -81,7 +81,7 @@ func _swap_speaker_listener(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     else:
         if node.listener.equals(node.speaker):
             return null
-            
+
     node.speaker = text_node.listener
     node.listener = text_node.speaker
     return dialogue
