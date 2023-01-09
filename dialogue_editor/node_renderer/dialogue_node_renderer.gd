@@ -90,4 +90,4 @@ static func create_contents(node) -> DialogueNodeContentsRenderer:
 
 
 func _update_slots() -> void:
-    set_slot(0, not node is RootDialogueNode, 0, Color.gray, not is_collapsed, 0, Color.gray)
+    set_slot(0, not node is RootDialogueNode, 0, Color.gray, not is_collapsed and not node is ReferenceDialogueNode, 0, Color.gray)
