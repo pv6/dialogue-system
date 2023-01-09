@@ -39,6 +39,7 @@ func set_node(new_node: DialogueNode) -> void:
 
     set_style(style_manager.get_style(new_node))
 
+    self_modulate.v = 1
     if node is ReferenceDialogueNode:
         self_modulate.v *= _session.settings.reference_node_brightness
 

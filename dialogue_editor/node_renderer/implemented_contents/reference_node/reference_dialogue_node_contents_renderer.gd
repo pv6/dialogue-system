@@ -11,10 +11,6 @@ onready var _jump_to_option_button: OptionButton = $JumpToContents/OptionButton
 onready var _referenced_contents: DialogueNodeContentsRenderer
 
 
-func _ready() -> void:
-    self_modulate.v = 1
-
-
 func _on_set_node() -> void:
     _reference_node = node as ReferenceDialogueNode
 
