@@ -12,15 +12,15 @@ onready var _path_edit: LineEdit = $Contents/PathEdit
 
 func get_item():
     if Directory.new().file_exists(_path):
-        var resource = load(_path)
+        # var resource = load(_path)
         # TODO: validate resource
         # ...
-        return resource
+        return ExternalResourceReference.new(_path)
     return null
 
 
 func set_item(item) -> void:
-    self._path = item.resource_path
+    self._path = item.external_path
 
 
 func reset_item() -> void:

@@ -34,7 +34,7 @@ func set_selected_blackboard(new_selected_blackboard: StorageItem) -> void:
         _storage_picker.select(new_selected_blackboard.storage_id)
     else:
         _storage_picker.select(-1)
-        
+
 
 func get_selected_blackboard() -> StorageItem:
     if not _storage_picker or not _storage_picker.storage:
@@ -71,7 +71,7 @@ func _add_blackboards(dialogue: Dialogue, args: Dictionary) -> Dialogue:
         return null
 
     var indices := []
-    
+
     for blackboard in blackboards_to_add:
         var index = dialogue.add_blackboard(blackboard)
         if index != -1:
