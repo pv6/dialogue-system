@@ -92,8 +92,13 @@ func update_graph() -> void:
     # create node renderers
     var old_used_renderers = _used_node_renderers
     _recursively_add_node_renderers(dialogue.root_node)
-    for i in range(_used_node_renderers, old_used_renderers):
-        _reset_node_renderer(_cached_node_renderers[i])
+    if _session.settings.cache_unused_node_renderers:
+        for i in range(_used_node_renderers, old_used_renderers):
+            _reset_node_renderer(_cached_node_renderers[i])
+    else:
+        for i in range(_used_node_renderers, _cached_node_renderers.size()):
+            _cached_node_renderers[i].queue_free()
+        _cached_node_renderers.resize(_used_node_renderers)
 
     # restore selected nodes
     for id in selected:
@@ -255,6 +260,8 @@ func _recursively_add_node_renderers(node: DialogueNode) -> void:
 
 
 func _on_node_dragged(from: Vector2, to: Vector2, node_renderer: DialogueNodeRenderer) -> void:
+    if not node_renderer.visible:
+        return
     _session.dialogue_undo_redo.commit_action("Drag Node", self, "_drag_node",
             {"from": from, "to": to, "node_renderer": node_renderer})
 

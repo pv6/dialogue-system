@@ -15,6 +15,8 @@ export(int) var comment_min_lines := 4 setget set_comment_min_lines
 
 export(Vector2) var node_min_size := Vector2(300, 200) setget set_node_min_size
 
+export(bool) var cache_unused_node_renderers := false setget set_cache_unused_node_renderers
+
 
 func set_global_actors(new_global_actors: Storage) -> void:
     if global_actors != new_global_actors:
@@ -55,4 +57,10 @@ func set_comment_min_lines(new_comment_min_lines: int) -> void:
 func set_node_min_size(new_node_min_size: Vector2) -> void:
     if node_min_size != new_node_min_size:
         node_min_size = new_node_min_size
+        emit_changed()
+
+
+func set_cache_unused_node_renderers(new_cache_unused_node_renderers: bool) -> void:
+    if cache_unused_node_renderers != new_cache_unused_node_renderers:
+        cache_unused_node_renderers = new_cache_unused_node_renderers
         emit_changed()
