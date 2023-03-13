@@ -44,5 +44,11 @@ func _update_contents() -> void:
 
 
 func _on_jump_to_option_button_item_selected(index: int):
-    if _reference_node:
-        _reference_node.jump_to = index
+    _session.dialogue_undo_redo.commit_action("Set Jump To", self, "_set_jump_to", {"jump_to": index})
+
+
+func _set_jump_to(dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    if not node:
+        return null
+    dialogue.nodes[node.id].jump_to = args["jump_to"]
+    return dialogue
