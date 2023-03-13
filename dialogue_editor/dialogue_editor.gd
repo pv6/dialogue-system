@@ -140,11 +140,13 @@ func shallow_delete_selected_nodes() -> void:
 func new_dialogue() -> void:
     print("New Dialogue")
     _working_dialogue_manager.new_file()
+    graph_renderer.collapsed_nodes.clear()
 
 
 func open_dialogue() -> void:
     print("Open Dialogue")
     _working_dialogue_manager.open()
+    graph_renderer.collapsed_nodes.clear()
 
 
 func save_dialogue() -> void:

@@ -12,6 +12,7 @@ export(int) var vertical_spacing := 30
 export(int) var horizontal_spacing := 30
 export(float) var dragging_percentage := 0.69
 
+# Dialogue
 export(Resource) var dialogue: Resource setget set_dialogue
 
 export(Array) var selected_node_ids: Array setget set_selected_node_ids, get_selected_node_ids
@@ -19,6 +20,7 @@ export(Array) var selected_node_ids: Array setget set_selected_node_ids, get_sel
 # node id -> renderer
 var node_renderers: Dictionary
 
+# Set of ids
 var collapsed_nodes: Dictionary
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
