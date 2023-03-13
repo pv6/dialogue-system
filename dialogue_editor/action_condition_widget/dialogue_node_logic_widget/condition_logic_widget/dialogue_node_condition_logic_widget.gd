@@ -3,12 +3,15 @@ extends "res://addons/dialogue_system/dialogue_editor/action_condition_widget/di
 
 
 onready var _can_only_visit_once_checkbox: CheckBox = $CanOnlyVisitOnceContainer/CheckBox
+onready var _can_only_visit_once_label: Label = $CanOnlyVisitOnceContainer/Label
 
 
 func set_disabled(new_disabled: bool) -> void:
     .set_disabled(new_disabled)
     if _can_only_visit_once_checkbox:
         _can_only_visit_once_checkbox.disabled = new_disabled
+    if _can_only_visit_once_label:
+        _can_only_visit_once_label.modulate.v = 0.5 if disabled else 1.0
 
 
 func _on_can_only_visit_once_check_box_toggled(button_pressed: bool) -> void:

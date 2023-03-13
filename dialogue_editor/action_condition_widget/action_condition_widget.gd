@@ -41,7 +41,7 @@ func _update_widget_node() -> void:
             _condition_widget.logic_widget.disabled = true
             _action_widget.logic_widget.disabled = true
         else:
-            _condition_widget.logic_widget.disabled = false
+            _condition_widget.logic_widget.disabled = node is RootDialogueNode
             _action_widget.logic_widget.disabled = false
         _set_node(node)
         _node_name.text = node.get_name()
