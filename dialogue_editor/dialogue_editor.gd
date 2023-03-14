@@ -187,7 +187,9 @@ func open_dialogue_blackboards_editor() -> void:
     dialogue_blackboards_editor.popup_centered()
 
 
-func open_blackboard_editor(blackboard: StorageItem) -> void:
+func open_blackboard_editor(blackboard: StorageItem = null) -> void:
+    if not blackboard:
+        blackboard = get_dialogue().blackboards.get_item_reference(0)
     blackboard_editor.blackboard = blackboard
     blackboard_editor.popup_centered()
 
