@@ -30,7 +30,7 @@ onready var _portrait: TextureRect = $Control/Portrait
 func _ready():
     if not Engine.editor_hint:
         start_dialogue()
-    
+
 
 func _clear() -> void:
     _say_options.hide()
@@ -48,7 +48,7 @@ func _spawn_say_button(index: int, say_node: SayDialogueNode) -> void:
     button.text = say_node.text
     button.text_color = say_option_color
     button.connect("pressed", self, "_on_say_option_selected", [say_node])
-    
+
     _say_options.add_child(button)
 
 
@@ -65,7 +65,7 @@ func _set_hear_node(hear_node: HearDialogueNode) -> void:
         _portrait.texture = actor.portrait
     else:
         _portrait.texture = null
-    
+
     var node_renderer: ColumnNodeRenderer = COLUMN_NODE_RENDERER_SCENE.instance()
     node_renderer.speaker = _dialogue_player.get_actor_implementation(hear_node.speaker)
     node_renderer.node_text = hear_node.text
@@ -87,7 +87,7 @@ func _scroll_down() -> void:
 func _on_say_option_selected(say_node: SayDialogueNode) -> void:
     # clear previous hear node
     _clear_current_node()
-    
+
     # save selected say option into history
     var node_renderer: ColumnNodeRenderer = COLUMN_NODE_RENDERER_SCENE.instance()
     node_renderer.speaker = _dialogue_player.get_actor_implementation(say_node.speaker)
@@ -104,7 +104,6 @@ func _clear_current_node() -> void:
     _say_options.hide()
     _continue_button.hide()
     _end_button.hide()
-    
 
 
 func _clear_say_options() -> void:

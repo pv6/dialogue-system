@@ -9,7 +9,7 @@ signal blackboards_changed()
 export(String) var description
 
 # '_local_blackboard_ref' is positioned above 'root_node' because it needs to be
-#  copied in 'duplicate' before 'root_node' for auto flags to be set up properply sorryyy
+# copied in 'duplicate' before 'root_node' for auto flags to be set up properply sorryyy
 # DirectResourceReference, so that could be changed in StorageEditor
 export(Resource) var _local_blackboard_ref: Resource setget _set_local_blackboard_ref
 # DialogueNode
