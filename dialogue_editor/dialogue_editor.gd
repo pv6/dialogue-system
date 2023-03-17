@@ -9,6 +9,8 @@ const DEFAULT_SETTINGS_PATH := "res://dialogue_editor_settings.tres"
 const DEFAULT_GLOBAL_ACTORS_PATH := "res://dialogue_global_actors.tres"
 const DEFAULT_GLOBAL_TAGS_PATH := "res://dialogue_global_tags.tres"
 
+const StorageEditorDialog := preload("res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor_dialog/storage_editor_dialog.gd")
+
 export(Resource) var settings: Resource setget set_settings
 
 var session: DialogueEditorSession = preload("session.tres")
@@ -23,12 +25,12 @@ var _edited_text_node_id: int
 
 onready var graph_renderer: DialogueGraphRenderer = $VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer
 onready var action_condition_widget: ActionConditionWidget = $VBoxContainer/TabContainer/HSplitContainer/ActionConditionWidget
-onready var actors_editor: AcceptDialog = $ActorsEditor
-onready var tags_editor: AcceptDialog = $TagsEditor
-onready var dialogue_blackboards_editor: AcceptDialog = $DialogueBlackboardsEditor
+onready var actors_editor: StorageEditorDialog = $ActorsEditor
+onready var tags_editor: StorageEditorDialog = $TagsEditor
+onready var dialogue_blackboards_editor: StorageEditorDialog = $DialogueBlackboardsEditor
 onready var blackboard_editor: AcceptDialog = $BlackboardEditor
-onready var global_actors_editor: AcceptDialog = $GlobalActorsEditor
-onready var global_tags_editor: AcceptDialog = $GlobalTagsEditor
+onready var global_actors_editor: StorageEditorDialog = $GlobalActorsEditor
+onready var global_tags_editor: StorageEditorDialog = $GlobalTagsEditor
 
 onready var _working_dialogue_manager: WorkingResourceManager = $WorkingDialogueManager
 onready var _tab_container: TabContainer = $VBoxContainer/TabContainer

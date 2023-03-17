@@ -22,7 +22,7 @@ onready var _edit_button: IconButton = $EditButton
 
 
 func _ready() -> void:
-    _session.connect("changed", self, "_on_session_changed")
+    _session.settings.connect("changed", self, "_on_settings_changed")
     _update_tag_picker()
 
 
@@ -100,12 +100,12 @@ func _on_add_tag_dialog_about_to_show():
 
 
 func _update_tag_picker() -> void:
-    # set selectable tags to global tags
+    # set global tags as selectable tags
     _add_tag_picker.storage = _session.settings.global_tags
     update_tag_renderers()
 
 
-func _on_session_changed() -> void:
+func _on_settings_changed() -> void:
     _update_tag_picker()
 
 

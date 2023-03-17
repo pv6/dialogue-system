@@ -162,6 +162,7 @@ items = [ "Edit Global Tags...", null, 0, false, false, 0, 0, null, "", false ]
 [node name="BlackboardsMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 22 )]
 margin_left = 223.0
 margin_right = 312.0
+items = [ "Edit Blackboard...", null, 0, false, false, 0, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Edit Dialogue Blackboards...", null, 0, false, false, 1, 0, null, "", false ]
 
 [node name="TabContainer" type="TabContainer" parent="VBoxContainer"]
 margin_top = 24.0
