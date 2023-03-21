@@ -17,11 +17,10 @@ func update_size() -> void:
 
 func _update_contents() -> void:
     if not node:
-        self.has_comment = false
+        set_has_comment(false)
         return
 
-    if node.comment != "":
-        self.has_comment = true
+    set_has_comment(node.comment != "")
 
     # don't update text if already has it to avoid caret resetting
     if _comment_text_edit and _comment_text_edit.text != node.comment:
