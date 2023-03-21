@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/dialogue_editor.gd" type="Script" id=1]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/graph_renderer/dialogue_graph_renderer.tscn" type="PackedScene" id=2]
@@ -6,121 +6,14 @@
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/node/node_menu_button.tscn" type="PackedScene" id=4]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/blackboard_editor/blackboard_editor.tscn" type="PackedScene" id=5]
 [ext_resource path="res://dialogue_editor_settings.tres" type="Resource" id=6]
-[ext_resource path="res://addons/dialogue_system/support/resource_reference/storage_item_resource_reference.gd" type="Script" id=7]
-[ext_resource path="res://addons/dialogue_system/dialogue/implemented_nodes/root_dialogue_node.gd" type="Script" id=8]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/action_condition_widget.tscn" type="PackedScene" id=9]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor_dialog/storage_editor_dialog.tscn" type="PackedScene" id=10]
-[ext_resource path="res://addons/dialogue_system/support/storage_item.gd" type="Script" id=11]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/working_resource_manager/working_resource_manager.gd" type="Script" id=12]
-[ext_resource path="res://addons/dialogue_system/dialogue/logic/dialogue_node_logic.gd" type="Script" id=13]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/file_dialog/storage_item_file_dialog_editor.tscn" type="PackedScene" id=14]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/storage_picker/storage_item_storage_picker_editor.tscn" type="PackedScene" id=15]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/actors/actors_menu_button.tscn" type="PackedScene" id=16]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/tags/tags_menu_button.tscn" type="PackedScene" id=17]
-[ext_resource path="res://addons/dialogue_system/support/resource_reference/direct_resource_reference.gd" type="Script" id=18]
-[ext_resource path="res://addons/dialogue_system/support/storage.gd" type="Script" id=19]
-[ext_resource path="res://addons/dialogue_system/dialogue/logic/dialogue_flag.gd" type="Script" id=20]
-[ext_resource path="res://addons/dialogue_system/dialogue/dialogue.gd" type="Script" id=21]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/blackboards/blackboards_menu_button.tscn" type="PackedScene" id=22]
-
-[sub_resource type="Resource" id=1]
-script = ExtResource( 19 )
-max_id = 1
-must_be_unique = true
-_data = {
-0: "auto_visited_node_0"
-}
-_locked_indices = {
-}
-_hidden_indices = {
-0: true
-}
-
-[sub_resource type="Resource" id=2]
-script = ExtResource( 18 )
-direct_reference = SubResource( 1 )
-
-[sub_resource type="Resource" id=3]
-script = ExtResource( 19 )
-max_id = 0
-must_be_unique = true
-_data = {
-}
-_locked_indices = {
-}
-_hidden_indices = {
-}
-
-[sub_resource type="Resource" id=4]
-script = ExtResource( 19 )
-max_id = 1
-must_be_unique = true
-_data = {
-0: SubResource( 2 )
-}
-_locked_indices = {
-0: true
-}
-_hidden_indices = {
-}
-
-[sub_resource type="Resource" id=5]
-script = ExtResource( 18 )
-direct_reference = SubResource( 4 )
-
-[sub_resource type="Resource" id=6]
-script = ExtResource( 11 )
-storage_reference = SubResource( 5 )
-storage_id = 0
-
-[sub_resource type="Resource" id=7]
-script = ExtResource( 7 )
-storage_item = SubResource( 6 )
-
-[sub_resource type="Resource" id=8]
-script = ExtResource( 11 )
-storage_reference = SubResource( 7 )
-storage_id = 0
-
-[sub_resource type="Resource" id=9]
-script = ExtResource( 20 )
-blackboard_field = SubResource( 8 )
-value = true
-
-[sub_resource type="Resource" id=10]
-script = ExtResource( 13 )
-flags = [  ]
-auto_flags = [ SubResource( 9 ) ]
-node_script = ""
-use_flags = true
-use_script = false
-
-[sub_resource type="Resource" id=11]
-script = ExtResource( 13 )
-flags = [  ]
-auto_flags = [  ]
-node_script = ""
-use_flags = true
-use_script = false
-
-[sub_resource type="Resource" id=12]
-script = ExtResource( 8 )
-children = [  ]
-id = 0
-parent_id = -1
-condition_logic = SubResource( 11 )
-action_logic = SubResource( 10 )
-comment = ""
-
-[sub_resource type="Resource" id=13]
-script = ExtResource( 21 )
-description = ""
-_local_blackboard_ref = SubResource( 2 )
-root_node = SubResource( 12 )
-actors = SubResource( 3 )
-blackboards = SubResource( 4 )
-max_id = 1
-editor_version = "0.0.0"
 
 [node name="DialogueEditor" type="Control"]
 anchor_right = 1.0
@@ -191,7 +84,6 @@ margin_bottom = 540.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 scroll_offset = Vector2( -455, -66 )
-dialogue = SubResource( 13 )
 
 [node name="ActionConditionWidget" parent="VBoxContainer/TabContainer/HSplitContainer" instance=ExtResource( 9 )]
 anchor_right = 0.0
@@ -254,7 +146,6 @@ margin_bottom = 40.0
 mouse_filter = 2
 script = ExtResource( 12 )
 resource_class_name = "Dialogue"
-resource = SubResource( 13 )
 
 [connection signal="new_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="new_dialogue"]
 [connection signal="open_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="open_dialogue"]

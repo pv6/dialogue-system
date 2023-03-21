@@ -19,7 +19,7 @@ func _ready():
     logic_widget = logic_widget_scene.instance()
     add_child(logic_widget)
 
-    self.property = property
+    set_property(property)
 
 
 func set_property(new_property: String) -> void:

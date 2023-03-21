@@ -1,20 +1,15 @@
 tool
-extends Control
+extends "../base_logic_widget/base_dialogue_node_logic_widget.gd"
 
 
-const MultiFlagPicker := preload("res://addons/dialogue_system/dialogue_editor/action_condition_widget/multi_flag_picker/multi_flag_picker.gd")
+const MultiFlagWidget := preload("../multi_flag_widget/multi_flag_widget.gd")
 
-export(int) var node_id: int setget set_node_id
-export(String, "condition", "action") var property: String setget set_property
 export(Resource) var logic setget set_logic
-export(bool) var disabled: bool setget set_disabled
-
-var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
 onready var _flags_check_box: CheckBox = $FlagsContainer/FlagsCheckBox
 onready var _script_check_box: CheckBox = $ScriptContainer/ScriptCheckBox
 onready var _script_text_edit: TextEdit = $ScriptContainer/ScriptTextEdit
-onready var _multi_flag_picker: MultiFlagPicker = $FlagsContainer/MultiFlagPicker
+onready var _multi_flag_picker: MultiFlagWidget = $FlagsContainer/MultiFlagWidget
 
 
 func _ready():
@@ -23,16 +18,14 @@ func _ready():
     self.logic = logic
 
 
-func set_node_id(new_node_id: int) -> void:
-    node_id = new_node_id
+func _on_node_id_changed() -> void:
     if _multi_flag_picker:
-        _multi_flag_picker.node_id = new_node_id
+        _multi_flag_picker.node_id = node_id
 
 
-func set_property(new_property: String) -> void:
-    property = new_property
+func _on_property_changed() -> void:
     if _multi_flag_picker:
-        _multi_flag_picker.property = new_property
+        _multi_flag_picker.property = property
 
 
 func set_logic(new_logic: DialogueNodeLogic) -> void:
@@ -40,8 +33,7 @@ func set_logic(new_logic: DialogueNodeLogic) -> void:
     _update_values()
 
 
-func set_disabled(new_disabled: bool) -> void:
-    disabled = new_disabled
+func _on_disabled_changed() -> void:
     if _flags_check_box:
         _flags_check_box.disabled = disabled
     if _script_check_box:

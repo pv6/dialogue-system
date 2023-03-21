@@ -117,13 +117,13 @@ func redo() -> void:
 
 
 func commit_action(action_name: String, object, method: String, args: Dictionary = {},
-        merge_mode: int = UndoRedo.MERGE_DISABLE) -> void:
+        merge_mode: int = UndoRedo.MERGE_DISABLE) -> bool:
     var old_resource = resource.clone()
     var new_resource = resource.clone()
 
     new_resource = object.call(method, new_resource, args)
     if not new_resource:
-        return
+        return false
 
     var prev_action_name = _undo_redo.get_current_action_name()
 
@@ -134,6 +134,8 @@ func commit_action(action_name: String, object, method: String, args: Dictionary
 
     if merge_mode != UndoRedo.MERGE_ENDS or prev_action_name != action_name:
         print(action_name)
+
+    return true
 
 
 func _save() -> void:

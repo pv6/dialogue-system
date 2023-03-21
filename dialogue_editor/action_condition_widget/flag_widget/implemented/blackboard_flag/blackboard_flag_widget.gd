@@ -1,48 +1,21 @@
 tool
-class_name FlagPicker
-extends Control
+extends "../../flag_widget.gd"
 
 
 const VALUES := [true, false]
-
-export(int) var node_id: int setget set_node_id
-export(String, "condition", "action") var property: String
-export(int) var flag_index
-export(Resource) var flag setget set_flag
-export(bool) var disabled := false setget set_disabled
-
-var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
 onready var _blackboard_picker: BlackboardPicker = $BlackboardPicker
 onready var _flag_storage_picker: StoragePicker = $FlagContainer/FlagStoragePicker
 onready var _value_option_button: OptionButton = $ValueContainer/ValueOptionButton
 
 
-func _ready():
-    _update_values()
-
-
-func set_flag(new_flag: DialogueFlag) -> void:
-    if flag:
-        flag.disconnect("changed", self, "_on_flag_changed")
-    flag = new_flag
-    if flag:
-        flag.connect("changed", self, "_on_flag_changed")
-    _update_values()
-
-
-func set_node_id(new_node_id: int) -> void:
-    node_id = new_node_id
-
-
-func set_disabled(value: bool) -> void:
-    disabled = value
+func _on_disabled_changed() -> void:
     if _blackboard_picker:
-        _blackboard_picker.disabled = value
+        _blackboard_picker.disabled = disabled
     if _flag_storage_picker:
-        _flag_storage_picker.disabled = value
+        _flag_storage_picker.disabled = disabled
     if _value_option_button:
-        _value_option_button.disabled = value
+        _value_option_button.disabled = disabled
 
 
 # takes storage item that points to blackboard within dialogue.blackboards
@@ -93,10 +66,6 @@ func _on_flag_storage_picker_item_selected(id):
     _session.dialogue_undo_redo.commit_action("Set Flag", self, "_set_flag_id", {"id": id})
 
 
-func _on_flag_changed() -> void:
-    _update_values()
-
-
 func _on_flag_storage_picker_item_forced_selected(id):
     if flag and flag.field_id != id:
         flag.field_id = id
@@ -106,7 +75,7 @@ func _set_flag_blackboard(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     if property == "":
         return null
 
-    dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].blackboard = args["blackboard_reference"]
+    _get_flag(dialogue).blackboard = args["blackboard_reference"]
     return dialogue
 
 
@@ -114,7 +83,7 @@ func _set_flag_id(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     if property == "":
         return null
 
-    dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].field_id = args["id"]
+    _get_flag(dialogue).field_id = args["id"]
     return dialogue
 
 
@@ -122,5 +91,5 @@ func _set_flag_value(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     if property == "":
         return null
 
-    dialogue.nodes[node_id].get(property + "_logic").flags[flag_index].value = args["value"]
+    _get_flag(dialogue).value = args["value"]
     return dialogue

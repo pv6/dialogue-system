@@ -3,7 +3,9 @@ class_name DialogueNodeLogic
 extends Clonable
 
 
+# Array[DialogueFlags]
 export(Array) var flags setget set_flags
+# Array[DialogueFlags]
 export(Array) var auto_flags setget set_auto_flags
 export(String) var node_script := "" setget set_node_script
 export(bool) var use_flags := true setget set_use_flags

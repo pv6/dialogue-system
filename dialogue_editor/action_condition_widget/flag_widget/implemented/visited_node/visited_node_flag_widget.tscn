@@ -1,0 +1,37 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/flag_widget/implemented/visited_node/visited_node_flag_widget.gd" type="Script" id=1]
+
+[node name="VisitedNodeFlagWidget" type="HBoxContainer"]
+anchor_right = 1.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+script = ExtResource( 1 )
+
+[node name="NodeIdLabel" type="Label" parent="."]
+margin_top = 5.0
+margin_right = 34.0
+margin_bottom = 19.0
+text = "Node"
+
+[node name="NodeIdLineEdit" type="LineEdit" parent="."]
+margin_left = 38.0
+margin_right = 96.0
+margin_bottom = 24.0
+align = 3
+expand_to_text_length = true
+placeholder_text = "id"
+
+[node name="IsVisitedOptionButton" type="OptionButton" parent="."]
+margin_left = 100.0
+margin_right = 1024.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+text = "Visited"
+items = [ "Visited", null, false, 0, null, "Not Visited", null, false, 1, null ]
+selected = 0
+
+[connection signal="focus_entered" from="NodeIdLineEdit" to="." method="_on_node_id_line_edit_focus_entered"]
+[connection signal="focus_exited" from="NodeIdLineEdit" to="." method="_on_node_id_line_edit_focus_exited"]
+[connection signal="text_entered" from="NodeIdLineEdit" to="." method="_on_node_id_line_edit_text_entered"]
+[connection signal="item_selected" from="IsVisitedOptionButton" to="." method="_on_is_visited_option_button_item_selected"]
