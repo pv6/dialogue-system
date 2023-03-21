@@ -11,7 +11,14 @@ var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dial
 
 func _ready():
     # wait 1 frame because inherited scenes are not ready yet...
-    call_deferred("_update_values")
+    call_deferred("_inherited_ready")
+
+
+func _inherited_ready():
+    _update_values()
+    _on_property_changed()
+    _on_disabled_changed()
+    _on_node_id_changed()
 
 
 func set_node_id(new_node_id: int) -> void:

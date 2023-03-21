@@ -1,5 +1,5 @@
 tool
-extends "res://addons/dialogue_system/dialogue_editor/action_condition_widget/dialogue_node_logic_widget/dialogue_node_logic_widget.gd"
+extends "../dialogue_node_logic_widget.gd"
 
 
 onready var _can_only_visit_once_checkbox: CheckBox = $CanOnlyVisitOnceContainer/CheckBox

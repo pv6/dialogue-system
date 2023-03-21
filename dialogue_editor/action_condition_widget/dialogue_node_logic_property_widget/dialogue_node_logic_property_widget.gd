@@ -1,16 +1,13 @@
 tool
-extends Control
+extends "../base_logic_widget/base_dialogue_node_logic_widget.gd"
 
 
 const DialogueNodeLogicWidget := preload("res://addons/dialogue_system/dialogue_editor/action_condition_widget/dialogue_node_logic_widget/dialogue_node_logic_widget.gd")
 
-export(String, "condition", "action") var property: String setget set_property
 export(Resource) var logic_widget_scene: Resource = preload("res://addons/dialogue_system/dialogue_editor/action_condition_widget/dialogue_node_logic_widget/dialogue_node_logic_widget.tscn")
 
 var node: DialogueNode setget set_node
 var logic_widget: DialogueNodeLogicWidget
-
-var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
 onready var _label: Label = $PropertyLabel
 
@@ -19,13 +16,17 @@ func _ready():
     logic_widget = logic_widget_scene.instance()
     add_child(logic_widget)
 
-    set_property(property)
 
-
-func set_property(new_property: String) -> void:
-    property = new_property
+func _on_property_changed() -> void:
     if _label:
         _label.text = property.to_upper()
+
+
+func _on_disabled_changed() -> void:
+    if _label:
+        _label.modulate.v = 0.5 if disabled else 1.0
+    if logic_widget:
+        logic_widget.disabled = disabled
 
 
 func set_node(new_node: DialogueNode) -> void:
