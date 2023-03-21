@@ -68,4 +68,5 @@ __meta__ = {
 }
 
 [connection signal="toggled" from="FlagsContainer/FlagsCheckBox" to="." method="_on_flags_check_box_toggled"]
+[connection signal="focus_exited" from="ScriptContainer/ScriptTextEdit" to="." method="_on_script_text_edit_focus_exited"]
 [connection signal="toggled" from="ScriptContainer/ScriptCheckBox" to="." method="_on_script_check_box_toggled"]

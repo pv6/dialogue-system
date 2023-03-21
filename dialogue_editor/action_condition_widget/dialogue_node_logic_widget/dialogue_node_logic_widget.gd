@@ -96,11 +96,11 @@ func _on_script_check_box_toggled(button_pressed: bool) -> void:
 
 
 func _on_script_text_edit_focus_exited() -> void:
-    call_deferred("_call_set_script_text")
+    call_deferred("_call_set_script_text", _script_text_edit.text)
 
 
-func _call_set_script_text() -> void:
-    _session.dialogue_undo_redo.commit_action("Set Node " + property.capitalize() + " Script", self, "_set_script_text")
+func _call_set_script_text(script_text: String) -> void:
+    _session.dialogue_undo_redo.commit_action("Set Node " + property.capitalize() + " Script", self, "_set_script_text", {"script_text": script_text})
 
 
 func _set_use_flags(dialogue: Dialogue, args: Dictionary) -> Dialogue:
@@ -111,16 +111,20 @@ func _set_use_script(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _set_use("script", dialogue, args)
 
 
+# args = "value"
 func _set_use(field: String, dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    if dialogue.nodes[node_id].get(property + "_logic").get("use_" + field) == args["value"]:
+    var value: bool = args["value"]
+    if dialogue.nodes[node_id].get(property + "_logic").get("use_" + field) == value:
         return null
-    dialogue.nodes[node_id].get(property + "_logic").set("use_" + field, args["value"])
+    dialogue.nodes[node_id].get(property + "_logic").set("use_" + field, value)
     return dialogue
 
 
+# args = "script_text"
 func _set_script_text(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    var edited_logic = dialogue.nodes[node_id].get(property + "_logic")
-    if edited_logic.node_script == _script_text_edit.text:
+    var edited_logic: DialogueNodeLogic = dialogue.nodes[node_id].get(property + "_logic")
+    var script_text: String = args["script_text"]
+    if edited_logic.node_script == script_text:
         return null
-    edited_logic.node_script = _script_text_edit.text
+    edited_logic.node_script = script_text
     return dialogue

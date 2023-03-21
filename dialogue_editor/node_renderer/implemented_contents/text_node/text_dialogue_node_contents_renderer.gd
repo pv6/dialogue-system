@@ -32,15 +32,17 @@ func _on_set_node() -> void:
 
 
 func _on_text_edit_focus_exited():
-    call_deferred("_call_edit_text")
+    call_deferred("_call_edit_text", _text_edit.text)
 
 
-func _call_edit_text() -> void:
-    _session.dialogue_undo_redo.commit_action("Edit Node Text", self, "_edit_text")
+func _call_edit_text(text: String) -> void:
+    _session.dialogue_undo_redo.commit_action("Edit Node Text", self, "_edit_text", {"text": text})
 
 
+# args = {"text"}
 func _edit_text(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    if not node or dialogue.nodes[node.id].text == _text_edit.text:
+    var text: String = args["text"]
+    if not node or dialogue.nodes[node.id].text == text:
         return null
-    dialogue.nodes[node.id].text = _text_edit.text
+    dialogue.nodes[node.id].text = text
     return dialogue
