@@ -350,7 +350,7 @@ func _insert_parent_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
 
 
 func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
-    var selected_nodes = _get_selected_nodes(dialogue)
+    var selected_nodes := _get_selected_nodes(dialogue)
     if selected_nodes.empty():
         return null
 
@@ -360,7 +360,11 @@ func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
     for parent in selected_nodes:
         if graph_renderer.collapsed_nodes.has(parent.id):
             print("Can't add child to collapsed node!")
-            return null
+            continue
+        if parent is ReferenceDialogueNode:
+            print("Can't add child to reference node!")
+            continue
+
         if first_parent:
             parent.add_child(node)
             _auto_set_actors(node, parent)
@@ -368,6 +372,9 @@ func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
         else:
             var ref_node := _make_reference_node(node.id, dialogue)
             parent.add_child(ref_node)
+
+    if first_parent:
+        return null
 
     dialogue.update_nodes()
 
