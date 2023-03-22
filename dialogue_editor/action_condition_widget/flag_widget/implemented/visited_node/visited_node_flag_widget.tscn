@@ -22,8 +22,15 @@ align = 3
 expand_to_text_length = true
 placeholder_text = "id"
 
-[node name="IsVisitedOptionButton" type="OptionButton" parent="."]
+[node name="IsLabel" type="Label" parent="."]
 margin_left = 100.0
+margin_top = 5.0
+margin_right = 111.0
+margin_bottom = 19.0
+text = "is"
+
+[node name="IsVisitedOptionButton" type="OptionButton" parent="."]
+margin_left = 115.0
 margin_right = 1024.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
