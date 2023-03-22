@@ -19,14 +19,6 @@ func _ready() -> void:
     _add_condition_flag_button.get_popup().connect("id_pressed", self, "_on_add_flag_button_pressed")
 
 
-func set_disabled(value: bool) -> void:
-    disabled = value
-    _add_action_flag_button.disabled = value
-    _add_condition_flag_button.disabled = value
-    for child in _flag_container.get_children():
-        child.disabled = value
-
-
 func _on_node_id_changed() -> void:
     for item in _flag_container.get_children():
         item.flag_widget.node_id = node_id

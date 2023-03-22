@@ -1,12 +1,10 @@
 tool
 class_name BlackboardPicker
-extends Control
+extends DisableableControl
 
 
 signal blackboard_selected(blackboard_reference)
 signal blackboard_forced_selected(blackboard_reference)
-
-export(bool) var disabled := false setget set_disabled
 
 var selected_blackboard: StorageItem setget set_selected_blackboard, get_selected_blackboard
 
@@ -21,12 +19,6 @@ func _ready() -> void:
     if not _session.is_connected("changed", self, "_on_session_changed"):
         _session.connect("changed", self, "_on_session_changed")
     _on_session_changed()
-
-
-func set_disabled(value: bool) -> void:
-    disabled = value
-    _storage_picker.disabled = value
-    _open_button.disabled = value
 
 
 func set_selected_blackboard(new_selected_blackboard: StorageItem) -> void:

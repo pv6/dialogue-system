@@ -1,13 +1,11 @@
 tool
-extends HBoxContainer
+extends DisableableControl
 
 
 const FlagWidget := preload("../flag_widget/flag_widget.gd")
 
 const BLACKBOARD_FLAG_WIDGET_SCENE := preload("../flag_widget/implemented/blackboard_flag/blackboard_flag_widget.tscn")
 const VISITED_NODE_FLAG_WIDGET_SCENE := preload("../flag_widget/implemented/visited_node/visited_node_flag_widget.tscn")
-
-export(bool) var disabled := false setget set_disabled
 
 var flag_widget: FlagWidget
 onready var remove_button: IconButton = $RemoveButton
@@ -21,13 +19,6 @@ func set_flag(flag: DialogueFlag) -> void:
         flag_widget_scene = BLACKBOARD_FLAG_WIDGET_SCENE
     _set_flag_widget(flag_widget_scene)
     flag_widget.flag = flag
-
-
-
-func set_disabled(value: bool) -> void:
-    disabled = value
-    flag_widget.disabled = value
-    remove_button.disabled = value
 
 
 func _set_flag_widget(flag_widget_scene: PackedScene) -> void:

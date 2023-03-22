@@ -22,13 +22,6 @@ func _on_property_changed() -> void:
         _label.text = property.to_upper()
 
 
-func _on_disabled_changed() -> void:
-    if _label:
-        _label.modulate.v = 0.5 if disabled else 1.0
-    if logic_widget:
-        logic_widget.disabled = disabled
-
-
 func set_node(new_node: DialogueNode) -> void:
     node = new_node
     if new_node:

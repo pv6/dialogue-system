@@ -1,10 +1,9 @@
 tool
-extends Control
+extends DisableableControl
 
 
 export(int) var node_id: int setget set_node_id
 export(String, "condition", "action") var property: String setget set_property
-export(bool) var disabled := false setget set_disabled
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
@@ -17,18 +16,12 @@ func _ready():
 func _inherited_ready():
     _update_values()
     _on_property_changed()
-    _on_disabled_changed()
     _on_node_id_changed()
 
 
 func set_node_id(new_node_id: int) -> void:
     node_id = new_node_id
     _on_node_id_changed()
-
-
-func set_disabled(value: bool) -> void:
-    disabled = value
-    _on_disabled_changed()
 
 
 func set_property(new_property: String) -> void:
@@ -48,11 +41,6 @@ func _on_property_changed() -> void:
 
 # virtual
 func _on_node_id_changed() -> void:
-    pass
-
-
-# virtual
-func _on_disabled_changed() -> void:
     pass
 
 

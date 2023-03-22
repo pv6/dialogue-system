@@ -1,12 +1,11 @@
 tool
-extends Control
+extends DisableableControl
 
 
 const TagRenderer = preload("res://addons/dialogue_system/dialogue_editor/tag_widgets/tag_renderer/tag_renderer.gd")
 const StorageEditorDialog = preload("res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor_dialog/storage_editor_dialog.gd")
 
 export(Resource) var text_node: Resource setget set_text_node
-export(bool) var disabled: bool setget set_disabled
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
@@ -52,15 +51,6 @@ func update_tag_renderers() -> void:
 func set_text_node(new_text_node: TextDialogueNode) -> void:
     text_node = new_text_node
     update_tag_renderers()
-
-
-func set_disabled(new_disabled: bool) -> void:
-    disabled = new_disabled
-    if _edit_button:
-        _edit_button.disabled = new_disabled
-    if _tag_container:
-        for child in _tag_container.get_children():
-            child.disabled = new_disabled
 
 
 func _on_edit_button_pressed() -> void:

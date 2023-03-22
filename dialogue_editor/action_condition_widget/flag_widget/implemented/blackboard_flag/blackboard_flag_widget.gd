@@ -11,19 +11,6 @@ onready var _flag_label: Label = $FlagContainer/FlagLabel
 onready var _value_label: Label = $ValueContainer/ValueLabel
 
 
-func _on_disabled_changed() -> void:
-    if _blackboard_picker:
-        _blackboard_picker.disabled = disabled
-    if _flag_storage_picker:
-        _flag_storage_picker.disabled = disabled
-    if _value_option_button:
-        _value_option_button.disabled = disabled
-    if _flag_label:
-        _flag_label.modulate.v = 0.5 if disabled else 1.0
-    if _value_label:
-        _value_label.modulate.v = 0.5 if disabled else 1.0
-
-
 # takes storage item that points to blackboard within dialogue.blackboards
 func _set_blackboard(blackboard: StorageItem) -> void:
     if not _flag_storage_picker or not flag or not _blackboard_picker:

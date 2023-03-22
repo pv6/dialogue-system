@@ -10,12 +10,6 @@ onready var _node_id_line_edit: LineEdit = $NodeIdLineEdit
 onready var _is_visited_option_button: OptionButton = $IsVisitedOptionButton
 
 
-func _on_disabled_changed() -> void:
-    _node_id_label.modulate.v = 0.5 if disabled else 1.0
-    _node_id_line_edit.editable = not disabled
-    _is_visited_option_button.disabled = disabled
-
-
 func _update_values() -> void:
     if not _node_id_line_edit or not _is_visited_option_button:
         return
