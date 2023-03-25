@@ -143,12 +143,14 @@ func new_dialogue() -> void:
     print("New Dialogue")
     _working_dialogue_manager.new_file()
     graph_renderer.collapsed_nodes.clear()
+    graph_renderer.deselect_all()
 
 
 func open_dialogue() -> void:
     print("Open Dialogue")
     _working_dialogue_manager.open()
     graph_renderer.collapsed_nodes.clear()
+    graph_renderer.deselect_all()
 
 
 func save_dialogue() -> void:
