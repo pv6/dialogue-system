@@ -9,6 +9,8 @@ export(Resource) var blackboards_implementation: Resource
 # StorageImplementation
 export(Resource) var actors_implementation: Resource
 
+var _show_say_options_immidiately: bool = false
+
 var _dialogue_player: DialoguePlayer
 
 
@@ -25,9 +27,11 @@ func set_dialogue(new_dialogue: Dialogue) -> void:
 #        blackboards_implementation = null
 #        actors_implementation = null
     property_list_changed_notify()
-    
+
 
 func start_dialogue() -> void:
+    _clear()
+
     if not dialogue:
         return
 
@@ -82,30 +86,6 @@ func _on_say_option_selected(say_node: SayDialogueNode) -> void:
     _set_next_node()
 
 
-func _clear_say_options() -> void:
-    pass
-    
-
-func _spawn_say_button(index: int, say_node: SayDialogueNode) -> void:
-    pass
-
-
-func _set_hear_node(hear_node: HearDialogueNode) -> void:
-    pass
-    
-
-func _clear() -> void:
-    pass
-
-
-func _clear_current_node() -> void:
-    pass
-
-
-func _set_continue() -> void:
-    pass
-
-
 func _set_say_options(say_options: Array) -> void:
     var i := 0
     for say_node in say_options:
@@ -115,17 +95,57 @@ func _set_say_options(say_options: Array) -> void:
 
 func _set_next_node() -> void:
     _clear_current_node()
-    
+
     # try hear
     var hear_node := _dialogue_player.hear()
     if hear_node:
         _set_hear_node(hear_node)
-    # try say
+    if not hear_node or _show_say_options_immidiately:
+        _try_say()
+    else:
+        _try_continue()
+
+
+func _try_say() -> void:
     var say_options := _dialogue_player.get_say_options()
     if not say_options.empty():
         _set_say_options(say_options)
     else:
-        if _dialogue_player.can_continue():
-            _set_continue()
-        else:
-            end_dialogue()
+        _try_continue()
+
+
+func _try_continue() -> void:
+    if _dialogue_player.can_continue():
+        _set_continue()
+    else:
+        end_dialogue()
+
+
+# virtual
+func _clear_say_options() -> void:
+    pass
+
+
+# virtual
+func _spawn_say_button(index: int, say_node: SayDialogueNode) -> void:
+    pass
+
+
+# virtual
+func _set_hear_node(hear_node: HearDialogueNode) -> void:
+    pass
+
+
+# virtual
+func _clear() -> void:
+    pass
+
+
+# virtual
+func _clear_current_node() -> void:
+    pass
+
+
+# virtual
+func _set_continue() -> void:
+    pass

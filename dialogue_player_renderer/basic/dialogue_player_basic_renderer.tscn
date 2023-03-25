@@ -9,9 +9,6 @@
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 2 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Contents" type="VBoxContainer" parent="."]
 margin_left = 7.0
@@ -59,14 +56,23 @@ margin_bottom = 22.0
 [node name="TextLabel" type="RichTextLabel" parent="Contents"]
 margin_top = 26.0
 margin_right = 1010.0
-margin_bottom = 282.0
+margin_bottom = 472.0
 rect_min_size = Vector2( 0, 256 )
+size_flags_vertical = 3
 text = "Node Text"
 
-[node name="NextButton" type="ToolButton" parent="Contents"]
-margin_top = 286.0
+[node name="HSeparator2" type="HSeparator" parent="Contents"]
+margin_top = 476.0
 margin_right = 1010.0
-margin_bottom = 308.0
+margin_bottom = 480.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="NextButton" type="ToolButton" parent="Contents"]
+margin_top = 484.0
+margin_right = 1010.0
+margin_bottom = 506.0
 text = "Continue"
 icon = ExtResource( 3 )
 align = 0
@@ -75,41 +81,37 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="HSeparator2" type="HSeparator" parent="Contents"]
-margin_top = 312.0
+[node name="SayOptions" type="VBoxContainer" parent="Contents"]
+margin_top = 510.0
 margin_right = 1010.0
-margin_bottom = 316.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
+margin_bottom = 550.0
 
-[node name="Label" type="Label" parent="Contents"]
-margin_top = 320.0
+[node name="Label" type="Label" parent="Contents/SayOptions"]
 margin_right = 1010.0
-margin_bottom = 334.0
+margin_bottom = 14.0
 text = "Say Options"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ButtonsContainer" type="VBoxContainer" parent="Contents"]
-margin_top = 338.0
+[node name="ButtonsContainer" type="VBoxContainer" parent="Contents/SayOptions"]
+margin_top = 18.0
 margin_right = 1010.0
-margin_bottom = 360.0
+margin_bottom = 40.0
 rect_min_size = Vector2( 0, 22 )
 
 [node name="HSeparator3" type="HSeparator" parent="Contents"]
-margin_top = 364.0
+margin_top = 554.0
 margin_right = 1010.0
-margin_bottom = 368.0
+margin_bottom = 558.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="DebugContainer" type="MarginContainer" parent="Contents"]
-margin_top = 372.0
+margin_top = 562.0
 margin_right = 1010.0
-margin_bottom = 396.0
+margin_bottom = 586.0
 
 [node name="ReplayButton" type="ToolButton" parent="Contents/DebugContainer"]
 margin_right = 1010.0

@@ -25,8 +25,8 @@ func g(item):
     var name = str(item)
     assert(data.has(name))
     return data[name]
-    
-    
+
+
 func has(item) -> bool:
     return str(item) in data
 
@@ -43,8 +43,8 @@ func set_template(new_template: Storage) -> void:
             if not has(item):
                 data[str(item)] = default_value
     property_list_changed_notify()
-            
-            
+
+
 func is_valid(template: Storage) -> bool:
     for item in template.items():
         if not has(item):

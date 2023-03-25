@@ -2,7 +2,8 @@ extends "res://addons/dialogue_system/dialogue_player_renderer/dialogue_player_r
 
 
 onready var _text_label: RichTextLabel = $Contents/TextLabel
-onready var _say_button_container: VBoxContainer = $Contents/ButtonsContainer
+onready var _say_button_container: VBoxContainer = $Contents/SayOptions/ButtonsContainer
+onready var _say_options: Control = $Contents/SayOptions
 onready var _next_button: IconButton = $Contents/NextButton
 
 onready var _speaker_label: Label = $Contents/ActorsContainer/SpeakerAndListener/SpeakerLabel
@@ -18,7 +19,7 @@ func _on_next_button_pressed():
 
 
 func _clear() -> void:
-    _text_label.text = "END OF DIALOGUE"
+    _clear_say_options()
     _next_button.disabled = true
 
 
@@ -41,12 +42,19 @@ func _set_hear_node(hear_node: HearDialogueNode) -> void:
 func _clear_say_options() -> void:
     for option in _say_button_container.get_children():
         option.queue_free()
+    _say_options.hide()
+    _next_button.show()
 
 
 func _set_say_options(say_options: Array) -> void:
-    _next_button.disabled = true
+    _next_button.hide()
+    _say_options.show()
     ._set_say_options(say_options)
 
 
 func _on_replay_button_pressed():
     start_dialogue()
+
+
+func _set_continue() -> void:
+    _next_button.show()

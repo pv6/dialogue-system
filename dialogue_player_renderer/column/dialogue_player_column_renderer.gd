@@ -28,6 +28,7 @@ onready var _portrait: TextureRect = $Control/Portrait
 
 
 func _ready():
+    _show_say_options_immidiately = false
     if not Engine.editor_hint:
         start_dialogue()
 

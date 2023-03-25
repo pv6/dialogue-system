@@ -6,7 +6,6 @@ extends Reference
 signal playback_started()
 signal playback_ended()
 
-
 var _actors: StorageImplementation
 var _blackboards: StorageImplementation
 
