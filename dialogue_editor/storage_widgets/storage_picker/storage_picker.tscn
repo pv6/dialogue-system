@@ -2,16 +2,13 @@
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/support/icon_button.gd" type="Script" id=1]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_picker/storage_picker.gd" type="Script" id=2]
-[ext_resource path="res://addons/dialogue_system/dialogue_editor/icons/edit.svg" type="Texture" id=3]
+[ext_resource path="res://addons/dialogue_system/assets/icons/edit.svg" type="Texture" id=3]
 
 [node name="StoragePicker" type="HBoxContainer"]
 anchor_right = 1.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 script = ExtResource( 2 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="OptionButton" type="OptionButton" parent="."]
 margin_right = 992.0

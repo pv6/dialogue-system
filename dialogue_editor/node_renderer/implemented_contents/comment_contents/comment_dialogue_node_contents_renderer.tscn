@@ -2,7 +2,7 @@
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/node_renderer/implemented_contents/comment_contents/comment_dialogue_node_contents_renderer.gd" type="Script" id=1]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/support/icon_button.gd" type="Script" id=2]
-[ext_resource path="res://addons/dialogue_system/dialogue_editor/icons/add.svg" type="Texture" id=3]
+[ext_resource path="res://addons/dialogue_system/assets/icons/add.svg" type="Texture" id=3]
 
 [node name="CommentDialogueNodeContentsRenderer" type="VBoxContainer"]
 anchor_right = 1.0
@@ -10,11 +10,6 @@ anchor_bottom = 1.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-disabled = false
-has_comment = false
 
 [node name="AddCommentButton" type="ToolButton" parent="."]
 margin_right = 1024.0
@@ -27,12 +22,14 @@ script = ExtResource( 2 )
 
 [node name="CommentTextEdit" type="TextEdit" parent="."]
 visible = false
+margin_top = 28.0
 margin_right = 1024.0
 margin_bottom = 600.0
-rect_min_size = Vector2( 0, 64 )
+rect_min_size = Vector2( 69, 69 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_colors/font_color = Color( 0.3174, 0.69, 0.3174, 1 )
+wrap_enabled = true
 
 [connection signal="pressed" from="AddCommentButton" to="." method="_on_add_comment_button_pressed"]
 [connection signal="focus_exited" from="CommentTextEdit" to="." method="_on_comment_text_edit_focus_exited"]

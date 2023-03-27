@@ -5,13 +5,12 @@ extends GraphNode
 
 const ROOT_NODE_CONTENTS_SCENE = preload("implemented_contents/root_node/root_dialogue_node_contents_renderer.tscn")
 const TEXT_NODE_CONTENTS_SCENE = preload("implemented_contents/text_node/text_dialogue_node_contents_renderer.tscn")
-const HEAR_NODE_CONTENTS_SCENE = preload("implemented_contents/hear_node/hear_dialogue_node_contents_renderer.tscn")
 const REFERENCE_NODE_CONTENTS_SCENE = preload("implemented_contents/reference_node/reference_dialogue_node_contents_renderer.tscn")
 const COMMENT_CONTENTS_SCENE = preload("implemented_contents/comment_contents/comment_dialogue_node_contents_renderer.tscn")
 const COMBINED_CONTENTS_SCENE = preload("implemented_contents/combined_contents/combined_dialogue_node_contents_renderer.tscn")
 
-const EXPAND_ICON = preload("res://addons/dialogue_system/dialogue_editor/icons/add.svg")
-const COLLAPSE_ICON = preload("res://addons/dialogue_system/dialogue_editor/icons/collapse.svg")
+const EXPAND_ICON = preload("res://addons/dialogue_system/assets/icons/add.svg")
+const COLLAPSE_ICON = preload("res://addons/dialogue_system/assets/icons/collapse.svg")
 
 export(Resource) var node setget set_node
 
@@ -29,10 +28,6 @@ func _init() -> void:
     theme.set_icon("close", "GraphNode", COLLAPSE_ICON)
 
 
-func _ready() -> void:
-    self.node = node
-
-
 func set_node(new_node: DialogueNode) -> void:
     node = new_node
 
@@ -44,10 +39,11 @@ func set_node(new_node: DialogueNode) -> void:
 
     set_style(style_manager.get_style(new_node))
 
-    if node as ReferenceDialogueNode:
-        self_modulate.v *= _session.reference_node_brightness
+    self_modulate.v = 1
+    if node is ReferenceDialogueNode:
+        self_modulate.v *= _session.settings.reference_node_brightness
 
-    set_slot(0, true, 0, Color.gray, not is_collapsed, 0, Color.gray)
+    _update_slots()
 
 
 func set_is_collapsed(new_is_collapsed: bool) -> void:
@@ -57,17 +53,19 @@ func set_is_collapsed(new_is_collapsed: bool) -> void:
             theme.set_icon("close", "GraphNode", EXPAND_ICON)
         else:
             theme.set_icon("close", "GraphNode", COLLAPSE_ICON)
-    update_contents()
+    _update_slots()
 
 
 func update_contents() -> void:
-    if contents:
-        contents.node = null
-        remove_child(contents)
-        contents.queue_free()
-    contents = create_contents(node)
-    if contents:
-        add_child(contents)
+    if not node or not contents or not contents.node or node.get_script().get_path() != contents.node.get_script().get_path():
+        if contents:
+            remove_child(contents)
+            contents.queue_free()
+        contents = create_contents(node)
+        if contents:
+            add_child(contents)
+    else:
+        contents.node = node
 
 
 func set_style(style: DialogueNodeStyle) -> void:
@@ -80,8 +78,6 @@ static func create_contents(node) -> DialogueNodeContentsRenderer:
 
     if node as RootDialogueNode:
         contents.add_child_contents(ROOT_NODE_CONTENTS_SCENE.instance())
-    if node as HearDialogueNode:
-        contents.add_child_contents(HEAR_NODE_CONTENTS_SCENE.instance())
     if node as TextDialogueNode:
         contents.add_child_contents(TEXT_NODE_CONTENTS_SCENE.instance())
     if node as ReferenceDialogueNode:
@@ -91,3 +87,7 @@ static func create_contents(node) -> DialogueNodeContentsRenderer:
 
     contents.node = node
     return contents
+
+
+func _update_slots() -> void:
+    set_slot(0, not node is RootDialogueNode, 0, Color.gray, not is_collapsed and not node is ReferenceDialogueNode, 0, Color.gray)

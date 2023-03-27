@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=2 format=2]
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/dialogue_node_logic_property_widget/dialogue_node_logic_property_widget.gd" type="Script" id=1]
-[ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/dialogue_node_logic_widget/dialogue_node_logic_widget.tscn" type="PackedScene" id=2]
 
 [node name="DialogueNodeLogicPropertyWidget" type="VBoxContainer"]
 anchor_right = 1.0
@@ -16,11 +15,3 @@ margin_right = 1024.0
 margin_bottom = 14.0
 text = "CONDITION"
 uppercase = true
-
-[node name="DialogueNodeLogicWidget" parent="." instance=ExtResource( 2 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
-margin_top = 18.0
-margin_right = 1024.0
-margin_bottom = 600.0
-size_flags_vertical = 3

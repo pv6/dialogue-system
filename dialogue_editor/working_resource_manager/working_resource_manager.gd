@@ -11,6 +11,7 @@ signal save_path_changed()
 export(String) var resource_class_name := "Resource" setget set_resource_class_name
 export(Resource) var resource: Resource setget set_resource
 export(String) var save_path := "" setget set_save_path
+export(bool) var autosave := false setget set_autosave
 
 var has_unsaved_changes := false setget set_has_unsaved_changes
 
@@ -29,6 +30,7 @@ func _init():
 func set_has_unsaved_changes(value: bool) -> void:
     has_unsaved_changes = value
     emit_signal("has_unsaved_changes_changed", value)
+    _autosave()
 
 
 func set_save_path(new_save_path: String) -> void:
@@ -38,6 +40,11 @@ func set_save_path(new_save_path: String) -> void:
 #        return
     save_path = new_save_path
     emit_signal("save_path_changed")
+
+
+func set_autosave(new_autosave: bool) -> void:
+    autosave = new_autosave
+    _autosave()
 
 
 func new_file() -> void:
@@ -70,18 +77,17 @@ func save_as() -> void:
     _save_as_dialog.popup_centered()
 
 
-func set_resource(new_resource: Resource) -> void:
+func set_resource(new_resource: Clonable) -> void:
     if new_resource:
         resource = new_resource.clone()
         resource.take_over_path(save_path)
-#        resource.resource_path = save_path
     else:
         resource = null
-    self.has_unsaved_changes = true
     emit_signal("resource_changed")
+    self.has_unsaved_changes = true
 
 
-func set_resource_class_name(new_resource_class_name) -> void:
+func set_resource_class_name(new_resource_class_name: String) -> void:
     resource_class_name = new_resource_class_name
 
     _resource_script_path = ""
@@ -110,14 +116,14 @@ func redo() -> void:
         self.has_unsaved_changes = true
 
 
-func commit_action(action_name: String, object, method: String,
-        merge_mode: int = UndoRedo.MERGE_DISABLE) -> void:
+func commit_action(action_name: String, object, method: String, args: Dictionary = {},
+        merge_mode: int = UndoRedo.MERGE_DISABLE) -> bool:
     var old_resource = resource.clone()
     var new_resource = resource.clone()
 
-    new_resource = object.call(method, new_resource)
+    new_resource = object.call(method, new_resource, args)
     if not new_resource:
-        return
+        return false
 
     var prev_action_name = _undo_redo.get_current_action_name()
 
@@ -129,28 +135,36 @@ func commit_action(action_name: String, object, method: String,
     if merge_mode != UndoRedo.MERGE_ENDS or prev_action_name != action_name:
         print(action_name)
 
+    return true
+
 
 func _save() -> void:
     if not resource:
         return
     assert(save_path.get_file().is_valid_filename())
 
-    ResourceSaver.save(save_path, resource.clone())
+    ResourceSaver.save(save_path, resource.clone(), ResourceSaver.FLAG_REPLACE_SUBRESOURCE_PATHS)
 
     self.has_unsaved_changes = false
 
 
-func _on_save_as_file_selected(save_path):
+func _autosave() -> void:
+    if autosave and has_unsaved_changes and save_path != "":
+        _save()
+
+
+func _on_save_as_file_selected(save_path: String):
     self.save_path = save_path
     _save()
 
 
-func _on_open_file_selected(save_path):
-    var res = ResourceLoader.load(save_path, "", true)
+func _on_open_file_selected(new_save_path: String):
+    var res = ResourceLoader.load(new_save_path, "", true)
 #    var res = load(save_path)
     if res:
-        self.resource = res.clone()
-        self.save_path = save_path
+        save_path = ""
+        self.resource = res
+        self.save_path = new_save_path
         clear_undo_redo_history()
         emit_signal("file_changed")
 

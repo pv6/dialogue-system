@@ -11,10 +11,6 @@ onready var _jump_to_option_button: OptionButton = $JumpToContents/OptionButton
 onready var _referenced_contents: DialogueNodeContentsRenderer
 
 
-func _ready() -> void:
-    self_modulate.v = 1
-
-
 func _on_set_node() -> void:
     _reference_node = node as ReferenceDialogueNode
 
@@ -42,11 +38,17 @@ func _update_contents() -> void:
         assert(parent)
     _referenced_contents = parent.create_contents(_session.dialogue.nodes[_reference_node.referenced_node_id])
     if _referenced_contents:
-        _referenced_contents.modulate.v *= _session.reference_node_brightness
+        _referenced_contents.modulate.v *= _session.settings.reference_node_brightness
         add_child(_referenced_contents)
         _referenced_contents.disabled = true
 
 
 func _on_jump_to_option_button_item_selected(index: int):
-    if _reference_node:
-        _reference_node.jump_to = index
+    _session.dialogue_undo_redo.commit_action("Set Jump To", self, "_set_jump_to", {"jump_to": index})
+
+
+func _set_jump_to(dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    if not node:
+        return null
+    dialogue.nodes[node.id].jump_to = args["jump_to"]
+    return dialogue

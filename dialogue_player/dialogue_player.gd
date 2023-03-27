@@ -1,21 +1,23 @@
+tool
 class_name DialoguePlayer
 extends Reference
 
 
+signal playback_started()
+signal playback_ended()
+
+var _actors: StorageImplementation
+var _blackboards: StorageImplementation
+
 var _dialogue: Dialogue
 var _cur_node: DialogueNode setget _set_cur_node
-
-# name -> class
-var _actors: Dictionary
-# template -> implementation
-var _blackboards: Dictionary
 
 var _expression := Expression.new()
 var _base_instance
 
 
-func play(dialogue: Dialogue, actors: Dictionary, blackboards: Dictionary,
-        script_base_instance = null) -> void:
+func play(dialogue: Dialogue, actors: StorageImplementation,
+          blackboards: StorageImplementation, script_base_instance = null) -> void:
     _dialogue = dialogue
     _actors = actors
     _blackboards = blackboards
@@ -26,6 +28,12 @@ func play(dialogue: Dialogue, actors: Dictionary, blackboards: Dictionary,
     _base_instance = script_base_instance
 
     self._cur_node = dialogue.root_node
+
+    emit_signal("playback_started")
+
+
+func stop() -> void:
+    emit_signal("playback_ended")
 
 
 func hear() -> HearDialogueNode:
@@ -66,6 +74,10 @@ func get_say_options() -> Array:
     return output
 
 
+func can_continue() -> bool:
+    return _cur_node and not _cur_node.children.empty()
+
+
 func say(say_option: SayDialogueNode) -> void:
     assert(_is_say_option_valid(say_option))
     self._cur_node = _dialogue.nodes[say_option.id]
@@ -73,6 +85,12 @@ func say(say_option: SayDialogueNode) -> void:
 
 func is_over() -> bool:
     return not _cur_node
+
+
+func get_actor_implementation(actor: StorageItem):
+    if not actor or not _actors.has(actor):
+        return null
+    return _actors.g(actor)
 
 
 func _get_valid_children(children: Array) -> Array:
@@ -135,19 +153,22 @@ func _set_cur_node(new_cur_node: DialogueNode) -> void:
 
 
 func _do_node_action(node) -> void:
+    for flag in node.action_logic.auto_flags:
+        _blackboards.g(flag.blackboard).s(flag, flag.value)
+
     if node.action_logic.use_flags:
         # set flag values
         for flag in node.action_logic.flags:
-            _blackboards[flag.blackboard.name].data[flag.name] = flag.value
+            _blackboards.g(flag.blackboard).s(flag, flag.value)
     if node.action_logic.use_script:
         _execute_script(node.action_logic.node_script)
 
 
 func _execute_script(script: String):
     var blackboard_names = []
-    for template in _blackboards.keys():
+    for template in _blackboards.data.keys():
         blackboard_names.push_back(str(template))
-    var input_names = _actors.keys()
+    var input_names = _actors.data.keys()
     input_names.append_array(blackboard_names)
 
     var error = _expression.parse(script, input_names)
@@ -156,8 +177,8 @@ func _execute_script(script: String):
         print_debug(_expression.get_error_text())
         return false
 
-    var inputs = _actors.values()
-    inputs.append_array(_blackboards.values())
+    var inputs = _actors.data.values()
+    inputs.append_array(_blackboards.data.values())
     var result = _expression.execute(inputs, _base_instance)
     if not _expression.has_execute_failed():
         return result
@@ -171,11 +192,14 @@ func _is_node_valid(node: DialogueNode) -> bool:
     if node is ReferenceDialogueNode:
         return _is_node_valid(_dialogue.nodes[node.referenced_node_id])
 
+    for flag in node.condition_logic.auto_flags:
+        if (flag.blackboard and _blackboards.g(flag.blackboard).g(flag) != flag.value):
+                return false
+
     if node.condition_logic.use_flags:
         # check flags
         for flag in node.condition_logic.flags:
-            if (flag.blackboard and
-                    _blackboards[flag.blackboard.name].data[flag.name] != flag.value):
+            if (flag.blackboard and _blackboards.g(flag.blackboard).g(flag) != flag.value):
                 return false
     if node.condition_logic.use_script:
         return bool(_execute_script(node.condition_logic.node_script))
@@ -183,14 +207,15 @@ func _is_node_valid(node: DialogueNode) -> bool:
 
 
 func _is_actors_valid() -> bool:
-    for actor_name in _dialogue.actors.items():
-        if not actor_name in _actors:
+    for actor_item in _dialogue.actors.items():
+        if not _actors.has(actor_item):
             return false
     return true
 
 
 func _is_blackboards_valid() -> bool:
-    for template in _dialogue.blackboards.items():
-        if not template.name in _blackboards or _blackboards[template.name].template != template:
+    for template_reference in _dialogue.blackboards.items():
+        var template: Storage = template_reference.resource
+        if not _blackboards.has(template) or not _blackboards.g(template).is_valid(template):
             return false
     return true

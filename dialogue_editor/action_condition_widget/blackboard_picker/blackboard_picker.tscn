@@ -1,11 +1,11 @@
 [gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/support/icon_button.gd" type="Script" id=1]
-[ext_resource path="res://addons/dialogue_system/dialogue_editor/icons/load.svg" type="Texture" id=2]
+[ext_resource path="res://addons/dialogue_system/assets/icons/load.svg" type="Texture" id=2]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/blackboard_picker/blackboard_picker.gd" type="Script" id=3]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_picker/storage_picker.tscn" type="PackedScene" id=4]
 [ext_resource path="res://addons/dialogue_system/support/storage.gd" type="Script" id=5]
-[ext_resource path="res://addons/dialogue_system/support/blackboard.gd" type="Script" id=6]
+[ext_resource path="res://addons/dialogue_system/support/resource_reference/direct_resource_reference.gd" type="Script" id=6]
 
 [sub_resource type="Resource" id=2]
 script = ExtResource( 5 )
@@ -18,7 +18,7 @@ _locked_indices = {
 
 [sub_resource type="Resource" id=3]
 script = ExtResource( 6 )
-field_names = SubResource( 2 )
+direct_reference = SubResource( 2 )
 
 [sub_resource type="Resource" id=4]
 script = ExtResource( 5 )
@@ -35,9 +35,6 @@ _locked_indices = {
 margin_right = 1024.0
 margin_bottom = 24.0
 script = ExtResource( 3 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="StoragePicker" parent="." instance=ExtResource( 4 )]
 anchor_right = 0.0

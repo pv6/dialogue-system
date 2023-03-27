@@ -9,6 +9,3 @@ focus_mode = 2
 text = "Dialogue"
 items = [ "New Dialogue", null, 0, false, false, 0, 0, null, "", false, "Open Dialogue...", null, 0, false, false, 1, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Save Dialogue", null, 0, false, false, 2, 0, null, "", false, "Save Dialogue As...", null, 0, false, false, 3, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Undo", null, 0, false, false, 4, 0, null, "", false, "Redo", null, 0, false, false, 5, 0, null, "", false ]
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}

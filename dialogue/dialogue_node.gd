@@ -1,6 +1,6 @@
 tool
 class_name DialogueNode
-extends Resource
+extends Clonable
 
 
 signal id_changed(old_id, new_id)
@@ -12,7 +12,9 @@ export(Array) var children: Array
 export(int) var id := DUMMY_ID setget set_id
 export(int) var parent_id := DUMMY_ID
 
+# DialogueNodeLogic
 export(Resource) var condition_logic: Resource
+# DialogueNodeLogic
 export(Resource) var action_logic: Resource
 
 export(String) var comment: String setget set_comment
@@ -42,11 +44,11 @@ func get_name() -> String:
     return "Node " + str(id)
 
 
-func clone() -> DialogueNode:
-    var out := duplicate() as DialogueNode
-    out.condition_logic = condition_logic.clone()
-    out.action_logic = action_logic.clone()
-    return out
+func clone() -> Clonable:
+    var copy := .clone() as DialogueNode
+    copy.condition_logic = condition_logic.clone()
+    copy.action_logic = action_logic.clone()
+    return copy
 
 
 func add_child(node: DialogueNode, position := -1) -> void:

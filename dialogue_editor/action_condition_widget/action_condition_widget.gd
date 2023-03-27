@@ -13,11 +13,15 @@ onready var _node_name = $Contents/NodeName
 
 
 func select_node(node: DialogueNode) -> void:
+    if not node:
+        return
     _nodes[node.id] = node
     _update_widget_node()
 
 
 func unselect_node(node: DialogueNode) -> void:
+    if not node:
+        return
     _nodes.erase(node.id)
     _update_widget_node()
 
@@ -34,11 +38,11 @@ func _update_widget_node() -> void:
         if node is ReferenceDialogueNode:
             node = _session.dialogue.nodes[node.referenced_node_id]
             assert(not node is ReferenceDialogueNode)
-            _condition_widget.logic_widget.disabled = true
-            _action_widget.logic_widget.disabled = true
+            _condition_widget.disabled = true
+            _action_widget.disabled = true
         else:
-            _condition_widget.logic_widget.disabled = false
-            _action_widget.logic_widget.disabled = false
+            _condition_widget.disabled = node is RootDialogueNode
+            _action_widget.disabled = false
         _set_node(node)
         _node_name.text = node.get_name()
     else:

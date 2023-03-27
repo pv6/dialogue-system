@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/file_dialog/storage_file_dialog_item_editor.gd" type="Script" id=1]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/file_dialog/storage_item_file_dialog_editor.gd" type="Script" id=1]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/support/icon_button.gd" type="Script" id=3]
-[ext_resource path="res://addons/dialogue_system/dialogue_editor/icons/load.svg" type="Texture" id=4]
+[ext_resource path="res://addons/dialogue_system/assets/icons/load.svg" type="Texture" id=4]
 
 [node name="StorageFileDialogItemEditor" type="MarginContainer"]
 anchor_right = 1.0
@@ -48,7 +48,6 @@ margin_bottom = 24.0
 mouse_filter = 2
 
 [node name="FileDialog" type="FileDialog" parent="Dialog"]
-visible = true
 margin_right = 539.0
 margin_bottom = 476.0
 rect_min_size = Vector2( 150, 52.5 )

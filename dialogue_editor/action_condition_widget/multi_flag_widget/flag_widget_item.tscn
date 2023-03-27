@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/support/icon_button.gd" type="Script" id=1]
+[ext_resource path="res://addons/dialogue_system/assets/icons/remove.svg" type="Texture" id=2]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/multi_flag_widget/flag_widget_item.gd" type="Script" id=3]
+
+[node name="FlagWidgetItem" type="HBoxContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 585.0
+margin_bottom = 593.0
+script = ExtResource( 3 )
+
+[node name="RemoveButton" type="ToolButton" parent="."]
+margin_right = 28.0
+margin_bottom = 586.0
+icon = ExtResource( 2 )
+script = ExtResource( 1 )

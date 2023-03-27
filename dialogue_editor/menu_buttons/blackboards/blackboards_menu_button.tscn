@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/blackboards/blackboards_menu_button.gd" type="Script" id=1]
+
+[node name="BlackboardsMenuButton" type="MenuButton"]
+margin_right = 68.0
+margin_bottom = 20.0
+focus_mode = 2
+text = "Blackboards"
+items = [ "Edit Dialogue Blackboards...", null, 0, false, false, 0, 0, null, "", false, "Edit Blackboard...", null, 0, false, false, 1, 0, null, "", false ]
+script = ExtResource( 1 )

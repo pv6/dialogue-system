@@ -5,10 +5,19 @@ extends Control
 signal open_dialogue_error()
 
 const COPY_NODES_STRING_HEADER := "node ids:"
+const DEFAULT_SETTINGS_PATH := "res://dialogue_editor_settings.tres"
+const DEFAULT_GLOBAL_ACTORS_PATH := "res://dialogue_global_actors.tres"
+const DEFAULT_GLOBAL_TAGS_PATH := "res://dialogue_global_tags.tres"
+
+const StorageEditorDialog := preload("res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor_dialog/storage_editor_dialog.gd")
+
+export(Resource) var settings: Resource setget set_settings
 
 var session: DialogueEditorSession = preload("session.tres")
 
 var _editor_config := ConfigFile.new()
+
+var _need_to_redraw_graph := true
 
 # for tag editor
 # i am sorry ok i just didn't care to make a whole new class for this one field
@@ -16,12 +25,12 @@ var _edited_text_node_id: int
 
 onready var graph_renderer: DialogueGraphRenderer = $VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer
 onready var action_condition_widget: ActionConditionWidget = $VBoxContainer/TabContainer/HSplitContainer/ActionConditionWidget
-onready var actors_editor: AcceptDialog = $ActorsEditor
-onready var tags_editor: AcceptDialog = $TagsEditor
-onready var dialogue_blackboards_editor: AcceptDialog = $DialogueBlackboardsEditor
+onready var actors_editor: StorageEditorDialog = $ActorsEditor
+onready var tags_editor: StorageEditorDialog = $TagsEditor
+onready var dialogue_blackboards_editor: StorageEditorDialog = $DialogueBlackboardsEditor
 onready var blackboard_editor: AcceptDialog = $BlackboardEditor
-onready var global_actors_editor: AcceptDialog = $GlobalActorsEditor
-onready var global_tags_editor: AcceptDialog = $GlobalTagsEditor
+onready var global_actors_editor: StorageEditorDialog = $GlobalActorsEditor
+onready var global_tags_editor: StorageEditorDialog = $GlobalTagsEditor
 
 onready var _working_dialogue_manager: WorkingResourceManager = $WorkingDialogueManager
 onready var _tab_container: TabContainer = $VBoxContainer/TabContainer
@@ -30,14 +39,14 @@ onready var _tab_container: TabContainer = $VBoxContainer/TabContainer
 func _init() -> void:
     session.clear_connections()
     session.dialogue_editor = self
-    session.connect("changed", self, "_on_session_changed")
 
     _editor_config.load("res://addons/dialogue_system/plugin.cfg")
 
 
 func _ready() -> void:
-    _working_dialogue_manager.connect("resource_changed", self, "_on_working_dialogue_changed")
     session.dialogue_undo_redo = _working_dialogue_manager
+
+    set_settings(_init_settings())
 
     # set open global editors callback functions to GUI buttons
     actors_editor.storage_editor.item_editor.connect(
@@ -46,6 +55,27 @@ func _ready() -> void:
         "edit_storage_pressed", self, "open_global_tags_editor")
 
     new_dialogue()
+
+
+func _process(delta):
+    if _need_to_redraw_graph and graph_renderer:
+        graph_renderer.update_graph()
+        _need_to_redraw_graph = false
+
+
+func _notification(what) -> void:
+    if what == NOTIFICATION_PREDELETE:
+        set_settings(null)
+
+
+func set_settings(new_settings: DialogueEditorSettings) -> void:
+    if settings:
+        settings.disconnect("changed", self, "_on_settings_changed")
+    settings = new_settings
+    if settings:
+        settings.connect("changed", self, "_on_settings_changed")
+
+    _apply_settings()
 
 
 func undo() -> void:
@@ -112,11 +142,15 @@ func shallow_delete_selected_nodes() -> void:
 func new_dialogue() -> void:
     print("New Dialogue")
     _working_dialogue_manager.new_file()
+    graph_renderer.collapsed_nodes.clear()
+    graph_renderer.deselect_all()
 
 
 func open_dialogue() -> void:
     print("Open Dialogue")
     _working_dialogue_manager.open()
+    graph_renderer.collapsed_nodes.clear()
+    graph_renderer.deselect_all()
 
 
 func save_dialogue() -> void:
@@ -143,12 +177,12 @@ func open_tags_editor(text_node: TextDialogueNode) -> void:
 
 
 func open_global_actors_editor() -> void:
-    global_actors_editor.storage_editor.storage = session.global_actors
+    global_actors_editor.storage_editor.storage = settings.global_actors
     global_actors_editor.popup_centered()
 
 
 func open_global_tags_editor() -> void:
-    global_tags_editor.storage_editor.storage = session.global_tags
+    global_tags_editor.storage_editor.storage = settings.global_tags
     global_tags_editor.popup_centered()
 
 
@@ -157,7 +191,9 @@ func open_dialogue_blackboards_editor() -> void:
     dialogue_blackboards_editor.popup_centered()
 
 
-func open_blackboard_editor(blackboard: Blackboard) -> void:
+func open_blackboard_editor(blackboard: StorageItem = null) -> void:
+    if not blackboard:
+        blackboard = get_dialogue().blackboards.get_item_reference(0)
     blackboard_editor.blackboard = blackboard
     blackboard_editor.popup_centered()
 
@@ -179,11 +215,11 @@ func _set_dialogue_editor_version() -> void:
     res.editor_version = _editor_config.get_value("plugin", "version", "0.0.0")
 
 
-func _shallow_dublicate_nodes(dialogue: Dialogue) -> Dialogue:
+func _shallow_dublicate_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _dublicate_nodes(dialogue, false)
 
 
-func _deep_dublicate_nodes(dialogue: Dialogue) -> Dialogue:
+func _deep_dublicate_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _dublicate_nodes(dialogue, true)
 
 
@@ -224,7 +260,7 @@ func _dublicate_nodes(dialogue: Dialogue, deep_dublicate: bool) -> Dialogue:
     return dialogue
 
 
-func _paste_nodes(dialogue: Dialogue) -> Dialogue:
+func _paste_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     var id_string := OS.clipboard
 
     # check that clipboard contains copied node ids
@@ -261,20 +297,35 @@ func _make_reference_node(referenced_node_id: int, dialogue: Dialogue) -> Refere
     return ref_node
 
 
-func _insert_child_hear_node(dialogue: Dialogue) -> Dialogue:
+func _insert_child_hear_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _insert_child_node(dialogue, HearDialogueNode.new())
 
 
-func _insert_child_say_node(dialogue: Dialogue) -> Dialogue:
+func _insert_child_say_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _insert_child_node(dialogue, SayDialogueNode.new())
 
 
-func _insert_parent_hear_node(dialogue: Dialogue) -> Dialogue:
+func _insert_parent_hear_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _insert_parent_node(dialogue, HearDialogueNode.new())
 
 
-func _insert_parent_say_node(dialogue: Dialogue) -> Dialogue:
+func _insert_parent_say_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _insert_parent_node(dialogue, SayDialogueNode.new())
+
+
+func _auto_set_actors(target_node: TextDialogueNode, reference_node: TextDialogueNode) -> void:
+    if not target_node or not reference_node:
+        return
+
+    if (
+            (target_node is HearDialogueNode and reference_node is HearDialogueNode)
+            or (target_node is SayDialogueNode and reference_node is SayDialogueNode)
+    ):
+        target_node.speaker = reference_node.speaker
+        target_node.listener = reference_node.listener
+    else:
+        target_node.speaker = reference_node.listener
+        target_node.listener = reference_node.speaker
 
 
 func _insert_parent_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
@@ -293,10 +344,7 @@ func _insert_parent_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
     cur_parent.children[indx] = node
     node.parent_id = cur_node.parent_id
     node.add_child(cur_node)
-
-    if node is HearDialogueNode and cur_node is HearDialogueNode:
-        node.speaker_id = cur_node.speaker_id
-        node.listener_id = cur_node.listener_id
+    _auto_set_actors(node, cur_node)
 
     dialogue.update_nodes()
 
@@ -304,7 +352,7 @@ func _insert_parent_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
 
 
 func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
-    var selected_nodes = _get_selected_nodes(dialogue)
+    var selected_nodes := _get_selected_nodes(dialogue)
     if selected_nodes.empty():
         return null
 
@@ -314,30 +362,32 @@ func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
     for parent in selected_nodes:
         if graph_renderer.collapsed_nodes.has(parent.id):
             print("Can't add child to collapsed node!")
-            return null
+            continue
+        if parent is ReferenceDialogueNode:
+            print("Can't add child to reference node!")
+            continue
+
         if first_parent:
             parent.add_child(node)
-            if node is HearDialogueNode:
-                while not parent is HearDialogueNode and not parent is RootDialogueNode:
-                    parent = dialogue.nodes[parent.parent_id]
-                if parent is HearDialogueNode:
-                    node.speaker_id = parent.speaker_id
-                    node.listener_id = parent.listener_id
+            _auto_set_actors(node, parent)
             first_parent = false
         else:
             var ref_node := _make_reference_node(node.id, dialogue)
             parent.add_child(ref_node)
+
+    if first_parent:
+        return null
 
     dialogue.update_nodes()
 
     return dialogue
 
 
-func _deep_delete_selected_nodes(dialogue: Dialogue) -> Dialogue:
+func _deep_delete_selected_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _delete_selected_nodes(dialogue, false)
 
 
-func _shallow_delete_selected_nodes(dialogue: Dialogue) -> Dialogue:
+func _shallow_delete_selected_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _delete_selected_nodes(dialogue, true)
 
 
@@ -434,34 +484,38 @@ func _on_dialogue_blackboards_editor_confirmed() -> void:
         _working_dialogue_manager.commit_action("Edit Dialogue Blackboards", self, "_edit_blackboards")
 
 
-func _edit_actors(dialogue: Dialogue) -> Dialogue:
+func _edit_actors(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     dialogue.actors = actors_editor.storage_editor.storage
     return dialogue
 
 
-func _edit_tags(dialogue: Dialogue) -> Dialogue:
+func _edit_tags(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     dialogue.nodes[_edited_text_node_id].tags = tags_editor.storage_editor.storage
     return dialogue
 
 
-func _edit_blackboards(dialogue: Dialogue) -> Dialogue:
+func _edit_blackboards(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     dialogue.blackboards = dialogue_blackboards_editor.storage_editor.storage
     return dialogue
 
 
+func _save_external_resource(resource: Resource) -> void:
+    var ref = ExternalResourceReference.new(resource.resource_path)
+    ref.set_resource(resource)
+
+
 func _on_global_actors_editor_confirmed() -> void:
-    session.global_actors = global_actors_editor.storage_editor.storage
-    ResourceSaver.save(session.global_actors.resource_path, session.global_actors)
+    session.settings.global_actors = global_actors_editor.storage_editor.storage
+    _save_external_resource(session.settings.global_actors)
 
 
 func _on_global_actors_tags_confirmed():
-    session.global_tags = global_tags_editor.storage_editor.storage
-    ResourceSaver.save(session.global_tags.resource_path, session.global_tags)
+    session.settings.global_tags = global_tags_editor.storage_editor.storage
+    _save_external_resource(session.settings.global_tags)
 
 
-func _on_session_changed() -> void:
-    actors_editor.storage_editor.item_editor.storage = session.global_actors
-    tags_editor.storage_editor.item_editor.storage = session.global_tags
+func _on_settings_changed() -> void:
+    _apply_settings()
 
 
 func _get_file_name() -> String:
@@ -493,7 +547,7 @@ func _on_graph_renderer_paste_nodes_request():
     paste_nodes()
 
 
-func _on_graph_renderer_delete_nodes_request():
+func _on_graph_renderer_delete_nodes_request(nodes: Array = []):
     if Input.is_key_pressed(KEY_SHIFT):
         deep_delete_selected_nodes()
     else:
@@ -507,11 +561,11 @@ func _on_graph_renderer_duplicate_nodes_request():
         shallow_dublicate_selected_nodes()
 
 
-func _move_selected_nodes_up(dialogue: Dialogue) -> Dialogue:
+func _move_selected_nodes_up(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _move_selected_nodes_vertically(dialogue, -1)
 
 
-func _move_selected_nodes_down(dialogue: Dialogue) -> Dialogue:
+func _move_selected_nodes_down(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     return _move_selected_nodes_vertically(dialogue, 1)
 
 
@@ -563,3 +617,42 @@ func _move_selected_nodes_vertically(dialogue: Dialogue, shift: int) -> Dialogue
         parent.children.insert(pos + shift, node)
 
     return dialogue
+
+
+func _apply_settings() -> void:
+    if not settings or not actors_editor:
+        return
+
+    actors_editor.storage_editor.item_editor.storage = settings.global_actors
+    tags_editor.storage_editor.item_editor.storage = settings.global_tags
+    _working_dialogue_manager.autosave = settings.autosave
+
+    _need_to_redraw_graph = true
+
+
+func _open_or_create_external_resource(path: String, default_value: Resource) -> Resource:
+    var ref := ExternalResourceReference.new(path)
+    if not ref.get_resource():
+        ref.set_resource(default_value)
+    return ref.get_resource()
+
+
+func _init_settings() -> DialogueEditorSettings:
+    var output: DialogueEditorSettings = settings
+
+    if not output:
+        output = _open_or_create_external_resource(
+                DEFAULT_SETTINGS_PATH, DialogueEditorSettings.new()
+        )
+    if not output.global_actors:
+        output.global_actors = _open_or_create_external_resource(
+                DEFAULT_GLOBAL_ACTORS_PATH, Storage.new()
+        )
+    if not output.global_tags:
+        output.global_tags = _open_or_create_external_resource(
+                DEFAULT_GLOBAL_TAGS_PATH, Storage.new()
+        )
+
+    _save_external_resource(output)
+
+    return output

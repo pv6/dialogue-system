@@ -1,0 +1,76 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/support/icon_button.gd" type="Script" id=2]
+[ext_resource path="res://addons/dialogue_system/assets/icons/swap.svg" type="Texture" id=3]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/speaker_listener_widget/speaker_listener_widget.gd" type="Script" id=4]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/storage_picker/storage_item_storage_picker_editor.tscn" type="PackedScene" id=5]
+
+[node name="SpeakerListenerWidget" type="HBoxContainer"]
+anchor_right = 1.0
+margin_top = -1.0
+margin_bottom = 51.0
+size_flags_horizontal = 3
+script = ExtResource( 4 )
+
+[node name="SpeakerListener" type="GridContainer" parent="."]
+margin_right = 992.0
+margin_bottom = 52.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 2
+
+[node name="SpeakerLabel" type="Label" parent="SpeakerListener"]
+margin_top = 5.0
+margin_right = 56.0
+margin_bottom = 19.0
+text = "Speaker "
+
+[node name="SpeakerPicker" parent="SpeakerListener" instance=ExtResource( 5 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 60.0
+margin_top = 0.0
+margin_right = 992.0
+margin_bottom = 24.0
+
+[node name="StoragePicker" parent="SpeakerListener/SpeakerPicker" index="0"]
+margin_right = 932.0
+margin_bottom = 24.0
+can_select_none = true
+
+[node name="ListenerLabel" type="Label" parent="SpeakerListener"]
+margin_top = 33.0
+margin_right = 56.0
+margin_bottom = 47.0
+text = "Listener "
+
+[node name="ListenerPicker" parent="SpeakerListener" instance=ExtResource( 5 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 60.0
+margin_top = 28.0
+margin_right = 992.0
+margin_bottom = 52.0
+
+[node name="StoragePicker" parent="SpeakerListener/ListenerPicker" index="0"]
+margin_right = 932.0
+margin_bottom = 24.0
+can_select_none = true
+
+[node name="SwapButton" type="ToolButton" parent="."]
+margin_left = 996.0
+margin_right = 1024.0
+margin_bottom = 52.0
+icon = ExtResource( 3 )
+script = ExtResource( 2 )
+
+[connection signal="edit_storage_pressed" from="SpeakerListener/SpeakerPicker" to="." method="_on_edit_actors_pressed"]
+[connection signal="item_forced_selected" from="SpeakerListener/SpeakerPicker" to="." method="_on_speaker_forced_selected"]
+[connection signal="item_selected" from="SpeakerListener/SpeakerPicker" to="." method="_on_speaker_selected"]
+[connection signal="edit_storage_pressed" from="SpeakerListener/ListenerPicker" to="." method="_on_edit_actors_pressed"]
+[connection signal="item_forced_selected" from="SpeakerListener/ListenerPicker" to="." method="_on_listener_forced_selected"]
+[connection signal="item_selected" from="SpeakerListener/ListenerPicker" to="." method="_on_listener_selected"]
+[connection signal="pressed" from="SwapButton" to="." method="_on_swap_button_pressed"]
+
+[editable path="SpeakerListener/SpeakerPicker"]
+[editable path="SpeakerListener/ListenerPicker"]

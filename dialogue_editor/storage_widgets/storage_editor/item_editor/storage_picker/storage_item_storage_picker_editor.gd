@@ -3,6 +3,8 @@ extends StorageItemEditor
 
 
 signal edit_storage_pressed()
+signal item_selected(item)
+signal item_forced_selected(item)
 
 export(Resource) var storage: Resource setget set_storage
 
@@ -21,22 +23,21 @@ func set_storage(new_storage: Storage) -> void:
 
 func get_item():
     if storage_picker and storage:
-        # check that "None" is not selected
         var id = storage_picker.get_selected_item_id()
-        if id != -1:
-            var storage_item = StorageItem.new()
-            storage_item.storage_path = storage.resource_path
-            storage_item.storage_id = id
-            return storage_item
+        return _id_to_storage_item(id)
     return ""
 
 
 func set_item(item: StorageItem) -> void:
-    if storage_picker and storage and item:
-        # var ids: PoolIntArray = storage.get_item_ids(item)
-        # if not ids.empty():
-        #     storage_picker.select(ids[0])
-        storage_picker.select(item.storage_id)
+    if storage_picker:
+        if item:
+            storage_picker.select(item.storage_id)
+        else:
+            storage_picker.select(-1)
+
+
+func select(item: StorageItem) -> void:
+    set_item(item)
 
 
 func reset_item() -> void:
@@ -46,3 +47,17 @@ func reset_item() -> void:
 
 func _on_storage_picker_edit_storage_pressed() -> void:
     emit_signal("edit_storage_pressed")
+
+
+func _id_to_storage_item(id: int) -> StorageItem:
+    if storage_picker and storage_picker.storage:
+        return storage_picker.storage.get_item_reference(id)
+    return null
+
+
+func _on_storage_picker_item_selected(id: int) -> void:
+    emit_signal("item_selected", _id_to_storage_item(id))
+
+
+func _on_storage_picker_item_forced_selected(id: int) -> void:
+    emit_signal("item_forced_selected", _id_to_storage_item(id))
