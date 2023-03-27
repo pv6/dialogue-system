@@ -29,6 +29,7 @@ rect_min_size = Vector2( 69, 69 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_colors/font_color = Color( 0.3174, 0.69, 0.3174, 1 )
+wrap_enabled = true
 
 [connection signal="pressed" from="AddCommentButton" to="." method="_on_add_comment_button_pressed"]
 [connection signal="focus_exited" from="CommentTextEdit" to="." method="_on_comment_text_edit_focus_exited"]
