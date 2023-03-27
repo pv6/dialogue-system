@@ -28,7 +28,7 @@ onready var _portrait: TextureRect = $Control/Portrait
 
 
 func _ready():
-    _show_say_options_immidiately = false
+    _show_say_options_immidiately = true
     if not Engine.editor_hint:
         start_dialogue()
 
@@ -37,6 +37,7 @@ func _clear() -> void:
     _say_options.hide()
     _continue_button.hide()
     _end_button.show()
+    _scroll_down()
 
 
 func _set_continue() -> void:
@@ -80,8 +81,8 @@ func _scroll_down() -> void:
     var target_scroll = (_top_padding.rect_size.y + _text_container.rect_size.y) - (_scroll_container.rect_size.y - 30)
     if _scroll_container.scroll_vertical < target_scroll:
         _scroll_tween.interpolate_property(_scroll_container, "scroll_vertical",
-                                        _scroll_container.scroll_vertical,
-                                        target_scroll, 0.30)
+                                           _scroll_container.scroll_vertical,
+                                           target_scroll, 0.30)
         _scroll_tween.start()
 
 
