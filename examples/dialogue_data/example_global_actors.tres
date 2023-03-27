@@ -1,0 +1,16 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://addons/dialogue_system/support/storage.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+max_id = 2
+must_be_unique = true
+_data = {
+0: "Example Actor",
+1: "You"
+}
+_locked_indices = {
+}
+_hidden_indices = {
+}
