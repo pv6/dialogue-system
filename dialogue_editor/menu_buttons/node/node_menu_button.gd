@@ -11,7 +11,9 @@ signal move_selected_nodes_up()
 signal move_selected_nodes_down()
 
 signal copy_selected_nodes()
+signal cut_selected_nodes()
 signal paste_nodes()
+signal paste_cut_nodes_without_children()
 
 signal shallow_dublicate_selected_nodes()
 signal deep_dublicate_selected_nodes()
@@ -34,7 +36,9 @@ func _ready() -> void:
     _popup.add_separator()
 
     _add_button("Copy Selected Nodes", "copy_selected_nodes", KEY_C, true)
+    _add_button("Cut Selected Nodes", "cut_selected_nodes", KEY_X, true)
     _add_button("Paste Nodes", "paste_nodes", KEY_V, true)
+    _add_button("Paste Cut Nodes Without Children", "paste_cut_nodes_without_children", KEY_V, true, true)
 
     _popup.add_separator()
 

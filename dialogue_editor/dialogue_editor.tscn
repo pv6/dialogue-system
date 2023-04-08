@@ -1,11 +1,10 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/dialogue_editor.gd" type="Script" id=1]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/graph_renderer/dialogue_graph_renderer.tscn" type="PackedScene" id=2]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/dialogue/dialogue_menu_button.tscn" type="PackedScene" id=3]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/menu_buttons/node/node_menu_button.tscn" type="PackedScene" id=4]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/blackboard_editor/blackboard_editor.tscn" type="PackedScene" id=5]
-[ext_resource path="res://dialogue_editor_settings.tres" type="Resource" id=6]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/action_condition_widget.tscn" type="PackedScene" id=9]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor_dialog/storage_editor_dialog.tscn" type="PackedScene" id=10]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/working_resource_manager/working_resource_manager.gd" type="Script" id=12]
@@ -18,10 +17,11 @@
 [node name="DialogueEditor" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+margin_left = -1.0
+margin_right = -1.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource( 1 )
-settings = ExtResource( 6 )
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 anchor_right = 1.0
@@ -40,7 +40,7 @@ items = [ "New Dialogue", null, 0, false, false, 0, 0, null, "", false, "Open Di
 [node name="NodeMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 4 )]
 margin_left = 72.0
 margin_right = 118.0
-items = [ "Insert Child Hear Node", null, 0, false, false, 0, 0, null, "", false, "Insert Child Say Node", null, 0, false, false, 1, 0, null, "", false, "Insert Parent Hear Node", null, 0, false, false, 2, 0, null, "", false, "Insert Parent Say Node", null, 0, false, false, 3, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Move Selected Nodes Up", null, 0, false, false, 4, 0, null, "", false, "Move Selected Nodes Down", null, 0, false, false, 5, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Copy Selected Nodes", null, 0, false, false, 6, 0, null, "", false, "Paste Nodes", null, 0, false, false, 7, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Shallow Dublicate Selected Nodes", null, 0, false, false, 8, 0, null, "", false, "Deep Dublicate Selected Nodes", null, 0, false, false, 9, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Shallow Delete Selected Nodes", null, 0, false, false, 10, 0, null, "", false, "Deep Delete Selected Nodes", null, 0, false, false, 11, 0, null, "", false ]
+items = [ "Insert Child Hear Node", null, 0, false, false, 0, 0, null, "", false, "Insert Child Say Node", null, 0, false, false, 1, 0, null, "", false, "Insert Parent Hear Node", null, 0, false, false, 2, 0, null, "", false, "Insert Parent Say Node", null, 0, false, false, 3, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Move Selected Nodes Up", null, 0, false, false, 4, 0, null, "", false, "Move Selected Nodes Down", null, 0, false, false, 5, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Copy Selected Nodes", null, 0, false, false, 6, 0, null, "", false, "Cut Selected Nodes", null, 0, false, false, 7, 0, null, "", false, "Paste Nodes", null, 0, false, false, 8, 0, null, "", false, "Paste Cut Nodes Without Children", null, 0, false, false, 9, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Shallow Dublicate Selected Nodes", null, 0, false, false, 10, 0, null, "", false, "Deep Dublicate Selected Nodes", null, 0, false, false, 11, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Shallow Delete Selected Nodes", null, 0, false, false, 12, 0, null, "", false, "Deep Delete Selected Nodes", null, 0, false, false, 13, 0, null, "", false ]
 
 [node name="ActorsMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 16 )]
 margin_left = 122.0
@@ -146,6 +146,7 @@ margin_bottom = 40.0
 mouse_filter = 2
 script = ExtResource( 12 )
 resource_class_name = "Dialogue"
+autosave = true
 
 [connection signal="new_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="new_dialogue"]
 [connection signal="open_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="open_dialogue"]
@@ -154,6 +155,7 @@ resource_class_name = "Dialogue"
 [connection signal="save_dialogue_as" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="save_dialogue_as"]
 [connection signal="undo" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="undo"]
 [connection signal="copy_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="copy_selected_nodes"]
+[connection signal="cut_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="cut_selected_nodes"]
 [connection signal="deep_delete_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="deep_delete_selected_nodes"]
 [connection signal="deep_dublicate_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="deep_dublicate_selected_nodes"]
 [connection signal="insert_child_hear_node" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="insert_child_hear_node"]
@@ -162,6 +164,7 @@ resource_class_name = "Dialogue"
 [connection signal="insert_parent_say_node" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="insert_parent_say_node"]
 [connection signal="move_selected_nodes_down" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="move_selected_nodes_down"]
 [connection signal="move_selected_nodes_up" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="move_selected_nodes_up"]
+[connection signal="paste_cut_nodes_without_children" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="paste_cut_nodes_without_children"]
 [connection signal="paste_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="paste_nodes"]
 [connection signal="shallow_delete_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="shallow_delete_selected_nodes"]
 [connection signal="shallow_dublicate_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="shallow_dublicate_selected_nodes"]

@@ -119,7 +119,7 @@ func clone() -> Clonable:
 
         # update 'blackboards' direct reference in nodes flags
         _update_flags(copy_node, copy)
-#        # update 'actors' direct reference in speaker and listener
+        # update 'actors' direct reference in speaker and listener
         _update_actors(copy_node, copy)
 
         copy.nodes[node.id] = copy_node
@@ -143,6 +143,62 @@ func clone() -> Clonable:
 
 func get_local_blackboard_ref() -> StorageItemResourceReference:
     return StorageItemResourceReference.new(blackboards.get_item_reference(0))
+
+
+# child_nodes: Array[DialogueNode]
+func reparent_nodes(new_child_nodes: Array, new_parent: DialogueNode, reparent_with_children: bool = true) -> bool:
+    var made_changes := false
+
+    for node in new_child_nodes:
+        if not nodes.has(node.parent_id):
+            print("Node %d has not parent!" % node.id)
+            continue
+
+        if node.parent_id == new_parent.id and (reparent_with_children or node.children.empty()):
+            print("Already child of parent!")
+            continue
+
+        var old_parent: DialogueNode = nodes[node.parent_id]
+
+        if not reparent_with_children:
+            if is_in_branch(new_parent, node):
+                print("New parent %d is within node %d subtree!" % [new_parent.id, node.id])
+                continue
+            var pos := old_parent.children.find(node)
+            while not node.children.empty():
+                var child: DialogueNode = node.children[-1]
+                node.remove_child(child)
+                old_parent.add_child(child, pos)
+
+        old_parent.remove_child(node)
+        new_parent.add_child(node)
+        made_changes = true
+
+    if not made_changes:
+        return false
+
+    update_nodes()
+    return true
+
+
+func is_in_branch(node: DialogueNode, branch_root: DialogueNode) -> bool:
+    if node == branch_root:
+        return true
+
+    for child in branch_root.children:
+        if is_in_branch(node, child):
+            return true
+
+    return false
+
+
+# return Array[DialogueNode]
+func get_nodes(ids: PoolIntArray) -> Array:
+    var output := []
+    for id in ids:
+        if nodes.has(id):
+            output.push_back(nodes[id])
+    return output
 
 
 func _update_auto_flags() -> void:

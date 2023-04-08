@@ -4,7 +4,8 @@ extends Control
 
 signal open_dialogue_error()
 
-const COPY_NODES_STRING_HEADER := "node ids:"
+const COPY_NODES_STRING_HEADER := "copy ids:"
+const CUT_NODES_STRING_HEADER := "cut ids:"
 const DEFAULT_SETTINGS_PATH := "res://dialogue_editor_settings.tres"
 const DEFAULT_GLOBAL_ACTORS_PATH := "res://dialogue_global_actors.tres"
 const DEFAULT_GLOBAL_TAGS_PATH := "res://dialogue_global_tags.tres"
@@ -87,12 +88,11 @@ func redo() -> void:
 
 
 func copy_selected_nodes() -> void:
-    var id_string = COPY_NODES_STRING_HEADER
+    _copy_selected_node_ids_to_clipboard(COPY_NODES_STRING_HEADER)
 
-    for id in graph_renderer.selected_node_ids:
-        id_string += str(id) + ","
 
-    OS.clipboard = id_string
+func cut_selected_nodes() -> void:
+    _copy_selected_node_ids_to_clipboard(CUT_NODES_STRING_HEADER)
 
 
 func shallow_dublicate_selected_nodes() -> void:
@@ -104,15 +104,19 @@ func deep_dublicate_selected_nodes() -> void:
 
 
 func move_selected_nodes_up() -> void:
-    _working_dialogue_manager.commit_action("Move Selected Nodes Up", self, "_move_selected_nodes_up")
+    _working_dialogue_manager.commit_action("Move Selected Nodes Up", self, "_move_selected_nodes_vertically", {"shift": -1})
 
 
 func move_selected_nodes_down() -> void:
-    _working_dialogue_manager.commit_action("Move Selected Nodes Down", self, "_move_selected_nodes_down")
+    _working_dialogue_manager.commit_action("Move Selected Nodes Down", self, "_move_selected_nodes_vertically", {"shift": 1})
 
 
 func paste_nodes() -> void:
     _working_dialogue_manager.commit_action("Paste Nodes", self, "_paste_nodes")
+
+
+func paste_cut_nodes_without_children() -> void:
+    _working_dialogue_manager.commit_action("Paste Cut Nodes Without Children", self, "_paste_cut_nodes_without_children")
 
 
 func insert_parent_hear_node() -> void:
@@ -263,13 +267,38 @@ func _dublicate_nodes(dialogue: Dialogue, deep_dublicate: bool) -> Dialogue:
 func _paste_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     var id_string := OS.clipboard
 
-    # check that clipboard contains copied node ids
-    if not id_string.find(COPY_NODES_STRING_HEADER) == 0:
-        return null
+    # check that clipboard contains node ids
+    if id_string.find(COPY_NODES_STRING_HEADER) == 0:
+        return _paste_copied_nodes(dialogue, id_string)
+    if id_string.find(CUT_NODES_STRING_HEADER) == 0:
+        return _paste_cut_nodes(dialogue, id_string, true)
+
+    print("Clipboard doesn't have nodes!")
+    return null
+
+
+func _paste_cut_nodes_without_children(dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    var id_string := OS.clipboard
+
+    # check that clipboard contains node ids
+    if id_string.find(CUT_NODES_STRING_HEADER) == 0:
+        return _paste_cut_nodes(dialogue, id_string, false)
+
+    print("Clipboard doesn't have cut nodes!")
+    return null
+
+
+func _paste_copied_nodes(dialogue: Dialogue, id_string: String) -> Dialogue:
+    # remove header
     id_string = id_string.substr(COPY_NODES_STRING_HEADER.length())
 
     # cash selected node ids
     var selected_nodes := _get_selected_nodes(dialogue)
+
+    # check selected node validity
+    if selected_nodes.size() < 1:
+        print("No parent node selected!")
+        return null
 
     # add references to copied nodes as children in each currently selected node
     var success := false
@@ -296,6 +325,46 @@ func _paste_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     dialogue.update_nodes()
 
     return dialogue
+
+
+func _paste_cut_nodes(dialogue: Dialogue, id_string: String, paste_with_children: bool) -> Dialogue:
+    # remove header
+    id_string = id_string.substr(CUT_NODES_STRING_HEADER.length())
+
+    # cash selected node ids
+    var selected_nodes := _get_selected_nodes(dialogue)
+
+    # check selected node validity
+    if selected_nodes.size() < 1:
+        print("No parent node selected!")
+        return null
+    if selected_nodes.size() > 1:
+        print("Can only paste cut nodes into one parent!")
+        return null
+
+    var parent: DialogueNode = selected_nodes[0]
+    if graph_renderer.collapsed_nodes.has(parent.id):
+        print("Can't paste into collapsed node!")
+        return null
+    if parent is ReferenceDialogueNode:
+        print("Can't paste into reference node!")
+        return null
+
+    # get node references by ids
+    var pasted_node_ids := id_string.split(",", false)
+    var pasted_nodes := []
+    for pasted_id in pasted_node_ids:
+        pasted_id = int(pasted_id)
+        if dialogue.nodes.has(pasted_id):
+            var node: DialogueNode = dialogue.nodes[pasted_id]
+            if node is RootDialogueNode:
+                print("Can't cut root node!")
+                continue
+            pasted_nodes.push_back(node)
+
+    if dialogue.reparent_nodes(pasted_nodes, parent, paste_with_children):
+        return dialogue
+    return null
 
 
 func _make_reference_node(referenced_node_id: int, dialogue: Dialogue) -> ReferenceDialogueNode:
@@ -554,7 +623,10 @@ func _on_graph_renderer_copy_nodes_request():
 
 
 func _on_graph_renderer_paste_nodes_request():
-    paste_nodes()
+    if Input.is_key_pressed(KEY_SHIFT):
+        paste_cut_nodes_without_children()
+    else:
+        paste_nodes()
 
 
 func _on_graph_renderer_delete_nodes_request(nodes: Array = []):
@@ -569,14 +641,6 @@ func _on_graph_renderer_duplicate_nodes_request():
         deep_dublicate_selected_nodes()
     else:
         shallow_dublicate_selected_nodes()
-
-
-func _move_selected_nodes_up(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    return _move_selected_nodes_vertically(dialogue, -1)
-
-
-func _move_selected_nodes_down(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    return _move_selected_nodes_vertically(dialogue, 1)
 
 
 class NodeVerticalSorter:
@@ -596,7 +660,9 @@ class NodeVerticalSorter:
         return nodes[node.parent_id].get_child_position(node.id)
 
 
-func _move_selected_nodes_vertically(dialogue: Dialogue, shift: int) -> Dialogue:
+# args = {"shift"}
+func _move_selected_nodes_vertically(dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    var shift: int = args["shift"]
     var selected_nodes := _get_selected_nodes(dialogue)
     if selected_nodes.empty():
         return null
@@ -666,3 +732,12 @@ func _init_settings() -> DialogueEditorSettings:
     _save_external_resource(output)
 
     return output
+
+
+func _copy_selected_node_ids_to_clipboard(header: String) -> void:
+    var id_string := header
+
+    for id in graph_renderer.selected_node_ids:
+        id_string += str(id) + ","
+
+    OS.clipboard = id_string
