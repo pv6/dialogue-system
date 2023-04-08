@@ -272,16 +272,26 @@ func _paste_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     var selected_nodes := _get_selected_nodes(dialogue)
 
     # add references to copied nodes as children in each currently selected node
+    var success := false
     var pasted_node_ids := id_string.split(",", false)
     for parent in selected_nodes:
         if graph_renderer.collapsed_nodes.has(parent.id):
             print("Can't paste into collapsed node!")
-            return null
+            continue
+
+        if parent is ReferenceDialogueNode:
+            print("Can't paste into reference node!")
+            continue
+
         for pasted_id in pasted_node_ids:
             pasted_id = int(pasted_id)
             if dialogue.nodes.has(pasted_id):
                 var ref_node := _make_reference_node(pasted_id, dialogue)
                 parent.add_child(ref_node)
+                success = true
+
+    if not success:
+        return null
 
     dialogue.update_nodes()
 
