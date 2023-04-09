@@ -146,7 +146,7 @@ func get_local_blackboard_ref() -> StorageItemResourceReference:
 
 
 # child_nodes: Array[DialogueNode]
-func reparent_nodes(new_child_nodes: Array, new_parent: DialogueNode, reparent_with_children: bool = true) -> bool:
+func make_children_of_node(new_child_nodes: Array, new_parent: DialogueNode, reparent_with_children: bool = true) -> bool:
     var made_changes := false
 
     for node in new_child_nodes:
@@ -158,12 +158,17 @@ func reparent_nodes(new_child_nodes: Array, new_parent: DialogueNode, reparent_w
             print("Already child of parent!")
             continue
 
+        if node.id == new_parent.id:
+            print("Can't make child of self!")
+            continue
+
         var old_parent: DialogueNode = nodes[node.parent_id]
 
-        if not reparent_with_children:
+        if reparent_with_children:
             if is_in_branch(new_parent, node):
                 print("New parent %d is within node %d subtree!" % [new_parent.id, node.id])
                 continue
+        else:
             var pos := old_parent.children.find(node)
             while not node.children.empty():
                 var child: DialogueNode = node.children[-1]
@@ -176,6 +181,36 @@ func reparent_nodes(new_child_nodes: Array, new_parent: DialogueNode, reparent_w
 
     if not made_changes:
         return false
+
+    update_nodes()
+    return true
+
+
+func make_parent_of_node(new_parent: DialogueNode, new_child: DialogueNode, keep_old_children: bool = true) -> bool:
+    if not nodes.has(new_child.parent_id):
+        print("Node %d has not parent!" % new_child.id)
+        return false
+
+    if new_parent.id == new_child.parent_id:
+        print("Already parent of child!")
+        return false
+
+    var old_parent: DialogueNode = nodes[new_child.parent_id]
+    var old_parent_of_new_parent: DialogueNode = nodes[new_parent.parent_id]
+
+    if not keep_old_children:
+        # assign new parent's children to it's old parent
+        var pos := old_parent_of_new_parent.children.find(new_parent)
+        while not new_parent.children.empty():
+            var child: DialogueNode = new_parent.children[-1]
+            new_parent.remove_child(child)
+            old_parent_of_new_parent.add_child(child, pos)
+
+    old_parent_of_new_parent.remove_child(new_parent)
+    var new_child_old_pos := old_parent.children.find(new_child)
+    old_parent.remove_child(new_child)
+    old_parent.add_child(new_parent, new_child_old_pos)
+    new_parent.add_child(new_child)
 
     update_nodes()
     return true

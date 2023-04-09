@@ -112,11 +112,19 @@ func move_selected_nodes_down() -> void:
 
 
 func paste_nodes() -> void:
-    _working_dialogue_manager.commit_action("Paste Nodes", self, "_paste_nodes")
+    _working_dialogue_manager.commit_action("Paste Nodes", self, "_paste_nodes", {"with_children": false, "as_parent": false})
 
 
-func paste_cut_nodes_without_children() -> void:
-    _working_dialogue_manager.commit_action("Paste Cut Nodes Without Children", self, "_paste_cut_nodes_without_children")
+func paste_cut_nodes_with_children() -> void:
+    _working_dialogue_manager.commit_action("Paste Cut Nodes With Children", self, "_paste_nodes", {"with_children": true, "as_parent": false})
+
+
+func paste_cut_node_as_parent() -> void:
+    _working_dialogue_manager.commit_action("Paste Cut Node As Parent", self, "_paste_nodes", {"with_children": false, "as_parent": true})
+
+
+func paste_cut_node_with_children_as_parent() -> void:
+    _working_dialogue_manager.commit_action("Paste Cut Node With Children As Parent", self, "_paste_nodes", {"with_children": true, "as_parent": true})
 
 
 func insert_parent_hear_node() -> void:
@@ -264,6 +272,7 @@ func _dublicate_nodes(dialogue: Dialogue, deep_dublicate: bool) -> Dialogue:
     return dialogue
 
 
+# args = {"with_children": bool, "as_parent": bool}
 func _paste_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     var id_string := OS.clipboard
 
@@ -271,20 +280,13 @@ func _paste_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     if id_string.find(COPY_NODES_STRING_HEADER) == 0:
         return _paste_copied_nodes(dialogue, id_string)
     if id_string.find(CUT_NODES_STRING_HEADER) == 0:
-        return _paste_cut_nodes(dialogue, id_string, true)
+        var with_children: bool = args["with_children"]
+        if args["as_parent"]:
+            return _paste_cut_node_as_parent(dialogue, id_string, with_children)
+        else:
+            return _paste_cut_nodes_as_children(dialogue, id_string, with_children)
 
     print("Clipboard doesn't have nodes!")
-    return null
-
-
-func _paste_cut_nodes_without_children(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    var id_string := OS.clipboard
-
-    # check that clipboard contains node ids
-    if id_string.find(CUT_NODES_STRING_HEADER) == 0:
-        return _paste_cut_nodes(dialogue, id_string, false)
-
-    print("Clipboard doesn't have cut nodes!")
     return null
 
 
@@ -327,7 +329,7 @@ func _paste_copied_nodes(dialogue: Dialogue, id_string: String) -> Dialogue:
     return dialogue
 
 
-func _paste_cut_nodes(dialogue: Dialogue, id_string: String, paste_with_children: bool) -> Dialogue:
+func _paste_cut_nodes_as_children(dialogue: Dialogue, id_string: String, paste_with_children: bool) -> Dialogue:
     # remove header
     id_string = id_string.substr(CUT_NODES_STRING_HEADER.length())
 
@@ -362,7 +364,48 @@ func _paste_cut_nodes(dialogue: Dialogue, id_string: String, paste_with_children
                 continue
             pasted_nodes.push_back(node)
 
-    if dialogue.reparent_nodes(pasted_nodes, parent, paste_with_children):
+    if dialogue.make_children_of_node(pasted_nodes, parent, paste_with_children):
+        return dialogue
+    return null
+
+
+func _paste_cut_node_as_parent(dialogue: Dialogue, id_string: String, paste_with_children: bool) -> Dialogue:
+    # remove header
+    id_string = id_string.substr(CUT_NODES_STRING_HEADER.length())
+
+    # cash selected node ids
+    var selected_nodes := _get_selected_nodes(dialogue)
+
+    # check selected node validity
+    if selected_nodes.size() < 1:
+        print("No child node selected!")
+        return null
+    if selected_nodes.size() > 1:
+        print("Can only paste cut node into as parent of one child!")
+        return null
+
+    var new_child: DialogueNode = selected_nodes[0]
+
+    # get node references by ids
+    var pasted_node_ids := id_string.split(",", false)
+    if pasted_node_ids.size() != 1:
+        print("Can only paste one node as parent!")
+        return null
+
+    var pasted_id := int(pasted_node_ids[0])
+    if not dialogue.nodes.has(pasted_id):
+        print("Invalid cut node id!")
+        return null
+
+    var pasted_node: DialogueNode = dialogue.nodes[pasted_id]
+    if pasted_node is RootDialogueNode:
+        print("Can't cut root node!")
+        return null
+    if pasted_node is ReferenceDialogueNode:
+        print("Can't paste reference node as parent!")
+        return null
+
+    if dialogue.make_parent_of_node(pasted_node, new_child, paste_with_children):
         return dialogue
     return null
 
@@ -624,9 +667,15 @@ func _on_graph_renderer_copy_nodes_request():
 
 func _on_graph_renderer_paste_nodes_request():
     if Input.is_key_pressed(KEY_SHIFT):
-        paste_cut_nodes_without_children()
+        if Input.is_key_pressed(KEY_ALT):
+            paste_cut_node_with_children_as_parent()
+        else:
+            paste_cut_node_as_parent()
     else:
-        paste_nodes()
+        if Input.is_key_pressed(KEY_ALT):
+            paste_cut_nodes_with_children()
+        else:
+            paste_nodes()
 
 
 func _on_graph_renderer_delete_nodes_request(nodes: Array = []):
