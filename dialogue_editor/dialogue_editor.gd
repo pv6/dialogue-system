@@ -365,6 +365,8 @@ func _paste_cut_nodes_as_children(dialogue: Dialogue, id_string: String, paste_w
             pasted_nodes.push_back(node)
 
     if dialogue.make_children_of_node(pasted_nodes, parent, paste_with_children):
+        if not paste_with_children:
+            graph_renderer.uncollapse_nodes(pasted_nodes)
         return dialogue
     return null
 
@@ -406,6 +408,7 @@ func _paste_cut_node_as_parent(dialogue: Dialogue, id_string: String, paste_with
         return null
 
     if dialogue.make_parent_of_node(pasted_node, new_child, paste_with_children):
+        graph_renderer.uncollapse_node(pasted_node)
         return dialogue
     return null
 

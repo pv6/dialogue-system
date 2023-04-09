@@ -68,6 +68,54 @@ func deselect_all() -> void:
     set_selected_node_ids([])
 
 
+func collapse_node(node: DialogueNode) -> void:
+    if collapsed_nodes.has(node.id):
+        return
+
+    collapsed_nodes[node.id] = true
+    update_graph()
+    emit_signal("collapsed_nodes_changed")
+
+
+func uncollapse_node(node: DialogueNode) -> void:
+    if not collapsed_nodes.has(node.id):
+        return
+
+    collapsed_nodes.erase(node.id)
+    update_graph()
+    emit_signal("collapsed_nodes_changed")
+
+
+# nodes: Array[DialogueNode]
+func collapse_nodes(nodes: Array) -> void:
+    var made_changes := false
+
+    for node in nodes:
+        if collapsed_nodes.has(node.id):
+            continue
+        collapsed_nodes[node.id] = true
+        made_changes = true
+
+    if made_changes:
+        update_graph()
+        emit_signal("collapsed_nodes_changed")
+
+
+# nodes: Array[DialogueNode]
+func uncollapse_nodes(nodes: Array) -> void:
+    var made_changes := false
+
+    for node in nodes:
+        if not collapsed_nodes.has(node.id):
+            continue
+        collapsed_nodes.erase(node.id)
+        made_changes = true
+
+    if made_changes:
+        update_graph()
+        emit_signal("collapsed_nodes_changed")
+
+
 func update_node_sizes() -> void:
     for renderer in node_renderers.values():
         renderer.contents.update_size()

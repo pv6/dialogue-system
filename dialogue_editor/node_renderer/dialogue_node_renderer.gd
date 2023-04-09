@@ -12,6 +12,7 @@ const COMBINED_CONTENTS_SCENE = preload("implemented_contents/combined_contents/
 const EXPAND_ICON = preload("res://addons/dialogue_system/assets/icons/add.svg")
 const COLLAPSE_ICON = preload("res://addons/dialogue_system/assets/icons/collapse.svg")
 
+# DialogueNode
 export(Resource) var node setget set_node
 
 export(bool) var is_collapsed setget set_is_collapsed
