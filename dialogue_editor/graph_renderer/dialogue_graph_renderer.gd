@@ -320,10 +320,10 @@ func _drag_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     # cache parameters
     var dragged_node_renderer: DialogueNodeRenderer = args["node_renderer"]
     var from: Vector2 = args["from"]
-    var to: Vector2 = args["to"]
+    var to: Vector2 = args["to"] + get_local_mouse_position() - dragged_node_renderer.rect_position
 
     # ignore dragging of root node
-    if dragged_node_renderer.node.parent_id == DialogueNode.DUMMY_ID:
+    if dragged_node_renderer.node is RootDialogueNode:
         dragged_node_renderer.offset = from
         return null
 
@@ -332,6 +332,25 @@ func _drag_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     # there was a bug idk
     if from == Vector2.ZERO:
         return null
+
+    var dragged_node = dialogue.nodes[dragged_node_renderer.node.id]
+
+    # see if dragged onto another non-sibling node
+    for node_renderer in node_renderers.values():
+        # skip siblings
+        if node_renderer.node.parent_id == dragged_node_renderer.node.parent_id:
+            continue
+
+        var ul: Vector2 = node_renderer.offset
+        var lr: Vector2 = ul + node_renderer.rect_size
+
+        if to.x >= ul.x and to.y >= ul.y and to.x <= lr.x and to.y <= lr.y:
+            var dragged_onto_node = dialogue.nodes[node_renderer.node.id]
+            if dialogue.make_parent_of_node(dragged_node, dragged_onto_node, false):
+                return dialogue
+            # ignore dragging if no changes
+            dragged_node_renderer.offset = from
+            return null
 
     # move child node
     var move_up := to.y < from.y
@@ -346,7 +365,6 @@ func _drag_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
                 (not move_up and to.y + dragged_node_renderer.rect_size.y * (1 - dragging_percentage) > sibling_renderer.offset.y)):
             # reference nodes in new dialogue
             parent = dialogue.nodes[parent.id]
-            var dragged_node = dialogue.nodes[dragged_node_renderer.node.id]
 
             parent.children.erase(dragged_node)
             parent.children.insert(i, dragged_node)

@@ -146,10 +146,16 @@ func get_local_blackboard_ref() -> StorageItemResourceReference:
 
 
 # child_nodes: Array[DialogueNode]
-func make_children_of_node(new_child_nodes: Array, new_parent: DialogueNode, reparent_with_children: bool = true) -> bool:
+func make_children_of_node(new_child_nodes: Array, new_parent: DialogueNode, reparent_with_children: bool) -> bool:
+    # check we were passed nodes from THIS dialogue
+    assert(nodes[new_parent.id] == new_parent)
+
     var made_changes := false
 
     for node in new_child_nodes:
+        # check we were passed nodes from THIS dialogue
+        assert(nodes[node.id] == node)
+
         if not nodes.has(node.parent_id):
             print("Node %d has not parent!" % node.id)
             continue
@@ -186,7 +192,11 @@ func make_children_of_node(new_child_nodes: Array, new_parent: DialogueNode, rep
     return true
 
 
-func make_parent_of_node(new_parent: DialogueNode, new_child: DialogueNode, keep_old_children: bool = true) -> bool:
+func make_parent_of_node(new_parent: DialogueNode, new_child: DialogueNode, keep_old_children: bool) -> bool:
+    # check we were passed nodes from THIS dialogue
+    assert(nodes[new_parent.id] == new_parent)
+    assert(nodes[new_child.id] == new_child)
+
     if not nodes.has(new_child.parent_id):
         print("Node %d has not parent!" % new_child.id)
         return false
