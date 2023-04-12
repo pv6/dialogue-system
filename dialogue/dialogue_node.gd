@@ -61,7 +61,8 @@ func add_child(node: DialogueNode, position := -1) -> void:
 
 func remove_child(node: DialogueNode) -> void:
     var child_index = children.find(node)
-    children.remove(child_index)
+    if child_index >= 0 and child_index < children.size():
+        children.remove(child_index)
     node.parent_id = DUMMY_ID
 
 

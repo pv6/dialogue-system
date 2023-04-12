@@ -333,7 +333,7 @@ func _drag_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     if from == Vector2.ZERO:
         return null
 
-    var dragged_node = dialogue.nodes[dragged_node_renderer.node.id]
+    var dragged_node: DialogueNode = dialogue.nodes[dragged_node_renderer.node.id]
 
     # see if dragged onto another non-sibling node
     for node_renderer in node_renderers.values():
@@ -345,7 +345,14 @@ func _drag_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
         var lr: Vector2 = ul + node_renderer.rect_size
 
         if to.x >= ul.x and to.y >= ul.y and to.x <= lr.x and to.y <= lr.y:
-            var dragged_onto_node = dialogue.nodes[node_renderer.node.id]
+            var dragged_onto_node: DialogueNode = dialogue.nodes[node_renderer.node.id]
+
+            # special case if dragged onto node's only child
+            if dragged_onto_node.parent_id == dragged_node.id and dragged_node.children.size() == 1:
+                var tmp := dragged_node
+                dragged_node = dragged_onto_node
+                dragged_onto_node = tmp
+
             if dialogue.make_parent_of_node(dragged_node, dragged_onto_node, false):
                 return dialogue
             # ignore dragging if no changes

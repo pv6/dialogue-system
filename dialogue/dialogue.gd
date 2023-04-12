@@ -201,11 +201,10 @@ func make_parent_of_node(new_parent: DialogueNode, new_child: DialogueNode, keep
         print("Node %d has not parent!" % new_child.id)
         return false
 
-    if new_parent.id == new_child.parent_id:
+    if new_parent.id == new_child.parent_id and keep_old_children:
         print("Already parent of child!")
         return false
 
-    var old_parent: DialogueNode = nodes[new_child.parent_id]
     var old_parent_of_new_parent: DialogueNode = nodes[new_parent.parent_id]
 
     if not keep_old_children:
@@ -216,8 +215,10 @@ func make_parent_of_node(new_parent: DialogueNode, new_child: DialogueNode, keep
             new_parent.remove_child(child)
             old_parent_of_new_parent.add_child(child, pos)
 
-    old_parent_of_new_parent.remove_child(new_parent)
+    var old_parent: DialogueNode = nodes[new_child.parent_id]
     var new_child_old_pos := old_parent.children.find(new_child)
+
+    old_parent_of_new_parent.remove_child(new_parent)
     old_parent.remove_child(new_child)
     old_parent.add_child(new_parent, new_child_old_pos)
     new_parent.add_child(new_child)
