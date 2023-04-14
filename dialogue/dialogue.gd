@@ -150,39 +150,49 @@ func make_children_of_node(new_child_nodes: Array, new_parent: DialogueNode, rep
     # check we were passed nodes from THIS dialogue
     assert(nodes[new_parent.id] == new_parent)
 
+    if new_parent is ReferenceDialogueNode:
+        print("Can't make child of reference node!")
+        return false
+
     var made_changes := false
 
-    for node in new_child_nodes:
+    for new_child in new_child_nodes:
         # check we were passed nodes from THIS dialogue
-        assert(nodes[node.id] == node)
+        assert(nodes[new_child.id] == new_child)
 
-        if not nodes.has(node.parent_id):
-            print("Node %d has not parent!" % node.id)
+        if new_child is RootDialogueNode:
+            print("Can't make parent of root node!")
             continue
 
-        if node.parent_id == new_parent.id and (reparent_with_children or node.children.empty()):
-            print("Already child of parent!")
+        if not nodes.has(new_child.parent_id):
+            print("Node %d has no parent!" % new_child.id)
             continue
 
-        if node.id == new_parent.id:
+        var need_reparent_old_children: bool = not reparent_with_children and not new_child.children.empty()
+        var already_last_child: bool = not new_parent.children.empty() and new_parent.children[-1] == new_child
+        if not need_reparent_old_children and already_last_child:
+            print("Already last child of parent!")
+            continue
+
+        if new_child.id == new_parent.id:
             print("Can't make child of self!")
             continue
 
-        var old_parent: DialogueNode = nodes[node.parent_id]
+        var old_parent: DialogueNode = nodes[new_child.parent_id]
 
         if reparent_with_children:
-            if is_in_branch(new_parent, node):
-                print("New parent %d is within node %d subtree!" % [new_parent.id, node.id])
+            if is_in_branch(new_parent, new_child):
+                print("New parent %d is within node %d subtree!" % [new_parent.id, new_child.id])
                 continue
         else:
-            var pos := old_parent.children.find(node)
-            while not node.children.empty():
-                var child: DialogueNode = node.children[-1]
-                node.remove_child(child)
+            var pos := old_parent.children.find(new_child)
+            while not new_child.children.empty():
+                var child: DialogueNode = new_child.children[-1]
+                new_child.remove_child(child)
                 old_parent.add_child(child, pos)
 
-        old_parent.remove_child(node)
-        new_parent.add_child(node)
+        old_parent.remove_child(new_child)
+        new_parent.add_child(new_child)
         made_changes = true
 
     if not made_changes:
@@ -197,11 +207,19 @@ func make_parent_of_node(new_parent: DialogueNode, new_child: DialogueNode, keep
     assert(nodes[new_parent.id] == new_parent)
     assert(nodes[new_child.id] == new_child)
 
-    if not nodes.has(new_child.parent_id):
-        print("Node %d has not parent!" % new_child.id)
+    if new_parent is ReferenceDialogueNode:
+        print("Can't make child of reference node!")
         return false
 
-    if new_parent.id == new_child.parent_id and keep_old_children:
+    if new_child is RootDialogueNode:
+        print("Can't make parent of root node!")
+        return false
+
+    if not nodes.has(new_child.parent_id):
+        print("Node %d has no parent!" % new_child.id)
+        return false
+
+    if new_parent.id == new_child.parent_id and (keep_old_children or new_parent.children.size() == 1):
         print("Already parent of child!")
         return false
 
@@ -225,6 +243,24 @@ func make_parent_of_node(new_parent: DialogueNode, new_child: DialogueNode, keep
 
     update_nodes()
     return true
+
+
+func drag_onto_node(dragged_node: DialogueNode, dragged_onto_node: DialogueNode) -> bool:
+    # move up if dragged onto parent while only child
+    if dragged_onto_node.children.size() == 1 and dragged_onto_node.children[0] == dragged_node:
+        return make_parent_of_node(dragged_node, dragged_onto_node, false)
+
+    # become only child of dragged onto node
+    if dragged_onto_node.children.empty():
+        return make_children_of_node([dragged_node], dragged_onto_node, false)
+
+    # become only child of dragged onto node and inherit its old children
+    # make last child of dragged onto node (abandoning dragged node's old children)
+    var need_to_move_dragged: bool = dragged_onto_node.children[-1] != dragged_node or not dragged_node.children.empty()
+    if need_to_move_dragged and not make_children_of_node([dragged_node], dragged_onto_node, false):
+        return false
+    # inherit old children of dragged onto node
+    return make_children_of_node(dragged_onto_node.children.slice(0, dragged_onto_node.children.size() - 2), dragged_node, true)
 
 
 func is_in_branch(node: DialogueNode, branch_root: DialogueNode) -> bool:

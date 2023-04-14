@@ -347,14 +347,9 @@ func _drag_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
         if to.x >= ul.x and to.y >= ul.y and to.x <= lr.x and to.y <= lr.y:
             var dragged_onto_node: DialogueNode = dialogue.nodes[node_renderer.node.id]
 
-            # special case if dragged onto node's only child
-            if dragged_onto_node.parent_id == dragged_node.id and dragged_node.children.size() == 1:
-                var tmp := dragged_node
-                dragged_node = dragged_onto_node
-                dragged_onto_node = tmp
-
-            if dialogue.make_parent_of_node(dragged_node, dragged_onto_node, false):
+            if dialogue.drag_onto_node(dragged_node, dragged_onto_node):
                 return dialogue
+
             # ignore dragging if no changes
             dragged_node_renderer.offset = from
             return null
