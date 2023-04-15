@@ -8,6 +8,9 @@ signal has_unsaved_changes_changed(value)
 signal file_changed()
 signal save_path_changed()
 
+signal save_dialog_closed()
+signal open_dialog_closed()
+
 export(String) var resource_class_name := "Resource" setget set_resource_class_name
 export(Resource) var resource: Resource setget set_resource
 export(String) var save_path := "" setget set_save_path
@@ -23,8 +26,8 @@ var _save_as_dialog: FileDialog
 var _resource_script_path = ""
 
 func _init():
-    _open_dialog = _create_file_dialog("Open", FileDialog.MODE_OPEN_FILE, "_on_open_file_selected")
-    _save_as_dialog = _create_file_dialog("Save", FileDialog.MODE_SAVE_FILE, "_on_save_as_file_selected")
+    _open_dialog = _create_file_dialog("Open", FileDialog.MODE_OPEN_FILE, "_on_open_file_selected", "_on_open_dialog_closed")
+    _save_as_dialog = _create_file_dialog("Save", FileDialog.MODE_SAVE_FILE, "_on_save_as_file_selected", "_on_save_dialog_closed")
 
 
 func set_has_unsaved_changes(value: bool) -> void:
@@ -169,18 +172,27 @@ func _on_open_file_selected(new_save_path: String):
         emit_signal("file_changed")
 
 
+func _on_save_dialog_closed() -> void:
+    emit_signal("save_dialog_closed")
+
+
+func _on_open_dialog_closed() -> void:
+    emit_signal("open_dialog_closed")
+
+
 func _new_resource() -> Resource:
     if _resource_script_path == "":
         return null
     return load(_resource_script_path).new()
 
 
-func _create_file_dialog(title: String, mode: int, callback: String) -> FileDialog:
+func _create_file_dialog(title: String, mode: int, callback: String, close_callback: String) -> FileDialog:
     var dialog = FileDialog.new()
     # first set mode then title, because Godot changes window title with mode...
     dialog.mode = mode
     dialog.window_title = title + " " + resource_class_name.capitalize()
     dialog.connect("file_selected", self, callback)
+    dialog.connect("hide", self, close_callback)
     dialog.rect_min_size = Vector2(300, 300)
     add_child(dialog)
 

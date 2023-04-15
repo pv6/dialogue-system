@@ -4,28 +4,26 @@ extends Control
 
 signal open_dialogue_error()
 
-const COPY_NODES_STRING_HEADER := "copy ids:"
-const CUT_NODES_STRING_HEADER := "cut ids:"
+const StorageEditorDialog := preload("storage_widgets/storage_editor_dialog/storage_editor_dialog.gd")
+const TabsWidget := preload("tabs_widget/tabs_widget.gd")
+const DialogueEditorTab := preload("dialogue_editor_tab/dialogue_editor_tab.gd")
+
 const DEFAULT_SETTINGS_PATH := "res://dialogue_editor_settings.tres"
 const DEFAULT_GLOBAL_ACTORS_PATH := "res://dialogue_global_actors.tres"
 const DEFAULT_GLOBAL_TAGS_PATH := "res://dialogue_global_tags.tres"
 
-const StorageEditorDialog := preload("res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor_dialog/storage_editor_dialog.gd")
+const DIALOGUE_EDITOR_TAB_SCENE := preload("dialogue_editor_tab/dialogue_editor_tab.tscn")
 
 export(Resource) var settings: Resource setget set_settings
 
 var session: DialogueEditorSession = preload("session.tres")
 
-var _editor_config := ConfigFile.new()
-
-var _need_to_redraw_graph := true
+var editor_config := ConfigFile.new()
 
 # for tag editor
 # i am sorry ok i just didn't care to make a whole new class for this one field
 var _edited_text_node_id: int
 
-onready var graph_renderer: DialogueGraphRenderer = $VBoxContainer/TabContainer/HSplitContainer/DialogueGraphRenderer
-onready var action_condition_widget: ActionConditionWidget = $VBoxContainer/TabContainer/HSplitContainer/ActionConditionWidget
 onready var actors_editor: StorageEditorDialog = $ActorsEditor
 onready var tags_editor: StorageEditorDialog = $TagsEditor
 onready var dialogue_blackboards_editor: StorageEditorDialog = $DialogueBlackboardsEditor
@@ -33,19 +31,20 @@ onready var blackboard_editor: AcceptDialog = $BlackboardEditor
 onready var global_actors_editor: StorageEditorDialog = $GlobalActorsEditor
 onready var global_tags_editor: StorageEditorDialog = $GlobalTagsEditor
 
-onready var _working_dialogue_manager: WorkingResourceManager = $WorkingDialogueManager
-onready var _tab_container: TabContainer = $VBoxContainer/TabContainer
+onready var _tabs_widget: TabsWidget = $VBoxContainer/TabsWidget
+
+onready var _close_unsaved_dialog: ConfirmationDialog = $CloseUnsavedDialog
 
 
 func _init() -> void:
     session.clear_connections()
     session.dialogue_editor = self
 
-    _editor_config.load("res://addons/dialogue_system/plugin.cfg")
+    editor_config.load("res://addons/dialogue_system/plugin.cfg")
 
 
 func _ready() -> void:
-    session.dialogue_undo_redo = _working_dialogue_manager
+    session.dialogue_undo_redo = _get_current_working_dialogue_manager()
 
     set_settings(_init_settings())
 
@@ -55,13 +54,9 @@ func _ready() -> void:
     tags_editor.storage_editor.item_editor.connect(
         "edit_storage_pressed", self, "open_global_tags_editor")
 
+    _close_unsaved_dialog.add_button("Don't Save", true, "close_without_save")
+
     new_dialogue()
-
-
-func _process(delta):
-    if _need_to_redraw_graph and graph_renderer:
-        graph_renderer.update_graph()
-        _need_to_redraw_graph = false
 
 
 func _notification(what) -> void:
@@ -80,101 +75,103 @@ func set_settings(new_settings: DialogueEditorSettings) -> void:
 
 
 func undo() -> void:
-    _working_dialogue_manager.undo()
+    _get_current_working_dialogue_manager().undo()
 
 
 func redo() -> void:
-    _working_dialogue_manager.redo()
+    _get_current_working_dialogue_manager().redo()
 
 
 func copy_selected_nodes() -> void:
-    _copy_selected_node_ids_to_clipboard(COPY_NODES_STRING_HEADER)
+    _get_current_editor_tab().copy_selected_nodes()
 
 
 func cut_selected_nodes() -> void:
-    _copy_selected_node_ids_to_clipboard(CUT_NODES_STRING_HEADER)
+    _get_current_editor_tab().cut_selected_nodes()
 
 
 func shallow_dublicate_selected_nodes() -> void:
-    _working_dialogue_manager.commit_action("Shallow Dublicate Selected Nodes", self, "_shallow_dublicate_nodes")
+    _get_current_editor_tab().shallow_dublicate_selected_nodes()
 
 
 func deep_dublicate_selected_nodes() -> void:
-    _working_dialogue_manager.commit_action("Deep Dublicate Selected Nodes", self, "_deep_dublicate_nodes")
+    _get_current_editor_tab().deep_dublicate_selected_nodes()
 
 
 func move_selected_nodes_up() -> void:
-    _working_dialogue_manager.commit_action("Move Selected Nodes Up", self, "_move_selected_nodes_vertically", {"shift": -1})
+    _get_current_editor_tab().move_selected_nodes_up()
 
 
 func move_selected_nodes_down() -> void:
-    _working_dialogue_manager.commit_action("Move Selected Nodes Down", self, "_move_selected_nodes_vertically", {"shift": 1})
+    _get_current_editor_tab().move_selected_nodes_down()
 
 
 func paste_nodes() -> void:
-    _working_dialogue_manager.commit_action("Paste Nodes", self, "_paste_nodes", {"with_children": false, "as_parent": false})
+    _get_current_editor_tab().paste_nodes()
 
 
 func paste_cut_nodes_with_children() -> void:
-    _working_dialogue_manager.commit_action("Paste Cut Nodes With Children", self, "_paste_nodes", {"with_children": true, "as_parent": false})
+    _get_current_editor_tab().paste_cut_nodes_with_children()
 
 
 func paste_cut_node_as_parent() -> void:
-    _working_dialogue_manager.commit_action("Paste Cut Node As Parent", self, "_paste_nodes", {"with_children": false, "as_parent": true})
+    _get_current_editor_tab().paste_cut_node_as_parent()
 
 
 func paste_cut_node_with_children_as_parent() -> void:
-    _working_dialogue_manager.commit_action("Paste Cut Node With Children As Parent", self, "_paste_nodes", {"with_children": true, "as_parent": true})
+    _get_current_editor_tab().paste_cut_node_with_children_as_parent()
 
 
 func insert_parent_hear_node() -> void:
-    _working_dialogue_manager.commit_action("Insert Parent Hear Node", self, "_insert_parent_hear_node")
+    _get_current_editor_tab().insert_parent_hear_node()
 
 
 func insert_parent_say_node() -> void:
-    _working_dialogue_manager.commit_action("Insert Parent Say Node", self, "_insert_parent_say_node")
+    _get_current_editor_tab().insert_parent_say_node()
 
 
 func insert_child_hear_node() -> void:
-    _working_dialogue_manager.commit_action("Insert Child Hear Node", self, "_insert_child_hear_node")
+    _get_current_editor_tab().insert_child_hear_node()
 
 
 func insert_child_say_node() -> void:
-    _working_dialogue_manager.commit_action("Insert Child Say Node", self, "_insert_child_say_node")
+    _get_current_editor_tab().insert_child_say_node()
 
 
 func deep_delete_selected_nodes() -> void:
-    _working_dialogue_manager.commit_action("Deep Delete Selected Nodes", self, "_deep_delete_selected_nodes")
+    _get_current_editor_tab().deep_delete_selected_nodes()
 
 
 func shallow_delete_selected_nodes() -> void:
-    _working_dialogue_manager.commit_action("Shallow Delete Selected Nodes", self, "_shallow_delete_selected_nodes")
+    _get_current_editor_tab().shallow_delete_selected_nodes()
 
 
 func new_dialogue() -> void:
-    print("New Dialogue")
-    _working_dialogue_manager.new_file()
-    graph_renderer.collapsed_nodes.clear()
-    graph_renderer.deselect_all()
+    _tabs_widget.add_tab()
+    _tabs_widget.set_current_tab(_tabs_widget.get_tab_count() - 1)
+    _get_current_editor_tab().new_dialogue()
 
 
 func open_dialogue() -> void:
-    print("Open Dialogue")
-    _working_dialogue_manager.open()
-    graph_renderer.collapsed_nodes.clear()
-    graph_renderer.deselect_all()
+    var previous_tab_index := _tabs_widget.get_current_tab_index()
+    _tabs_widget.add_tab()
+
+    var new_tab := _tabs_widget.get_current_tab()
+    new_tab.open_dialogue()
+    var working_dialogue_manager := _get_current_working_dialogue_manager()
+    yield(working_dialogue_manager, "open_dialog_closed")
+    yield(get_tree(), "idle_frame")
+    if working_dialogue_manager.save_path == "":
+        _tabs_widget.remove_current_tab()
+        _tabs_widget.set_current_tab(previous_tab_index)
 
 
 func save_dialogue() -> void:
-    print("Save Dialogue")
-    _set_dialogue_editor_version()
-    _working_dialogue_manager.save()
+    _get_current_editor_tab().save_dialogue()
 
 
 func save_dialogue_as() -> void:
-    print("Save Dialogue As")
-    _set_dialogue_editor_version()
-    _working_dialogue_manager.save_as()
+    _get_current_editor_tab().save_dialogue_as()
 
 
 func open_actors_editor() -> void:
@@ -211,402 +208,22 @@ func open_blackboard_editor(blackboard: StorageItem = null) -> void:
 
 
 func get_dialogue() -> Dialogue:
-    return _working_dialogue_manager.resource as Dialogue
-
-
-static func _unroll_referenced_node_id(referenced_node_id: int, nodes: Dictionary) -> int:
-    while nodes.has(referenced_node_id) and nodes[referenced_node_id] is ReferenceDialogueNode:
-        referenced_node_id = nodes[referenced_node_id].referenced_node_id
-    return referenced_node_id
-
-
-func _set_dialogue_editor_version() -> void:
-    # have to do this indirectly
-    # because "manager.resource.version = ..." triggers setter for resource jfc
-    var res = _working_dialogue_manager.resource
-    res.editor_version = _editor_config.get_value("plugin", "version", "0.0.0")
-
-
-func _shallow_dublicate_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    return _dublicate_nodes(dialogue, false)
-
-
-func _deep_dublicate_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    return _dublicate_nodes(dialogue, true)
-
-
-func _dublicate_node(dialogue: Dialogue, node: DialogueNode, deep_dublicate: bool) -> DialogueNode:
-    var new_node: DialogueNode = node.clone()
-    new_node.id = dialogue.get_new_max_id()
-    new_node.children = []
-
-    if deep_dublicate:
-        for child in node.children:
-            new_node.add_child(_dublicate_node(dialogue, child, true))
-
-    return new_node
-
-
-func _get_selected_nodes(dialogue: Dialogue) -> Array:
-    return dialogue.get_nodes_by_ids(graph_renderer.selected_node_ids)
-
-
-func _dublicate_nodes(dialogue: Dialogue, deep_dublicate: bool) -> Dialogue:
-    var selected_nodes = _get_selected_nodes(dialogue)
-    if selected_nodes.empty():
-        return null
-
-    var have_dublicated = false
-    for node in selected_nodes:
-        if node.parent_id != -1:
-            var parent: DialogueNode = dialogue.nodes[node.parent_id]
-            var dub = _dublicate_node(dialogue, node, deep_dublicate)
-            parent.add_child(dub, parent.get_child_position(node.id) + 1)
-            have_dublicated = true
-    if not have_dublicated:
-        print("No Nodes Dublicated")
-        return null
-
-    dialogue.update_nodes()
-
-    return dialogue
-
-
-# args = {"with_children": bool, "as_parent": bool}
-func _paste_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    var id_string := OS.clipboard
-
-    # check that clipboard contains node ids
-    if id_string.find(COPY_NODES_STRING_HEADER) == 0:
-        return _paste_copied_nodes(dialogue, id_string)
-    if id_string.find(CUT_NODES_STRING_HEADER) == 0:
-        var with_children: bool = args["with_children"]
-        if args["as_parent"]:
-            return _paste_cut_node_as_parent(dialogue, id_string, with_children)
-        else:
-            return _paste_cut_nodes_as_children(dialogue, id_string, with_children)
-
-    print("Clipboard doesn't have nodes!")
-    return null
-
-
-func _paste_copied_nodes(dialogue: Dialogue, id_string: String) -> Dialogue:
-    # remove header
-    id_string = id_string.substr(COPY_NODES_STRING_HEADER.length())
-
-    # cash selected node ids
-    var selected_nodes := _get_selected_nodes(dialogue)
-
-    # check selected node validity
-    if selected_nodes.size() < 1:
-        print("No parent node selected!")
-        return null
-
-    # add references to copied nodes as children in each currently selected node
-    var success := false
-    var pasted_node_ids := id_string.split(",", false)
-    for parent in selected_nodes:
-        if graph_renderer.collapsed_nodes.has(parent.id):
-            print("Can't paste into collapsed node!")
-            continue
-
-        if parent is ReferenceDialogueNode:
-            print("Can't paste into reference node!")
-            continue
-
-        for pasted_id in pasted_node_ids:
-            pasted_id = int(pasted_id)
-            if dialogue.nodes.has(pasted_id):
-                var ref_node := _make_reference_node(pasted_id, dialogue)
-                parent.add_child(ref_node)
-                success = true
-
-    if not success:
-        return null
-
-    dialogue.update_nodes()
-
-    return dialogue
-
-
-func _paste_cut_nodes_as_children(dialogue: Dialogue, id_string: String, paste_with_children: bool) -> Dialogue:
-    # remove header
-    id_string = id_string.substr(CUT_NODES_STRING_HEADER.length())
-
-    # cash selected node ids
-    var selected_nodes := _get_selected_nodes(dialogue)
-
-    # check selected node validity
-    if selected_nodes.size() < 1:
-        print("No parent node selected!")
-        return null
-    if selected_nodes.size() > 1:
-        print("Can only paste cut nodes into one parent!")
-        return null
-
-    var parent: DialogueNode = selected_nodes[0]
-    if graph_renderer.collapsed_nodes.has(parent.id):
-        print("Can't paste into collapsed node!")
-        return null
-    if parent is ReferenceDialogueNode:
-        print("Can't paste into reference node!")
-        return null
-
-    # get node references by ids
-    var pasted_node_ids := id_string.split(",", false)
-    var pasted_nodes := []
-    for pasted_id in pasted_node_ids:
-        pasted_id = int(pasted_id)
-        if dialogue.nodes.has(pasted_id):
-            var node: DialogueNode = dialogue.nodes[pasted_id]
-            if node is RootDialogueNode:
-                print("Can't cut root node!")
-                continue
-            pasted_nodes.push_back(node)
-
-    if dialogue.make_children_of_node(pasted_nodes, parent, paste_with_children):
-        if not paste_with_children:
-            graph_renderer.uncollapse_nodes(pasted_nodes)
-        return dialogue
-    return null
-
-
-func _paste_cut_node_as_parent(dialogue: Dialogue, id_string: String, paste_with_children: bool) -> Dialogue:
-    # remove header
-    id_string = id_string.substr(CUT_NODES_STRING_HEADER.length())
-
-    # cash selected node ids
-    var selected_nodes := _get_selected_nodes(dialogue)
-
-    # check selected node validity
-    if selected_nodes.size() < 1:
-        print("No child node selected!")
-        return null
-    if selected_nodes.size() > 1:
-        print("Can only paste cut node into as parent of one child!")
-        return null
-
-    var new_child: DialogueNode = selected_nodes[0]
-
-    # get node references by ids
-    var pasted_node_ids := id_string.split(",", false)
-    if pasted_node_ids.size() != 1:
-        print("Can only paste one node as parent!")
-        return null
-
-    var pasted_id := int(pasted_node_ids[0])
-    if not dialogue.nodes.has(pasted_id):
-        print("Invalid cut node id!")
-        return null
-
-    var pasted_node: DialogueNode = dialogue.nodes[pasted_id]
-    if pasted_node is RootDialogueNode:
-        print("Can't cut root node!")
-        return null
-    if pasted_node is ReferenceDialogueNode:
-        print("Can't paste reference node as parent!")
-        return null
-
-    if dialogue.make_parent_of_node(pasted_node, new_child, paste_with_children):
-        graph_renderer.uncollapse_node(pasted_node)
-        return dialogue
-    return null
-
-
-func _make_reference_node(referenced_node_id: int, dialogue: Dialogue) -> ReferenceDialogueNode:
-    var ref_node := ReferenceDialogueNode.new()
-    ref_node.id = dialogue.get_new_max_id()
-    ref_node.referenced_node_id = _unroll_referenced_node_id(referenced_node_id, dialogue.nodes)
-    if dialogue.nodes[referenced_node_id] is ReferenceDialogueNode:
-        ref_node.jump_to = dialogue.nodes[referenced_node_id].jump_to
-    return ref_node
-
-
-func _insert_child_hear_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    return _insert_child_node(dialogue, HearDialogueNode.new())
-
-
-func _insert_child_say_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    return _insert_child_node(dialogue, SayDialogueNode.new())
-
-
-func _insert_parent_hear_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    return _insert_parent_node(dialogue, HearDialogueNode.new())
-
-
-func _insert_parent_say_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    return _insert_parent_node(dialogue, SayDialogueNode.new())
-
-
-func _auto_set_actors(target_node: TextDialogueNode, reference_node: TextDialogueNode) -> void:
-    if not target_node or not reference_node:
-        return
-
-    if (
-            (target_node is HearDialogueNode and reference_node is HearDialogueNode)
-            or (target_node is SayDialogueNode and reference_node is SayDialogueNode)
-    ):
-        target_node.speaker = reference_node.speaker
-        target_node.listener = reference_node.listener
-    else:
-        target_node.speaker = reference_node.listener
-        target_node.listener = reference_node.speaker
-
-
-func _insert_parent_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
-    var selected_nodes = _get_selected_nodes(dialogue)
-    if selected_nodes.size() != 1:
-        return null
-
-    var cur_node: DialogueNode = selected_nodes[0]
-    if cur_node as RootDialogueNode:
-        return null
-
-    node.id = dialogue.get_new_max_id()
-
-    var cur_parent = dialogue.nodes[cur_node.parent_id]
-    var indx =  cur_parent.children.find(cur_node)
-    cur_parent.children[indx] = node
-    node.parent_id = cur_node.parent_id
-    node.add_child(cur_node)
-    _auto_set_actors(node, cur_node)
-
-    dialogue.update_nodes()
-
-    return dialogue
-
-
-func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
-    var selected_nodes := _get_selected_nodes(dialogue)
-    if selected_nodes.empty():
-        return null
-
-    node.id = dialogue.get_new_max_id()
-
-    var first_parent := true
-    for parent in selected_nodes:
-        if graph_renderer.collapsed_nodes.has(parent.id):
-            print("Can't add child to collapsed node!")
-            continue
-        if parent is ReferenceDialogueNode:
-            print("Can't add child to reference node!")
-            continue
-
-        if first_parent:
-            parent.add_child(node)
-            _auto_set_actors(node, parent)
-            first_parent = false
-        else:
-            var ref_node := _make_reference_node(node.id, dialogue)
-            parent.add_child(ref_node)
-
-    if first_parent:
-        return null
-
-    dialogue.update_nodes()
-
-    return dialogue
-
-
-func _deep_delete_selected_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    return _delete_selected_nodes(dialogue, false)
-
-
-func _shallow_delete_selected_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    return _delete_selected_nodes(dialogue, true)
-
-
-func _delete_selected_nodes(dialogue: Dialogue, save_children: bool) -> Dialogue:
-    var nodes_to_delete := _get_selected_nodes(dialogue)
-    if nodes_to_delete.empty():
-        return null
-
-    while not nodes_to_delete.empty():
-        # extract node from queue
-        var node: DialogueNode = nodes_to_delete.pop_front()
-
-        # can't delete root node
-        if node is RootDialogueNode:
-            continue
-
-        var node_parent = dialogue.nodes[node.parent_id]
-
-        if save_children:
-            # reassign children to deleted node parent
-            for child in node.children:
-                node_parent.add_child(child)
-        else:
-            # add children to delete queue
-            for child in node.children:
-                nodes_to_delete.push_back(child)
-
-        # delete node from parent
-        node_parent.children.erase(node)
-
-        # find references to node and add them to delete queue as well
-        for other_node in dialogue.nodes.values():
-            var ref_node := other_node as ReferenceDialogueNode
-            if ref_node and ref_node.referenced_node_id == node.id:
-                nodes_to_delete.push_back(ref_node)
-
-    dialogue.update_nodes()
-
-    return dialogue
-
-
-func _on_working_dialogue_changed() -> void:
-    var dialogue := _working_dialogue_manager.resource
-
-    # set new dialogue to graph renderer
-    if graph_renderer:
-        graph_renderer.dialogue = dialogue
-
-    # set selected nodes to action condition widget
-    _update_action_condition_selected_nodes()
-
-
-func _update_action_condition_selected_nodes() -> void:
-    var dialogue := _working_dialogue_manager.resource
-    if action_condition_widget:
-        action_condition_widget.clear_selected_node()
-        if dialogue and graph_renderer:
-            var selected_nodes = _get_selected_nodes(dialogue)
-            for node in selected_nodes:
-                action_condition_widget.select_node(node)
-
-
-func _on_collapsed_nodes_changed() -> void:
-    _update_action_condition_selected_nodes()
-
-
-func _on_node_selected(node: Node) -> void:
-    if action_condition_widget and node is DialogueNodeRenderer:
-        action_condition_widget.select_node(node.node)
-
-
-func _on_node_unselected(node: Node) -> void:
-    if action_condition_widget and node is DialogueNodeRenderer:
-        action_condition_widget.unselect_node(node.node)
-
-
-func _on_working_dialogue_manager_file_changed() -> void:
-    if action_condition_widget:
-        action_condition_widget.clear_selected_node()
+    return _get_current_working_dialogue_manager().resource as Dialogue
 
 
 func _on_actors_editor_confirmed() -> void:
     if actors_editor.storage_editor.has_changes:
-        _working_dialogue_manager.commit_action("Edit Dialogue Actors", self, "_edit_actors")
+        _get_current_working_dialogue_manager().commit_action("Edit Dialogue Actors", self, "_edit_actors")
 
 
 func _on_tags_editor_confirmed() -> void:
     if tags_editor.storage_editor.has_changes:
-        _working_dialogue_manager.commit_action("Edit Node Tags", self, "_edit_tags")
+        _get_current_working_dialogue_manager().commit_action("Edit Node Tags", self, "_edit_tags")
 
 
 func _on_dialogue_blackboards_editor_confirmed() -> void:
     if dialogue_blackboards_editor.storage_editor.has_changes:
-        _working_dialogue_manager.commit_action("Edit Dialogue Blackboards", self, "_edit_blackboards")
+        _get_current_working_dialogue_manager().commit_action("Edit Dialogue Blackboards", self, "_edit_blackboards")
 
 
 func _edit_actors(dialogue: Dialogue, args: Dictionary) -> Dialogue:
@@ -643,119 +260,15 @@ func _on_settings_changed() -> void:
     _apply_settings()
 
 
-func _get_file_name() -> String:
-    if _working_dialogue_manager.save_path == "":
-        return "[unsaved]"
-    else:
-        var path = _working_dialogue_manager.save_path
-        return path.get_file().trim_suffix("." + path.get_extension())
-
-
-func _on_working_dialogue_manager_save_path_changed():
-    if _tab_container:
-        _tab_container.set_tab_title(0, _get_file_name())
-
-
-func _on_working_dialogue_manager_has_unsaved_changes_changed(value):
-    if _tab_container:
-        if value:
-            _tab_container.set_tab_title(0, _get_file_name() + "(*)")
-        else:
-            _tab_container.set_tab_title(0, _get_file_name())
-
-
-func _on_graph_renderer_copy_nodes_request():
-    copy_selected_nodes()
-
-
-func _on_graph_renderer_paste_nodes_request():
-    if Input.is_key_pressed(KEY_SHIFT):
-        if Input.is_key_pressed(KEY_ALT):
-            paste_cut_node_with_children_as_parent()
-        else:
-            paste_cut_node_as_parent()
-    else:
-        if Input.is_key_pressed(KEY_ALT):
-            paste_cut_nodes_with_children()
-        else:
-            paste_nodes()
-
-
-func _on_graph_renderer_delete_nodes_request(nodes: Array = []):
-    if Input.is_key_pressed(KEY_SHIFT):
-        deep_delete_selected_nodes()
-    else:
-        shallow_delete_selected_nodes()
-
-
-func _on_graph_renderer_duplicate_nodes_request():
-    if Input.is_key_pressed(KEY_SHIFT):
-        deep_dublicate_selected_nodes()
-    else:
-        shallow_dublicate_selected_nodes()
-
-
-class NodeVerticalSorter:
-    var nodes: Dictionary
-    var reverse
-
-    func _init(nodes: Dictionary, reverse := false) -> void:
-        self.nodes = nodes
-        self.reverse = reverse
-
-    func less_than(a: DialogueNode, b: DialogueNode) -> bool:
-        if reverse:
-            return _get_pos(a) > _get_pos(b)
-        return _get_pos(a) < _get_pos(b)
-
-    func _get_pos(node: DialogueNode) -> int:
-        return nodes[node.parent_id].get_child_position(node.id)
-
-
-# args = {"shift"}
-func _move_selected_nodes_vertically(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    var shift: int = args["shift"]
-    var selected_nodes := _get_selected_nodes(dialogue)
-    if selected_nodes.empty():
-        return null
-
-    var filtered_selected_nodes := []
-    for node in selected_nodes:
-        var parent := dialogue.get_node(node.parent_id)
-        if not parent:
-            continue
-        filtered_selected_nodes.append(node)
-        var pos = parent.get_child_position(node.id)
-        var new_pos = clamp(pos + shift, 0, parent.children.size() - 1)
-        shift = sign(shift) * min(abs(new_pos - pos), abs(shift))
-
-    if filtered_selected_nodes.empty() or shift == 0:
-        print("No Nodes Moved")
-        return null
-
-    filtered_selected_nodes.sort_custom(NodeVerticalSorter.new(dialogue.nodes, shift > 0), "less_than")
-
-    for node in filtered_selected_nodes:
-        var parent := dialogue.get_node(node.parent_id)
-        assert(parent)
-        var pos = parent.get_child_position(node.id)
-        assert(0 <= pos + shift)
-        assert(pos + shift <= parent.children.size() - 1)
-        parent.children.erase(node)
-        parent.children.insert(pos + shift, node)
-
-    return dialogue
-
-
 func _apply_settings() -> void:
     if not settings or not actors_editor:
         return
 
     actors_editor.storage_editor.item_editor.storage = settings.global_actors
     tags_editor.storage_editor.item_editor.storage = settings.global_tags
-    _working_dialogue_manager.autosave = settings.autosave
 
-    _need_to_redraw_graph = true
+    for tab in _tabs_widget.get_tabs():
+        tab.apply_settings()
 
 
 func _open_or_create_external_resource(path: String, default_value: Resource) -> Resource:
@@ -786,10 +299,50 @@ func _init_settings() -> DialogueEditorSettings:
     return output
 
 
-func _copy_selected_node_ids_to_clipboard(header: String) -> void:
-    var id_string := header
+func _get_current_working_dialogue_manager() -> WorkingResourceManager:
+    return _get_working_dialogue_manager(_tabs_widget.get_current_tab_index())
 
-    for id in graph_renderer.selected_node_ids:
-        id_string += str(id) + ","
 
-    OS.clipboard = id_string
+func _get_working_dialogue_manager(tab_index: int) -> WorkingResourceManager:
+    var tab := _tabs_widget.get_tab(tab_index)
+    if tab:
+        return tab.working_dialogue_manager
+    return null
+
+
+func _get_current_editor_tab() -> DialogueEditorTab:
+    return _tabs_widget.get_current_tab() as DialogueEditorTab
+
+
+func _on_tab_close(tab) -> void:
+    var working_dialogue_manager := _get_current_working_dialogue_manager()
+    if working_dialogue_manager.has_unsaved_changes:
+        var name := working_dialogue_manager.save_path
+        if name == "":
+            name = "unsaved dialogue"
+        _close_unsaved_dialog.dialog_text = "Save changes to '%s' before closing?" % name
+        _close_unsaved_dialog.popup_centered()
+    else:
+        _tabs_widget.remove_current_tab()
+
+
+func _on_tab_changed(tab_index: int) -> void:
+    session.dialogue_undo_redo = _get_current_working_dialogue_manager()
+
+
+func _on_save_before_close_pressed():
+    var working_dialogue_manager := _get_current_working_dialogue_manager()
+    var need_save_as: bool = working_dialogue_manager.save_path == ""
+    working_dialogue_manager.save()
+    if need_save_as:
+        yield(working_dialogue_manager, "save_dialog_closed")
+    yield(get_tree(), "idle_frame")
+    if not working_dialogue_manager.has_unsaved_changes:
+        _tabs_widget.remove_current_tab()
+
+
+func _on_close_unsaved_dialog_custom_action(action: String) -> void:
+#    _close_unsaved_dialog.
+    if action == "close_without_save":
+        _tabs_widget.remove_current_tab()
+        _close_unsaved_dialog.hide()

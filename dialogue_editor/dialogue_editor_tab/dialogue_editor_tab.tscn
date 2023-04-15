@@ -1,0 +1,164 @@
+[gd_scene load_steps=26 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue/dialogue.gd" type="Script" id=1]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/graph_renderer/dialogue_graph_renderer.tscn" type="PackedScene" id=2]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/action_condition_widget.tscn" type="PackedScene" id=3]
+[ext_resource path="res://addons/dialogue_system/support/storage_item.gd" type="Script" id=4]
+[ext_resource path="res://addons/dialogue_system/support/resource_reference/direct_resource_reference.gd" type="Script" id=5]
+[ext_resource path="res://addons/dialogue_system/dialogue/implemented_nodes/root_dialogue_node.gd" type="Script" id=6]
+[ext_resource path="res://addons/dialogue_system/support/storage.gd" type="Script" id=7]
+[ext_resource path="res://addons/dialogue_system/dialogue/logic/dialogue_node_logic.gd" type="Script" id=8]
+[ext_resource path="res://addons/dialogue_system/support/resource_reference/storage_item_resource_reference.gd" type="Script" id=9]
+[ext_resource path="res://addons/dialogue_system/dialogue/logic/dialogue_flag.gd" type="Script" id=10]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/working_resource_manager/working_resource_manager.gd" type="Script" id=11]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/dialogue_editor_tab/dialogue_editor_tab.gd" type="Script" id=12]
+
+[sub_resource type="Resource" id=10]
+script = ExtResource( 7 )
+max_id = 1
+must_be_unique = true
+_data = {
+0: "auto_visited_node_0"
+}
+_locked_indices = {
+}
+_hidden_indices = {
+0: true
+}
+
+[sub_resource type="Resource" id=11]
+script = ExtResource( 5 )
+direct_reference = SubResource( 10 )
+
+[sub_resource type="Resource" id=12]
+script = ExtResource( 7 )
+max_id = 0
+must_be_unique = true
+_data = {
+}
+_locked_indices = {
+}
+_hidden_indices = {
+}
+
+[sub_resource type="Resource" id=13]
+script = ExtResource( 7 )
+max_id = 1
+must_be_unique = true
+_data = {
+0: SubResource( 11 )
+}
+_locked_indices = {
+0: true
+}
+_hidden_indices = {
+}
+
+[sub_resource type="Resource" id=5]
+script = ExtResource( 5 )
+direct_reference = SubResource( 13 )
+
+[sub_resource type="Resource" id=6]
+script = ExtResource( 4 )
+storage_reference = SubResource( 5 )
+storage_id = 0
+
+[sub_resource type="Resource" id=7]
+script = ExtResource( 9 )
+storage_item = SubResource( 6 )
+
+[sub_resource type="Resource" id=8]
+script = ExtResource( 4 )
+storage_reference = SubResource( 7 )
+storage_id = 0
+
+[sub_resource type="Resource" id=9]
+script = ExtResource( 10 )
+blackboard_field = SubResource( 8 )
+value = true
+
+[sub_resource type="Resource" id=14]
+script = ExtResource( 8 )
+flags = [  ]
+auto_flags = [ SubResource( 9 ) ]
+node_script = ""
+use_flags = true
+use_script = false
+
+[sub_resource type="Resource" id=15]
+script = ExtResource( 8 )
+flags = [  ]
+auto_flags = [  ]
+node_script = ""
+use_flags = true
+use_script = false
+
+[sub_resource type="Resource" id=16]
+script = ExtResource( 6 )
+children = [  ]
+id = 0
+parent_id = -1
+condition_logic = SubResource( 15 )
+action_logic = SubResource( 14 )
+comment = ""
+
+[sub_resource type="Resource" id=17]
+script = ExtResource( 1 )
+description = ""
+_local_blackboard_ref = SubResource( 11 )
+root_node = SubResource( 16 )
+actors = SubResource( 12 )
+blackboards = SubResource( 13 )
+max_id = 1
+editor_version = "0.0.0"
+
+[node name="DialogueEditorTab" type="HSplitContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 8.0
+margin_right = -4.0
+margin_bottom = -4.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+split_offset = 9999
+script = ExtResource( 12 )
+__meta__ = {
+"_tab_name": "[unsaved]"
+}
+
+[node name="DialogueGraphRenderer" parent="." instance=ExtResource( 2 )]
+margin_right = 804.0
+margin_bottom = 588.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+scroll_offset = Vector2( -502, -64 )
+dialogue = SubResource( 17 )
+
+[node name="ActionConditionWidget" parent="." instance=ExtResource( 3 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 816.0
+margin_right = 1016.0
+margin_bottom = 588.0
+size_flags_horizontal = 1
+
+[node name="WorkingDialogueManager" type="Control" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+mouse_filter = 2
+script = ExtResource( 11 )
+resource_class_name = "Dialogue"
+resource = SubResource( 17 )
+
+[connection signal="collapsed_nodes_changed" from="DialogueGraphRenderer" to="." method="_on_collapsed_nodes_changed"]
+[connection signal="copy_nodes_request" from="DialogueGraphRenderer" to="." method="_on_graph_renderer_copy_nodes_request"]
+[connection signal="delete_nodes_request" from="DialogueGraphRenderer" to="." method="_on_graph_renderer_delete_nodes_request"]
+[connection signal="duplicate_nodes_request" from="DialogueGraphRenderer" to="." method="_on_graph_renderer_duplicate_nodes_request"]
+[connection signal="node_selected" from="DialogueGraphRenderer" to="." method="_on_node_selected"]
+[connection signal="node_unselected" from="DialogueGraphRenderer" to="." method="_on_node_unselected"]
+[connection signal="paste_nodes_request" from="DialogueGraphRenderer" to="." method="_on_graph_renderer_paste_nodes_request"]
+[connection signal="file_changed" from="WorkingDialogueManager" to="." method="_on_working_dialogue_manager_file_changed"]
+[connection signal="has_unsaved_changes_changed" from="WorkingDialogueManager" to="." method="_on_working_dialogue_manager_has_unsaved_changes_changed"]
+[connection signal="resource_changed" from="WorkingDialogueManager" to="." method="_on_working_dialogue_changed"]
+[connection signal="save_path_changed" from="WorkingDialogueManager" to="." method="_on_working_dialogue_manager_save_path_changed"]
