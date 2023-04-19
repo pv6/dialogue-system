@@ -22,12 +22,14 @@ func _update_contents() -> void:
 
     set_has_comment(node.comment != "")
 
-    # don't update text if already has it to avoid caret resetting
-    if _comment_text_edit and _comment_text_edit.text != node.comment:
+    if _comment_text_edit:
         _comment_text_edit.text = node.comment
 
 
 func set_has_comment(new_has_comment: bool) -> void:
+    if new_has_comment == has_comment:
+        return
+
     has_comment = new_has_comment
     if not _add_comment_button or not _comment_text_edit:
         return

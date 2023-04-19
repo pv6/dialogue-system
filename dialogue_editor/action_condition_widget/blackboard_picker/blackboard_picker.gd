@@ -77,6 +77,8 @@ func _add_blackboards(dialogue: Dialogue, args: Dictionary) -> Dialogue:
 
 
 func _get_blackboard_resource_reference(id: int) -> ResourceReference:
+    if not _storage_picker.storage:
+        return null
     return StorageItemResourceReference.new(_storage_picker.storage.get_item_reference(id))
 
 

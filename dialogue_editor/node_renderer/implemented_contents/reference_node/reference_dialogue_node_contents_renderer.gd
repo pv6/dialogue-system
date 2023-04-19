@@ -25,21 +25,26 @@ func _update_contents() -> void:
     else:
         _jump_to_option_button.select(_reference_node.jump_to)
 
-    # remove old referenced contents
-    if _referenced_contents:
-        _referenced_contents.node = null
-        remove_child(_referenced_contents)
-        _referenced_contents = null
+    var referenced_node: DialogueNode = _session.dialogue.nodes[_reference_node.referenced_node_id]
+    if not _referenced_contents or _referenced_contents.node.get_script() != referenced_node.get_script():
+        # remove old referenced contents
+        if _referenced_contents:
+            _referenced_contents.node = null
+            remove_child(_referenced_contents)
+            _referenced_contents = null
 
-    # create new referenced contents
-    var parent := get_parent()
-    while not parent.has_method("create_contents"):
-        parent = parent.get_parent()
-        assert(parent)
-    _referenced_contents = parent.create_contents(_session.dialogue.nodes[_reference_node.referenced_node_id])
+        # create new referenced contents
+        var parent := get_parent()
+        while not parent.has_method("create_contents"):
+            parent = parent.get_parent()
+            assert(parent)
+        _referenced_contents = parent.create_contents(referenced_node)
+        if _referenced_contents:
+            add_child(_referenced_contents)
+
     if _referenced_contents:
-        _referenced_contents.modulate.v *= _session.settings.reference_node_brightness
-        add_child(_referenced_contents)
+        _referenced_contents.node = referenced_node
+        _referenced_contents.self_modulate.v = _session.settings.reference_node_brightness
         _referenced_contents.disabled = true
 
 

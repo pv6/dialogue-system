@@ -4,5 +4,4 @@
 
 [resource]
 script = ExtResource( 1 )
-node_scipt_path = ""
 color = Color( 0.4, 0.4, 0.4, 1 )

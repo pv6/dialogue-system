@@ -56,8 +56,6 @@ func _ready() -> void:
 
     _close_unsaved_dialog.add_button("Don't Save", true, "close_without_save")
 
-    new_dialogue()
-
 
 func _notification(what) -> void:
     if what == NOTIFICATION_PREDELETE:

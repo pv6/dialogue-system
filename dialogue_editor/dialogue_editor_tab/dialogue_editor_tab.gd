@@ -370,27 +370,19 @@ func _make_reference_node(referenced_node_id: int, dialogue: Dialogue) -> Refere
 
 
 func _insert_child_hear_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    var new_hear_node := HearDialogueNode.new()
-    new_hear_node.tags = Storage.new()
-    return _insert_child_node(dialogue, new_hear_node)
+    return _insert_child_node(dialogue, HearDialogueNode.new())
 
 
 func _insert_child_say_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    var new_say_node := SayDialogueNode.new()
-    new_say_node.tags = Storage.new()
-    return _insert_child_node(dialogue, new_say_node)
+    return _insert_child_node(dialogue, SayDialogueNode.new())
 
 
 func _insert_parent_hear_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    var new_hear_node := HearDialogueNode.new()
-    new_hear_node.tags = Storage.new()
-    return _insert_parent_node(dialogue, new_hear_node)
+    return _insert_parent_node(dialogue, HearDialogueNode.new())
 
 
 func _insert_parent_say_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    var new_say_node := SayDialogueNode.new()
-    new_say_node.tags = Storage.new()
-    return _insert_parent_node(dialogue, new_say_node)
+    return _insert_parent_node(dialogue, SayDialogueNode.new())
 
 
 func _auto_set_actors(target_node: TextDialogueNode, reference_node: TextDialogueNode) -> void:

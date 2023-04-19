@@ -30,6 +30,12 @@ func _init() -> void:
 
 
 func set_node(new_node: DialogueNode) -> void:
+    if new_node == node:
+        return
+
+    var old_script: Resource = null
+    if node:
+        old_script = node.get_script()
     node = new_node
 
     if new_node:
@@ -38,16 +44,19 @@ func set_node(new_node: DialogueNode) -> void:
 
     update_contents()
 
-    set_style(style_manager.get_style(new_node))
+    if old_script != new_node.get_script():
+        set_style(style_manager.get_style(new_node))
+        _update_slots()
 
     self_modulate.v = 1
     if node is ReferenceDialogueNode:
         self_modulate.v *= _session.settings.reference_node_brightness
 
-    _update_slots()
-
 
 func set_is_collapsed(new_is_collapsed: bool) -> void:
+    if new_is_collapsed == is_collapsed:
+        return
+
     is_collapsed = new_is_collapsed
     if theme:
         if is_collapsed:
@@ -58,7 +67,7 @@ func set_is_collapsed(new_is_collapsed: bool) -> void:
 
 
 func update_contents() -> void:
-    if not node or not contents or not contents.node or node.get_script().get_path() != contents.node.get_script().get_path():
+    if not node or not contents or not contents.node or node.get_script() != contents.node.get_script():
         if contents:
             remove_child(contents)
             contents.queue_free()

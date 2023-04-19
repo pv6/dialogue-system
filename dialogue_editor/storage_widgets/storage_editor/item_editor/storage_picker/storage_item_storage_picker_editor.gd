@@ -12,10 +12,13 @@ onready var storage_picker: StoragePicker = $StoragePicker
 
 
 func _ready() -> void:
-    self.storage = storage
+    storage_picker.storage = storage
 
 
 func set_storage(new_storage: Storage) -> void:
+    if new_storage == storage:
+        return
+
     storage = new_storage
     if storage_picker:
         storage_picker.storage = storage

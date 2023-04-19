@@ -48,6 +48,7 @@ func update_tag_renderers() -> void:
 
     _tag_container.move_child(_add_tag_button, _tag_container.get_child_count() - 1)
 
+
 func set_text_node(new_text_node: TextDialogueNode) -> void:
     text_node = new_text_node
     update_tag_renderers()

@@ -28,8 +28,10 @@ var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dial
 var _cached_node_heights := {}
 var _cached_children_heights := {}
 
-var _cached_node_renderers: Array
-var _used_node_renderers: int
+# Dictionary[Script, Array[DialogueNodeRenderer]]
+var _cached_node_renderers: Dictionary
+# Dictionary[Script, int]
+var _used_node_renderers: Dictionary
 
 
 func _init() -> void:
@@ -140,15 +142,26 @@ func update_graph() -> void:
     assert(dialogue.root_node)
 
     # create node renderers
-    var old_used_renderers = _used_node_renderers
+    var old_used_renderers := {}
+    for node_type in _cached_node_renderers.keys():
+        old_used_renderers[node_type] = _used_node_renderers[node_type]
+
     _recursively_add_node_renderers(dialogue.root_node)
-    if _session.settings.cache_unused_node_renderers:
-        for i in range(_used_node_renderers, old_used_renderers):
-            _reset_node_renderer(_cached_node_renderers[i])
-    else:
-        for i in range(_used_node_renderers, _cached_node_renderers.size()):
-            _cached_node_renderers[i].queue_free()
-        _cached_node_renderers.resize(_used_node_renderers)
+
+    for node_type in _cached_node_renderers.keys():
+        # Array[DialogueNodeRenderer]
+        var cached_renderers: Array = _cached_node_renderers[node_type]
+
+        if _session.settings.cache_unused_node_renderers:
+            if not old_used_renderers.has(node_type):
+                old_used_renderers[node_type] = 0
+            for i in range(_used_node_renderers[node_type], old_used_renderers[node_type]):
+                _reset_node_renderer(cached_renderers[i])
+        else:
+            var cur_used_renderers: int = _used_node_renderers[node_type]
+            for i in range(cur_used_renderers, cached_renderers.size()):
+                cached_renderers[i].queue_free()
+            cached_renderers.resize(cur_used_renderers)
 
     # restore selected nodes
     for id in selected:
@@ -262,20 +275,30 @@ func _calculate_below_node_offset(node: DialogueNode, above_node: DialogueNode) 
     return _get_bottom(above_node) + delta
 
 
-func _allocate_node_renderer() -> DialogueNodeRenderer:
-    _used_node_renderers += 1
+func _allocate_node_renderer(node: DialogueNode) -> DialogueNodeRenderer:
+    var type: Script = node.get_script()
 
-    if _used_node_renderers > _cached_node_renderers.size():
-        _cached_node_renderers.resize(_used_node_renderers)
-        for i in range(_used_node_renderers - 1, _cached_node_renderers.size()):
+    var cached_renderers: Array
+    if not _cached_node_renderers.has(type):
+        _cached_node_renderers[type] = []
+        _used_node_renderers[type] = 0
+
+    cached_renderers = _cached_node_renderers[type]
+
+    _used_node_renderers[type] += 1
+    var used_renderers: int = _used_node_renderers[type]
+
+    if used_renderers > cached_renderers.size():
+        cached_renderers.resize(used_renderers)
+        for i in range(used_renderers - 1, cached_renderers.size()):
             var node_renderer = NODE_RENDERER_SCENE.instance() as DialogueNodeRenderer
-            _cached_node_renderers[i] = node_renderer
+            cached_renderers[i] = node_renderer
             add_child(node_renderer)
             node_renderer.connect("dragged", self, "_on_node_dragged", [node_renderer])
             node_renderer.connect("close_request", self, "_on_node_collapsed", [node_renderer])
             _reset_node_renderer(node_renderer)
 
-    var res: DialogueNodeRenderer = _cached_node_renderers[_used_node_renderers - 1]
+    var res: DialogueNodeRenderer = cached_renderers[used_renderers - 1]
     res.show()
     res.selected = false
 
@@ -283,14 +306,16 @@ func _allocate_node_renderer() -> DialogueNodeRenderer:
 
 
 func _add_node_renderer(node: DialogueNode) -> void:
-    var node_renderer = _allocate_node_renderer()
+    var node_renderer = _allocate_node_renderer(node)
     node_renderers[node.id] = node_renderer
     node_renderer.node = node
     node_renderer.is_collapsed = collapsed_nodes.has(node.id)
 
 
 func _recursively_add_node_renderers(node: DialogueNode) -> void:
-    _used_node_renderers = 0
+    for type in _used_node_renderers:
+        _used_node_renderers[type] = 0
+
     var stack := [node]
     while not stack.empty():
         node = stack.pop_back()

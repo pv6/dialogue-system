@@ -4,7 +4,9 @@ extends Resource
 
 
 export(Resource) var default_style
-export(Array) var node_styles := []
+export(Array) var node_styles := [] setget set_node_styles
+
+var _node_styles: Dictionary
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
@@ -26,11 +28,20 @@ func get_style(node: DialogueNode) -> DialogueNodeStyle:
     if not node:
         return default_style
 
-    if node as ReferenceDialogueNode:
+    if node is ReferenceDialogueNode:
         return get_style(_session.dialogue.nodes[node.referenced_node_id])
 
-    for style in node_styles:
-        if node.get_script().get_path() == style.node_scipt_path:
-            return style
+
+    var type = node.get_script()
+    if _node_styles.has(type):
+        return _node_styles[type]
 
     return default_style
+
+
+func set_node_styles(new_node_styles: Array) -> void:
+    node_styles = new_node_styles
+
+    _node_styles.clear()
+    for style in node_styles:
+        _node_styles[style.node_scipt] = style
