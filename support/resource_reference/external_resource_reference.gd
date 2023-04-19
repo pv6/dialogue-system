@@ -9,7 +9,7 @@ var _external_resource: Resource
 
 
 func _init(external_path: String = "") -> void:
-    self.external_path = external_path
+    set_external_path(external_path)
 
 
 func set_resource(new_resource: Resource) -> void:
@@ -20,11 +20,11 @@ func set_resource(new_resource: Resource) -> void:
 func set_external_path(new_external_path: String) -> void:
     if new_external_path != external_path:
         external_path = new_external_path
-        _external_resource = ResourceLoader.load(external_path)
         emit_changed()
 
 
 func _get_resource() -> Resource:
     if ResourceLoader.exists(external_path):
-        return ResourceLoader.load(external_path)
+        _external_resource = ResourceLoader.load(external_path)
+        return _external_resource
     return null
