@@ -24,12 +24,17 @@ var editor_config := ConfigFile.new()
 # i am sorry ok i just didn't care to make a whole new class for this one field
 var _edited_text_node_id: int
 
+var _close_after_save_as := false
+
 onready var actors_editor: StorageEditorDialog = $ActorsEditor
 onready var tags_editor: StorageEditorDialog = $TagsEditor
 onready var dialogue_blackboards_editor: StorageEditorDialog = $DialogueBlackboardsEditor
 onready var blackboard_editor: AcceptDialog = $BlackboardEditor
 onready var global_actors_editor: StorageEditorDialog = $GlobalActorsEditor
 onready var global_tags_editor: StorageEditorDialog = $GlobalTagsEditor
+
+onready var _open_dialogue_dialog: FileDialog = $OpenDialogueDialog
+onready var _save_dialogue_as_dialog: FileDialog = $SaveDialogueAsDialog
 
 onready var _tabs_widget: TabsWidget = $VBoxContainer/TabsWidget
 
@@ -49,12 +54,12 @@ func _ready() -> void:
     set_settings(_init_settings())
 
     # set open global editors callback functions to GUI buttons
-    actors_editor.storage_editor.item_editor.connect(
-        "edit_storage_pressed", self, "open_global_actors_editor")
-    tags_editor.storage_editor.item_editor.connect(
-        "edit_storage_pressed", self, "open_global_tags_editor")
+    actors_editor.storage_editor.item_editor.connect("edit_storage_pressed", self, "open_global_actors_editor")
+    tags_editor.storage_editor.item_editor.connect("edit_storage_pressed", self, "open_global_tags_editor")
 
     _close_unsaved_dialog.add_button("Don't Save", true, "close_without_save")
+    _close_unsaved_dialog.get_cancel().connect("pressed", self, "_on_save_dialogue_as_dialog_canceled")
+    _close_unsaved_dialog.get_close_button().connect("pressed", self, "_on_save_dialogue_as_dialog_canceled")
 
 
 func _notification(what) -> void:
@@ -151,25 +156,24 @@ func new_dialogue() -> void:
 
 
 func open_dialogue() -> void:
-    var previous_tab_index := _tabs_widget.get_current_tab_index()
-    _tabs_widget.add_tab()
-
-    var new_tab := _tabs_widget.get_current_tab()
-    new_tab.open_dialogue()
-    var working_dialogue_manager := _get_current_working_dialogue_manager()
-    yield(working_dialogue_manager, "open_dialog_closed")
-    yield(get_tree(), "idle_frame")
-    if working_dialogue_manager.save_path == "":
-        _tabs_widget.remove_current_tab()
-        _tabs_widget.set_current_tab(previous_tab_index)
+    _open_dialogue_dialog.popup_centered()
 
 
 func save_dialogue() -> void:
-    _get_current_editor_tab().save_dialogue()
+    var current_tab := _get_current_editor_tab()
+    if current_tab.get_save_path() == "":
+        save_dialogue_as()
+    else:
+        current_tab.save_dialogue()
 
 
 func save_dialogue_as() -> void:
-    _get_current_editor_tab().save_dialogue_as()
+    var save_path := _get_current_editor_tab().get_save_path()
+    if save_path.get_file().is_valid_filename():
+        _save_dialogue_as_dialog.current_path = save_path
+    else:
+        _save_dialogue_as_dialog.current_file = "new_dialogue.tres"
+    _save_dialogue_as_dialog.popup_centered()
 
 
 func open_actors_editor() -> void:
@@ -331,12 +335,9 @@ func _on_tab_changed(tab_index: int) -> void:
 func _on_save_before_close_pressed():
     var working_dialogue_manager := _get_current_working_dialogue_manager()
     var need_save_as: bool = working_dialogue_manager.save_path == ""
-    working_dialogue_manager.save()
     if need_save_as:
-        yield(working_dialogue_manager, "save_dialog_closed")
-    yield(get_tree(), "idle_frame")
-    if not working_dialogue_manager.has_unsaved_changes:
-        _tabs_widget.remove_current_tab()
+        _close_after_save_as = true
+    save_dialogue_as()
 
 
 func _on_close_unsaved_dialog_custom_action(action: String) -> void:
@@ -344,3 +345,19 @@ func _on_close_unsaved_dialog_custom_action(action: String) -> void:
     if action == "close_without_save":
         _tabs_widget.remove_current_tab()
         _close_unsaved_dialog.hide()
+
+
+func _on_open_dialogue_dialog_file_selected(path: String):
+    _tabs_widget.add_tab()
+    _get_current_editor_tab().open_dialogue(path)
+
+
+func _on_save_dialogue_as_dialog_file_selected(path: String):
+    _get_current_editor_tab().save_dialogue_as(path)
+    if _close_after_save_as:
+        _tabs_widget.remove_current_tab()
+        _close_after_save_as = false
+
+
+func _on_save_dialogue_as_dialog_canceled():
+    _close_after_save_as = false

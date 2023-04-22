@@ -6,19 +6,21 @@ const COPY_NODES_STRING_HEADER := "copy ids:"
 const CUT_NODES_STRING_HEADER := "cut ids:"
 
 var need_to_redraw_graph := true
+var working_dialogue_manager := WorkingResourceManager.new("Dialogue")
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
 onready var graph_renderer: DialogueGraphRenderer = $DialogueGraphRenderer
-onready var working_dialogue_manager: WorkingResourceManager = $WorkingDialogueManager
 onready var action_condition_widget: ActionConditionWidget = $ActionConditionWidget
 
 
-func _ready():
-    _init_dialogue()
+func _init() -> void:
+    working_dialogue_manager.connect("file_changed", self, "_on_working_dialogue_manager_file_changed")
+    working_dialogue_manager.connect("has_unsaved_changes_changed", self, "_on_working_dialogue_manager_has_unsaved_changes_changed")
+    working_dialogue_manager.connect("resource_changed", self, "_on_working_dialogue_changed")
 
 
-func _process(delta):
+func _process(delta) -> void:
     if need_to_redraw_graph and graph_renderer:
         graph_renderer.update_graph()
         need_to_redraw_graph = false
@@ -32,14 +34,20 @@ func get_title() -> String:
         return path.get_file().trim_suffix("." + path.get_extension())
 
 
+func get_save_path() -> String:
+    return working_dialogue_manager.save_path
+
+
 func new_dialogue() -> void:
     print("New Dialogue")
-    _init_dialogue()
+    working_dialogue_manager.new_file()
+    graph_renderer.collapsed_nodes.clear()
+    graph_renderer.deselect_all()
 
 
-func open_dialogue() -> void:
-    print("Open Dialogue")
-    working_dialogue_manager.open()
+func open_dialogue(file_path: String) -> void:
+    print("Open Dialogue '%s'" % file_path)
+    working_dialogue_manager.open(file_path)
     graph_renderer.collapsed_nodes.clear()
     graph_renderer.deselect_all()
 
@@ -50,10 +58,10 @@ func save_dialogue() -> void:
     working_dialogue_manager.save()
 
 
-func save_dialogue_as() -> void:
-    print("Save Dialogue As")
+func save_dialogue_as(file_path: String) -> void:
+    print("Save Dialogue As '%s'" % file_path)
     _set_dialogue_editor_version()
-    working_dialogue_manager.save_as()
+    working_dialogue_manager.save_as(file_path)
 
 
 func apply_settings() -> void:
@@ -123,12 +131,6 @@ func deep_delete_selected_nodes() -> void:
 
 func shallow_delete_selected_nodes() -> void:
     working_dialogue_manager.commit_action("Shallow Delete Selected Nodes", self, "_shallow_delete_selected_nodes")
-
-
-func _init_dialogue() -> void:
-    working_dialogue_manager.new_file()
-    graph_renderer.collapsed_nodes.clear()
-    graph_renderer.deselect_all()
 
 
 func _copy_selected_node_ids_to_clipboard(header: String) -> void:

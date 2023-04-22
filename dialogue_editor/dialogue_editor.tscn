@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/dialogue_editor.gd" type="Script" id=1]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/tabs_widget/tabs_widget.tscn" type="PackedScene" id=2]
@@ -7,6 +7,7 @@
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/blackboard_editor/blackboard_editor.tscn" type="PackedScene" id=5]
 [ext_resource path="res://dialogue_editor_settings.tres" type="Resource" id=6]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/dialogue_editor_tab/dialogue_editor_tab.tscn" type="PackedScene" id=7]
+[ext_resource path="res://addons/dialogue_system/support/my_confirmation_dialog.gd" type="Script" id=8]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor_dialog/storage_editor_dialog.tscn" type="PackedScene" id=10]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/file_dialog/storage_item_file_dialog_editor.tscn" type="PackedScene" id=14]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/storage_picker/storage_item_storage_picker_editor.tscn" type="PackedScene" id=15]
@@ -17,8 +18,8 @@
 [node name="DialogueEditor" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -1.0
-margin_right = -1.0
+margin_top = 1.0
+margin_bottom = 1.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource( 1 )
@@ -118,6 +119,18 @@ storage_name = "Global tags"
 margin_right = 200.0
 margin_bottom = 70.0
 dialog_text = "Save changes to '%s' before closing?"
+script = ExtResource( 8 )
+
+[node name="OpenDialogueDialog" type="FileDialog" parent="."]
+margin_right = 477.0
+margin_bottom = 363.0
+window_title = "Open a File"
+mode = 0
+
+[node name="SaveDialogueAsDialog" type="FileDialog" parent="."]
+margin_right = 477.0
+margin_bottom = 363.0
+window_title = "Save Dialogue As"
 
 [connection signal="new_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="new_dialogue"]
 [connection signal="open_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="open_dialogue"]
@@ -155,6 +168,8 @@ dialog_text = "Save changes to '%s' before closing?"
 [connection signal="confirmed" from="GlobalTagsEditor" to="." method="_on_global_actors_tags_confirmed"]
 [connection signal="confirmed" from="CloseUnsavedDialog" to="." method="_on_save_before_close_pressed"]
 [connection signal="custom_action" from="CloseUnsavedDialog" to="." method="_on_close_unsaved_dialog_custom_action"]
+[connection signal="file_selected" from="OpenDialogueDialog" to="." method="_on_open_dialogue_dialog_file_selected"]
+[connection signal="file_selected" from="SaveDialogueAsDialog" to="." method="_on_save_dialogue_as_dialog_file_selected"]
 
 [editable path="ActorsEditor"]
 [editable path="TagsEditor"]
