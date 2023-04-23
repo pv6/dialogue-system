@@ -61,12 +61,20 @@ func open_dialogue(file_path: String) -> void:
 
 
 func save_dialogue() -> void:
+    var result = _commit_text_changes()
+    if result is GDScriptFunctionState:
+        yield(result, "completed")
+
     print("Save Dialogue")
     _set_dialogue_editor_version()
     working_dialogue_manager.save()
 
 
 func save_dialogue_as(file_path: String) -> void:
+    var result = _commit_text_changes()
+    if result is GDScriptFunctionState:
+        yield(result, "completed")
+
     print("Save Dialogue As '%s'" % file_path)
     _set_dialogue_editor_version()
     working_dialogue_manager.save_as(file_path)
@@ -621,3 +629,12 @@ func _move_selected_nodes_vertically(dialogue: Dialogue, args: Dictionary) -> Di
         parent.children.insert(pos + shift, node)
 
     return dialogue
+
+
+func _commit_text_changes():
+    # unfocus text and wait 2 frames for changes to get commited
+    focus_mode = Control.FOCUS_ALL
+    grab_focus()
+    focus_mode = Control.FOCUS_NONE
+    yield(get_tree(), "idle_frame")
+    yield(get_tree(), "idle_frame")

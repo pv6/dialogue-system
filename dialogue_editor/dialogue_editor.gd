@@ -3,6 +3,7 @@ extends Control
 
 
 signal open_dialogue_error()
+signal _dialogue_saved()
 
 const StorageEditorDialog := preload("storage_widgets/storage_editor_dialog/storage_editor_dialog.gd")
 const TabsWidget := preload("tabs_widget/tabs_widget.gd")
@@ -25,6 +26,8 @@ var editor_config := ConfigFile.new()
 var _edited_text_node_id: int
 
 var _close_after_save_as := false
+
+var _is_saving := false
 
 onready var actors_editor: StorageEditorDialog = $ActorsEditor
 onready var tags_editor: StorageEditorDialog = $TagsEditor
@@ -168,7 +171,12 @@ func save_dialogue() -> void:
     if current_tab.get_save_path() == "":
         save_dialogue_as()
     else:
-        current_tab.save_dialogue()
+        _is_saving = true
+        var result = current_tab.save_dialogue()
+        if result is GDScriptFunctionState:
+            yield(result, "completed")
+        _is_saving = false
+        emit_signal("_dialogue_saved")
 
 
 func save_dialogue_as() -> void:
@@ -349,6 +357,8 @@ func _on_tab_close(tab) -> void:
         _close_unsaved_dialog.dialog_text = "Save changes to '%s' before closing?" % name
         _close_unsaved_dialog.popup_centered()
     else:
+        if _is_saving:
+            yield(self, "_dialogue_saved")
         _tabs_widget.remove_current_tab()
 
 
@@ -377,7 +387,13 @@ func _on_open_dialogue_dialog_file_selected(path: String):
 
 
 func _on_save_dialogue_as_dialog_file_selected(path: String):
-    _get_current_editor_tab().save_dialogue_as(path)
+    _is_saving = true
+    var result = _get_current_editor_tab().save_dialogue_as(path)
+    if result is GDScriptFunctionState:
+        yield(result, "completed")
+    _is_saving = false
+    emit_signal("_dialogue_saved")
+
     if _close_after_save_as:
         _tabs_widget.remove_current_tab()
         _close_after_save_as = false
