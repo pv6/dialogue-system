@@ -171,7 +171,12 @@ func update_graph() -> void:
     # connect child nodes
     for node_renderer in node_renderers.values():
         if collapsed_nodes.has(node_renderer.node.id):
-            continue
+            # uncollapse nodes that have no children
+            if node_renderer.node.children.empty():
+                collapsed_nodes.erase(node_renderer.node.id)
+                node_renderer.is_collapsed = false
+            else:
+                continue
         for child in node_renderer.node.children:
             connect_node(node_renderer.name, 0, node_renderers[child.id].name, 0)
 
