@@ -38,6 +38,14 @@ func get_save_path() -> String:
     return working_dialogue_manager.save_path
 
 
+func undo() -> void:
+    working_dialogue_manager.undo()
+
+
+func redo() -> void:
+    working_dialogue_manager.redo()
+
+
 func new_dialogue() -> void:
     print("New Dialogue")
     working_dialogue_manager.new_file()

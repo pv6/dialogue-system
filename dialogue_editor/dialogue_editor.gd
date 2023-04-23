@@ -78,75 +78,75 @@ func set_settings(new_settings: DialogueEditorSettings) -> void:
 
 
 func undo() -> void:
-    _get_current_working_dialogue_manager().undo()
+    _call_current_tab_method("undo")
 
 
 func redo() -> void:
-    _get_current_working_dialogue_manager().redo()
+    _call_current_tab_method("redo")
 
 
 func copy_selected_nodes() -> void:
-    _get_current_editor_tab().copy_selected_nodes()
+    _call_current_tab_method("copy_selected_nodes")
 
 
 func cut_selected_nodes() -> void:
-    _get_current_editor_tab().cut_selected_nodes()
+    _call_current_tab_method("cut_selected_nodes")
 
 
 func shallow_dublicate_selected_nodes() -> void:
-    _get_current_editor_tab().shallow_dublicate_selected_nodes()
+    _call_current_tab_method("shallow_dublicate_selected_nodes")
 
 
 func deep_dublicate_selected_nodes() -> void:
-    _get_current_editor_tab().deep_dublicate_selected_nodes()
+    _call_current_tab_method("deep_dublicate_selected_nodes")
 
 
 func move_selected_nodes_up() -> void:
-    _get_current_editor_tab().move_selected_nodes_up()
+    _call_current_tab_method("move_selected_nodes_up")
 
 
 func move_selected_nodes_down() -> void:
-    _get_current_editor_tab().move_selected_nodes_down()
+    _call_current_tab_method("move_selected_nodes_down")
 
 
 func paste_nodes() -> void:
-    _get_current_editor_tab().paste_nodes()
+    _call_current_tab_method("paste_nodes")
 
 
 func paste_cut_nodes_with_children() -> void:
-    _get_current_editor_tab().paste_cut_nodes_with_children()
+    _call_current_tab_method("paste_cut_nodes_with_children")
 
 
 func paste_cut_node_as_parent() -> void:
-    _get_current_editor_tab().paste_cut_node_as_parent()
+    _call_current_tab_method("paste_cut_node_as_parent")
 
 
 func paste_cut_node_with_children_as_parent() -> void:
-    _get_current_editor_tab().paste_cut_node_with_children_as_parent()
+    _call_current_tab_method("paste_cut_node_with_children_as_parent")
 
 
 func insert_parent_hear_node() -> void:
-    _get_current_editor_tab().insert_parent_hear_node()
+    _call_current_tab_method("insert_parent_hear_node")
 
 
 func insert_parent_say_node() -> void:
-    _get_current_editor_tab().insert_parent_say_node()
+    _call_current_tab_method("insert_parent_say_node")
 
 
 func insert_child_hear_node() -> void:
-    _get_current_editor_tab().insert_child_hear_node()
+    _call_current_tab_method("insert_child_hear_node")
 
 
 func insert_child_say_node() -> void:
-    _get_current_editor_tab().insert_child_say_node()
+    _call_current_tab_method("insert_child_say_node")
 
 
 func deep_delete_selected_nodes() -> void:
-    _get_current_editor_tab().deep_delete_selected_nodes()
+    _call_current_tab_method("deep_delete_selected_nodes")
 
 
 func shallow_delete_selected_nodes() -> void:
-    _get_current_editor_tab().shallow_delete_selected_nodes()
+    _call_current_tab_method("shallow_delete_selected_nodes")
 
 
 func new_dialogue() -> void:
@@ -161,6 +161,10 @@ func open_dialogue() -> void:
 
 func save_dialogue() -> void:
     var current_tab := _get_current_editor_tab()
+    if not current_tab:
+        print("No dialogue opened!")
+        return
+
     if current_tab.get_save_path() == "":
         save_dialogue_as()
     else:
@@ -168,7 +172,12 @@ func save_dialogue() -> void:
 
 
 func save_dialogue_as() -> void:
-    var save_path := _get_current_editor_tab().get_save_path()
+    var current_tab := _get_current_editor_tab()
+    if not current_tab:
+        print("No dialogue opened!")
+        return
+
+    var save_path := current_tab.get_save_path()
     if save_path.get_file().is_valid_filename():
         _save_dialogue_as_dialog.current_path = save_path
     else:
@@ -177,7 +186,11 @@ func save_dialogue_as() -> void:
 
 
 func open_actors_editor() -> void:
-    actors_editor.storage_editor.storage = get_dialogue().actors
+    var dialogue := get_dialogue()
+    if not dialogue:
+        print("No dialogue opened!")
+        return
+    actors_editor.storage_editor.storage = dialogue.actors
     actors_editor.popup_centered()
 
 
@@ -198,19 +211,30 @@ func open_global_tags_editor() -> void:
 
 
 func open_dialogue_blackboards_editor() -> void:
-    dialogue_blackboards_editor.storage_editor.storage = get_dialogue().blackboards
+    var dialogue := get_dialogue()
+    if not dialogue:
+        print("No dialogue opened!")
+        return
+    dialogue_blackboards_editor.storage_editor.storage = dialogue.blackboards
     dialogue_blackboards_editor.popup_centered()
 
 
 func open_blackboard_editor(blackboard: StorageItem = null) -> void:
     if not blackboard:
-        blackboard = get_dialogue().blackboards.get_item_reference(0)
+        var dialogue := get_dialogue()
+        if not dialogue:
+            print("No dialogue opened!")
+            return
+        blackboard = dialogue.blackboards.get_item_reference(0)
     blackboard_editor.blackboard = blackboard
     blackboard_editor.popup_centered()
 
 
 func get_dialogue() -> Dialogue:
-    return _get_current_working_dialogue_manager().resource as Dialogue
+    var working_dialogue_manager := _get_current_working_dialogue_manager()
+    if not working_dialogue_manager:
+        return null
+    return working_dialogue_manager.resource as Dialogue
 
 
 func _on_actors_editor_confirmed() -> void:
@@ -361,3 +385,11 @@ func _on_save_dialogue_as_dialog_file_selected(path: String):
 
 func _on_save_dialogue_as_dialog_canceled():
     _close_after_save_as = false
+
+
+func _call_current_tab_method(method: String) -> void:
+    var current_tab := _get_current_editor_tab()
+    if current_tab:
+        current_tab.call(method)
+    else:
+        print("No dialogue opened!")
