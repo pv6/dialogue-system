@@ -218,7 +218,7 @@ func _dublicate_nodes(dialogue: Dialogue, deep_dublicate: bool) -> Dialogue:
         if node.parent_id != -1:
             var parent: DialogueNode = dialogue.nodes[node.parent_id]
             var dub = _dublicate_node(dialogue, node, deep_dublicate)
-            parent.add_child(dub, parent.get_child_position(node.id) + 1)
+            parent.add_child(dub, parent.get_child_position(node) + 1)
             have_dublicated = true
     if not have_dublicated:
         print("No Nodes Dublicated")
@@ -483,12 +483,14 @@ func _delete_selected_nodes(dialogue: Dialogue, save_children: bool) -> Dialogue
         if node is RootDialogueNode:
             continue
 
-        var node_parent = dialogue.nodes[node.parent_id]
+        var node_parent: DialogueNode = dialogue.nodes[node.parent_id]
+
+        var deleted_pos := node_parent.get_child_position(node)
 
         if save_children:
             # reassign children to deleted node parent
-            for child in node.children:
-                node_parent.add_child(child)
+            for i in range(node.children.size()):
+                node_parent.add_child(node.children[i], deleted_pos + i)
         else:
             # add children to delete queue
             for child in node.children:
@@ -583,7 +585,7 @@ class NodeVerticalSorter:
         return _get_pos(a) < _get_pos(b)
 
     func _get_pos(node: DialogueNode) -> int:
-        return nodes[node.parent_id].get_child_position(node.id)
+        return nodes[node.parent_id].get_child_position(node)
 
 
 # args = {"shift"}
@@ -599,7 +601,7 @@ func _move_selected_nodes_vertically(dialogue: Dialogue, args: Dictionary) -> Di
         if not parent:
             continue
         filtered_selected_nodes.append(node)
-        var pos = parent.get_child_position(node.id)
+        var pos = parent.get_child_position(node)
         var new_pos = clamp(pos + shift, 0, parent.children.size() - 1)
         shift = sign(shift) * min(abs(new_pos - pos), abs(shift))
 
@@ -612,7 +614,7 @@ func _move_selected_nodes_vertically(dialogue: Dialogue, args: Dictionary) -> Di
     for node in filtered_selected_nodes:
         var parent := dialogue.get_node(node.parent_id)
         assert(parent)
-        var pos = parent.get_child_position(node.id)
+        var pos = parent.get_child_position(node)
         assert(0 <= pos + shift)
         assert(pos + shift <= parent.children.size() - 1)
         parent.children.erase(node)
