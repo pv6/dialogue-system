@@ -2,6 +2,8 @@ tool
 extends "res://addons/dialogue_system/dialogue_editor/tabs_widget/tab.gd"
 
 
+const DialogueGraphRendererNavigation := preload("res://addons/dialogue_system/dialogue_editor/graph_renderer/navigation/dialogue_graph_navigation.gd")
+
 const COPY_NODES_STRING_HEADER := "copy ids:"
 const CUT_NODES_STRING_HEADER := "cut ids:"
 
@@ -10,7 +12,10 @@ var working_dialogue_manager := WorkingResourceManager.new("Dialogue")
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
+var _look_at_nodes := []
+
 onready var graph_renderer: DialogueGraphRenderer = $DialogueGraphRenderer
+onready var graph_renderer_navigation: DialogueGraphRendererNavigation = $DialogueGraphNavigation
 onready var action_condition_widget: ActionConditionWidget = $ActionConditionWidget
 
 
@@ -20,10 +25,17 @@ func _init() -> void:
     working_dialogue_manager.connect("resource_changed", self, "_on_working_dialogue_changed")
 
 
+func _ready():
+    graph_renderer_navigation.graph_renderer = graph_renderer
+
+
 func _process(delta) -> void:
     if need_to_redraw_graph and graph_renderer:
         graph_renderer.update_graph()
         need_to_redraw_graph = false
+    if not _look_at_nodes.empty() and graph_renderer and graph_renderer.is_ready() and graph_renderer_navigation:
+        graph_renderer_navigation.keep_on_screen(_look_at_nodes)
+        _look_at_nodes.clear()
 
 
 func get_title() -> String:
@@ -50,14 +62,14 @@ func new_dialogue() -> void:
     print("New Dialogue")
     working_dialogue_manager.new_file()
     graph_renderer.collapsed_nodes.clear()
-    graph_renderer.deselect_all()
+    graph_renderer.unselect_all()
 
 
 func open_dialogue(file_path: String) -> void:
     print("Open Dialogue '%s'" % file_path)
     working_dialogue_manager.open(file_path)
     graph_renderer.collapsed_nodes.clear()
-    graph_renderer.deselect_all()
+    graph_renderer.unselect_all()
 
 
 func save_dialogue() -> void:
@@ -80,6 +92,10 @@ func save_dialogue_as(file_path: String) -> void:
     working_dialogue_manager.save_as(file_path)
 
 
+func unselect_all() -> void:
+    graph_renderer.unselect_all()
+
+
 func apply_settings() -> void:
     working_dialogue_manager.autosave = _session.settings.autosave
     need_to_redraw_graph = true
@@ -93,12 +109,12 @@ func cut_selected_nodes() -> void:
     _copy_selected_node_ids_to_clipboard(CUT_NODES_STRING_HEADER)
 
 
-func shallow_dublicate_selected_nodes() -> void:
-    working_dialogue_manager.commit_action("Shallow Dublicate Selected Nodes", self, "_shallow_dublicate_nodes")
+func shallow_duplicate_selected_nodes() -> void:
+    working_dialogue_manager.commit_action("Shallow Duplicate Selected Nodes", self, "_shallow_duplicate_nodes")
 
 
-func deep_dublicate_selected_nodes() -> void:
-    working_dialogue_manager.commit_action("Deep Dublicate Selected Nodes", self, "_deep_dublicate_nodes")
+func deep_duplicate_selected_nodes() -> void:
+    working_dialogue_manager.commit_action("Deep Duplicate Selected Nodes", self, "_deep_duplicate_nodes")
 
 
 func move_selected_nodes_up() -> void:
@@ -196,40 +212,44 @@ static func _unroll_referenced_node_id(referenced_node_id: int, nodes: Dictionar
     return referenced_node_id
 
 
-func _shallow_dublicate_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    return _dublicate_nodes(dialogue, false)
+func _shallow_duplicate_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    return _duplicate_nodes(dialogue, false)
 
 
-func _deep_dublicate_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    return _dublicate_nodes(dialogue, true)
+func _deep_duplicate_nodes(dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    return _duplicate_nodes(dialogue, true)
 
 
-func _dublicate_node(dialogue: Dialogue, node: DialogueNode, deep_dublicate: bool) -> DialogueNode:
+func _duplicate_node(dialogue: Dialogue, node: DialogueNode, deep_duplicate: bool) -> DialogueNode:
     var new_node: DialogueNode = node.clone()
     new_node.id = dialogue.get_new_max_id()
     new_node.children = []
 
-    if deep_dublicate:
+    if deep_duplicate:
         for child in node.children:
-            new_node.add_child(_dublicate_node(dialogue, child, true))
+            var duplicate_node := _duplicate_node(dialogue, child, true)
+            new_node.add_child(duplicate_node)
+            _look_at_nodes.push_back(duplicate_node)
 
     return new_node
 
 
-func _dublicate_nodes(dialogue: Dialogue, deep_dublicate: bool) -> Dialogue:
+func _duplicate_nodes(dialogue: Dialogue, deep_duplicate: bool) -> Dialogue:
     var selected_nodes = _get_selected_nodes(dialogue)
     if selected_nodes.empty():
         return null
 
-    var have_dublicated = false
+    var have_duplicated = false
     for node in selected_nodes:
         if node.parent_id != -1:
             var parent: DialogueNode = dialogue.nodes[node.parent_id]
-            var dub = _dublicate_node(dialogue, node, deep_dublicate)
-            parent.add_child(dub, parent.get_child_position(node) + 1)
-            have_dublicated = true
-    if not have_dublicated:
-        print("No Nodes Dublicated")
+            var dup = _duplicate_node(dialogue, node, deep_duplicate)
+            parent.add_child(dup, parent.get_child_position(node) + 1)
+            _look_at_nodes.push_back(node)
+            _look_at_nodes.push_back(dup)
+            have_duplicated = true
+    if not have_duplicated:
+        print("No Nodes Duplicated")
         return null
 
     dialogue.update_nodes()
@@ -284,6 +304,7 @@ func _paste_copied_nodes(dialogue: Dialogue, id_string: String) -> Dialogue:
             if dialogue.nodes.has(pasted_id):
                 var ref_node := _make_reference_node(pasted_id, dialogue)
                 parent.add_child(ref_node)
+                _look_at_nodes.push_back(ref_node)
                 success = true
 
     if not success:
@@ -330,8 +351,14 @@ func _paste_cut_nodes_as_children(dialogue: Dialogue, id_string: String, paste_w
             pasted_nodes.push_back(node)
 
     if dialogue.make_children_of_node(pasted_nodes, parent, paste_with_children):
-        if not paste_with_children:
-            graph_renderer.uncollapse_nodes(pasted_nodes)
+        if paste_with_children:
+            for pasted_node in pasted_nodes:
+                _look_at_nodes.append_array(dialogue.get_branch(pasted_node))
+        else:
+            _look_at_nodes.append_array(pasted_nodes)
+
+        _look_at_nodes.push_back(parent)
+
         return dialogue
     return null
 
@@ -374,6 +401,14 @@ func _paste_cut_node_as_parent(dialogue: Dialogue, id_string: String, paste_with
 
     if dialogue.make_parent_of_node(pasted_node, new_child, paste_with_children):
         graph_renderer.uncollapse_node(pasted_node)
+
+        if paste_with_children:
+            _look_at_nodes.append_array(dialogue.get_branch(pasted_node))
+        else:
+            _look_at_nodes.push_back(pasted_node)
+
+        _look_at_nodes.push_back(new_child)
+
         return dialogue
     return null
 
@@ -418,10 +453,12 @@ func _auto_set_actors(target_node: TextDialogueNode, reference_node: TextDialogu
 func _insert_parent_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
     var selected_nodes = _get_selected_nodes(dialogue)
     if selected_nodes.size() != 1:
+        print("Can't add parent to multiple nodes at once!")
         return null
 
     var cur_node: DialogueNode = selected_nodes[0]
     if cur_node as RootDialogueNode:
+        print("Can't add parent to root node!")
         return null
 
     node.id = dialogue.get_new_max_id()
@@ -434,6 +471,9 @@ func _insert_parent_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
     _auto_set_actors(node, cur_node)
 
     dialogue.update_nodes()
+
+    _look_at_nodes.push_back(node)
+    _look_at_nodes.push_back(cur_node)
 
     return dialogue
 
@@ -454,13 +494,17 @@ func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
             print("Can't add child to reference node!")
             continue
 
+        _look_at_nodes.push_back(parent)
+
         if first_parent:
             parent.add_child(node)
             _auto_set_actors(node, parent)
+            _look_at_nodes.push_back(node)
             first_parent = false
         else:
             var ref_node := _make_reference_node(node.id, dialogue)
             parent.add_child(ref_node)
+            _look_at_nodes.push_back(ref_node)
 
     if first_parent:
         return null
@@ -574,26 +618,9 @@ func _on_graph_renderer_delete_nodes_request(nodes: Array = []):
 
 func _on_graph_renderer_duplicate_nodes_request():
     if Input.is_key_pressed(KEY_SHIFT):
-        deep_dublicate_selected_nodes()
+        deep_duplicate_selected_nodes()
     else:
-        shallow_dublicate_selected_nodes()
-
-
-class NodeVerticalSorter:
-    var nodes: Dictionary
-    var reverse
-
-    func _init(nodes: Dictionary, reverse := false) -> void:
-        self.nodes = nodes
-        self.reverse = reverse
-
-    func less_than(a: DialogueNode, b: DialogueNode) -> bool:
-        if reverse:
-            return _get_pos(a) > _get_pos(b)
-        return _get_pos(a) < _get_pos(b)
-
-    func _get_pos(node: DialogueNode) -> int:
-        return nodes[node.parent_id].get_child_position(node)
+        shallow_duplicate_selected_nodes()
 
 
 # args = {"shift"}
@@ -617,7 +644,7 @@ func _move_selected_nodes_vertically(dialogue: Dialogue, args: Dictionary) -> Di
         print("No Nodes Moved")
         return null
 
-    filtered_selected_nodes.sort_custom(NodeVerticalSorter.new(dialogue.nodes, shift > 0), "less_than")
+    filtered_selected_nodes.sort_custom(Dialogue.NodeVerticalSorter.new(dialogue.nodes, shift > 0), "less_than")
 
     for node in filtered_selected_nodes:
         var parent := dialogue.get_node(node.parent_id)

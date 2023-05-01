@@ -1,5 +1,6 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/graph_renderer/navigation/dialogue_graph_navigation.tscn" type="PackedScene" id=1]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/graph_renderer/dialogue_graph_renderer.tscn" type="PackedScene" id=2]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/action_condition_widget.tscn" type="PackedScene" id=3]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/dialogue_editor_tab/dialogue_editor_tab.gd" type="Script" id=12]
@@ -33,6 +34,8 @@ margin_left = 816.0
 margin_right = 1016.0
 margin_bottom = 588.0
 size_flags_horizontal = 1
+
+[node name="DialogueGraphNavigation" parent="." instance=ExtResource( 1 )]
 
 [connection signal="collapsed_nodes_changed" from="DialogueGraphRenderer" to="." method="_on_collapsed_nodes_changed"]
 [connection signal="copy_nodes_request" from="DialogueGraphRenderer" to="." method="_on_graph_renderer_copy_nodes_request"]

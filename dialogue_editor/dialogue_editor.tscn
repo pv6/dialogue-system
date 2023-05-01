@@ -42,7 +42,6 @@ items = [ "New Dialogue", null, 0, false, false, 0, 0, null, "", false, "Open Di
 [node name="NodeMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 4 )]
 margin_left = 72.0
 margin_right = 118.0
-items = [ "Insert Child Hear Node", null, 0, false, false, 0, 0, null, "", false, "Insert Child Say Node", null, 0, false, false, 1, 0, null, "", false, "Insert Parent Hear Node", null, 0, false, false, 2, 0, null, "", false, "Insert Parent Say Node", null, 0, false, false, 3, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Move Selected Nodes Up", null, 0, false, false, 4, 0, null, "", false, "Move Selected Nodes Down", null, 0, false, false, 5, 0, null, "", false, "Move Selected Nodes Left", null, 0, false, false, 6, 0, null, "", false, "Move Selected Nodes Right", null, 0, false, false, 7, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Copy Selected Nodes", null, 0, false, false, 8, 0, null, "", false, "Cut Selected Nodes", null, 0, false, false, 9, 0, null, "", false, "Paste Nodes", null, 0, false, false, 10, 0, null, "", false, "Paste Cut Nodes With Children", null, 0, false, false, 11, 0, null, "", false, "Paste Cut Node As Parent", null, 0, false, false, 12, 0, null, "", false, "Paste Cut Node With Children As Parent", null, 0, false, false, 13, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Shallow Dublicate Selected Nodes", null, 0, false, false, 14, 0, null, "", false, "Deep Dublicate Selected Nodes", null, 0, false, false, 15, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Shallow Delete Selected Nodes", null, 0, false, false, 16, 0, null, "", false, "Deep Delete Selected Nodes", null, 0, false, false, 17, 0, null, "", false ]
 
 [node name="ActorsMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 16 )]
 margin_left = 122.0
@@ -68,7 +67,11 @@ margin_bottom = 600.0
 tab_scene = ExtResource( 7 )
 show_add_button = false
 
-[node name="ActorsEditor" parent="." instance=ExtResource( 10 )]
+[node name="Editors" type="Control" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+
+[node name="ActorsEditor" parent="Editors" instance=ExtResource( 10 )]
 margin_left = 400.0
 margin_top = 87.0
 margin_right = 623.0
@@ -76,10 +79,10 @@ margin_bottom = 512.0
 window_title = "Edit Dialogue Actors"
 storage_name = "dialogue actors"
 
-[node name="StorageEditor" parent="ActorsEditor" index="3"]
+[node name="StorageEditor" parent="Editors/ActorsEditor" index="3"]
 item_editor_scene = ExtResource( 15 )
 
-[node name="TagsEditor" parent="." instance=ExtResource( 10 )]
+[node name="TagsEditor" parent="Editors" instance=ExtResource( 10 )]
 margin_left = 400.0
 margin_top = 87.0
 margin_right = 623.0
@@ -87,47 +90,51 @@ margin_bottom = 512.0
 window_title = "Edit Text Node Tags"
 storage_name = "text node tags "
 
-[node name="StorageEditor" parent="TagsEditor" index="3"]
+[node name="StorageEditor" parent="Editors/TagsEditor" index="3"]
 item_editor_scene = ExtResource( 15 )
 
-[node name="DialogueBlackboardsEditor" parent="." instance=ExtResource( 10 )]
+[node name="DialogueBlackboardsEditor" parent="Editors" instance=ExtResource( 10 )]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = -111.5
-margin_top = -212.5
-margin_right = 111.5
-margin_bottom = 212.5
+margin_left = 380.5
+margin_top = 67.5
+margin_right = 603.5
+margin_bottom = 492.5
 window_title = "Edit Dialogue Blackboards"
 storage_name = "dialogue blackboards"
 
-[node name="StorageEditor" parent="DialogueBlackboardsEditor" index="3"]
+[node name="StorageEditor" parent="Editors/DialogueBlackboardsEditor" index="3"]
 item_editor_scene = ExtResource( 14 )
 
-[node name="BlackboardEditor" parent="." instance=ExtResource( 5 )]
+[node name="BlackboardEditor" parent="Editors" instance=ExtResource( 5 )]
 
-[node name="GlobalActorsEditor" parent="." instance=ExtResource( 10 )]
+[node name="GlobalActorsEditor" parent="Editors" instance=ExtResource( 10 )]
 window_title = "Edit Global Actors"
 storage_name = "Global actors"
 
-[node name="GlobalTagsEditor" parent="." instance=ExtResource( 10 )]
+[node name="GlobalTagsEditor" parent="Editors" instance=ExtResource( 10 )]
 window_title = "Edit Global Tags"
 storage_name = "Global tags"
 
-[node name="CloseUnsavedDialog" type="ConfirmationDialog" parent="."]
-margin_right = 200.0
+[node name="Dialogs" type="Control" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+
+[node name="CloseUnsavedDialog" type="ConfirmationDialog" parent="Dialogs"]
+margin_right = 247.0
 margin_bottom = 70.0
 dialog_text = "Save changes to '%s' before closing?"
 script = ExtResource( 8 )
 
-[node name="OpenDialogueDialog" type="FileDialog" parent="."]
+[node name="OpenDialogueDialog" type="FileDialog" parent="Dialogs"]
 margin_right = 477.0
 margin_bottom = 363.0
 window_title = "Open a File"
 mode = 0
 
-[node name="SaveDialogueAsDialog" type="FileDialog" parent="."]
+[node name="SaveDialogueAsDialog" type="FileDialog" parent="Dialogs"]
 margin_right = 477.0
 margin_bottom = 363.0
 window_title = "Save Dialogue As"
@@ -141,7 +148,7 @@ window_title = "Save Dialogue As"
 [connection signal="copy_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="copy_selected_nodes"]
 [connection signal="cut_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="cut_selected_nodes"]
 [connection signal="deep_delete_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="deep_delete_selected_nodes"]
-[connection signal="deep_dublicate_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="deep_dublicate_selected_nodes"]
+[connection signal="deep_duplicate_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="deep_duplicate_selected_nodes"]
 [connection signal="insert_child_hear_node" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="insert_child_hear_node"]
 [connection signal="insert_child_say_node" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="insert_child_say_node"]
 [connection signal="insert_parent_hear_node" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="insert_parent_hear_node"]
@@ -153,7 +160,7 @@ window_title = "Save Dialogue As"
 [connection signal="paste_cut_nodes_with_children" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="paste_cut_nodes_with_children"]
 [connection signal="paste_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="paste_nodes"]
 [connection signal="shallow_delete_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="shallow_delete_selected_nodes"]
-[connection signal="shallow_dublicate_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="shallow_dublicate_selected_nodes"]
+[connection signal="shallow_duplicate_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="shallow_duplicate_selected_nodes"]
 [connection signal="open_dialogue_actors_editor" from="VBoxContainer/MenuButtonsContainer/ActorsMenuButton" to="." method="open_actors_editor"]
 [connection signal="open_global_actors_editor" from="VBoxContainer/MenuButtonsContainer/ActorsMenuButton" to="." method="open_global_actors_editor"]
 [connection signal="open_global_tags_editor" from="VBoxContainer/MenuButtonsContainer/TagsMenuButton" to="." method="open_global_tags_editor"]
@@ -161,16 +168,16 @@ window_title = "Save Dialogue As"
 [connection signal="open_dialogue_blackboards_editor" from="VBoxContainer/MenuButtonsContainer/BlackboardsMenuButton" to="." method="open_dialogue_blackboards_editor"]
 [connection signal="tab_changed" from="VBoxContainer/TabsWidget" to="." method="_on_tab_changed"]
 [connection signal="tab_close" from="VBoxContainer/TabsWidget" to="." method="_on_tab_close"]
-[connection signal="confirmed" from="ActorsEditor" to="." method="_on_actors_editor_confirmed"]
-[connection signal="confirmed" from="TagsEditor" to="." method="_on_tags_editor_confirmed"]
-[connection signal="confirmed" from="DialogueBlackboardsEditor" to="." method="_on_dialogue_blackboards_editor_confirmed"]
-[connection signal="confirmed" from="GlobalActorsEditor" to="." method="_on_global_actors_editor_confirmed"]
-[connection signal="confirmed" from="GlobalTagsEditor" to="." method="_on_global_actors_tags_confirmed"]
-[connection signal="confirmed" from="CloseUnsavedDialog" to="." method="_on_save_before_close_pressed"]
-[connection signal="custom_action" from="CloseUnsavedDialog" to="." method="_on_close_unsaved_dialog_custom_action"]
-[connection signal="file_selected" from="OpenDialogueDialog" to="." method="_on_open_dialogue_dialog_file_selected"]
-[connection signal="file_selected" from="SaveDialogueAsDialog" to="." method="_on_save_dialogue_as_dialog_file_selected"]
+[connection signal="confirmed" from="Editors/ActorsEditor" to="." method="_on_actors_editor_confirmed"]
+[connection signal="confirmed" from="Editors/TagsEditor" to="." method="_on_tags_editor_confirmed"]
+[connection signal="confirmed" from="Editors/DialogueBlackboardsEditor" to="." method="_on_dialogue_blackboards_editor_confirmed"]
+[connection signal="confirmed" from="Editors/GlobalActorsEditor" to="." method="_on_global_actors_editor_confirmed"]
+[connection signal="confirmed" from="Editors/GlobalTagsEditor" to="." method="_on_global_actors_tags_confirmed"]
+[connection signal="confirmed" from="Dialogs/CloseUnsavedDialog" to="." method="_on_save_before_close_pressed"]
+[connection signal="custom_action" from="Dialogs/CloseUnsavedDialog" to="." method="_on_close_unsaved_dialog_custom_action"]
+[connection signal="file_selected" from="Dialogs/OpenDialogueDialog" to="." method="_on_open_dialogue_dialog_file_selected"]
+[connection signal="file_selected" from="Dialogs/SaveDialogueAsDialog" to="." method="_on_save_dialogue_as_dialog_file_selected"]
 
-[editable path="ActorsEditor"]
-[editable path="TagsEditor"]
-[editable path="DialogueBlackboardsEditor"]
+[editable path="Editors/ActorsEditor"]
+[editable path="Editors/TagsEditor"]
+[editable path="Editors/DialogueBlackboardsEditor"]

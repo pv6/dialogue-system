@@ -15,6 +15,8 @@ export(int) var comment_min_lines := 4 setget set_comment_min_lines
 
 export(Vector2) var node_min_size := Vector2(300, 200) setget set_node_min_size
 
+export(int) var node_focus_padding := 30 setget set_node_focus_padding
+
 export(bool) var cache_unused_node_renderers := false setget set_cache_unused_node_renderers
 
 
@@ -57,6 +59,12 @@ func set_comment_min_lines(new_comment_min_lines: int) -> void:
 func set_node_min_size(new_node_min_size: Vector2) -> void:
     if node_min_size != new_node_min_size:
         node_min_size = new_node_min_size
+        emit_changed()
+
+
+func set_node_focus_padding(new_node_focus_padding: int) -> void:
+    if node_focus_padding != new_node_focus_padding:
+        node_focus_padding = new_node_focus_padding
         emit_changed()
 
 

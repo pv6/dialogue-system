@@ -17,8 +17,8 @@ signal paste_cut_nodes_with_children()
 signal paste_cut_node_as_parent()
 signal paste_cut_node_with_children_as_parent()
 
-signal shallow_dublicate_selected_nodes()
-signal deep_dublicate_selected_nodes()
+signal shallow_duplicate_selected_nodes()
+signal deep_duplicate_selected_nodes()
 
 signal shallow_delete_selected_nodes()
 signal deep_delete_selected_nodes()
@@ -46,8 +46,8 @@ func _ready() -> void:
 
     _popup.add_separator()
 
-    _add_button("Shallow Dublicate Selected Nodes", "shallow_dublicate_selected_nodes", KEY_D, true)
-    _add_button("Deep Dublicate Selected Nodes", "deep_dublicate_selected_nodes", KEY_DELETE, true, true)
+    _add_button("Shallow Duplicate Selected Nodes", "shallow_duplicate_selected_nodes", KEY_D, true)
+    _add_button("Deep Duplicate Selected Nodes", "deep_duplicate_selected_nodes", KEY_D, true, true)
 
     _popup.add_separator()
 

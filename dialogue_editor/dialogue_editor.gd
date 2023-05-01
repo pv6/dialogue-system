@@ -29,19 +29,19 @@ var _close_after_save_as := false
 
 var _is_saving := false
 
-onready var actors_editor: StorageEditorDialog = $ActorsEditor
-onready var tags_editor: StorageEditorDialog = $TagsEditor
-onready var dialogue_blackboards_editor: StorageEditorDialog = $DialogueBlackboardsEditor
-onready var blackboard_editor: AcceptDialog = $BlackboardEditor
-onready var global_actors_editor: StorageEditorDialog = $GlobalActorsEditor
-onready var global_tags_editor: StorageEditorDialog = $GlobalTagsEditor
+onready var actors_editor: StorageEditorDialog = $Editors/ActorsEditor
+onready var tags_editor: StorageEditorDialog = $Editors/TagsEditor
+onready var dialogue_blackboards_editor: StorageEditorDialog = $Editors/DialogueBlackboardsEditor
+onready var blackboard_editor: AcceptDialog = $Editors/BlackboardEditor
+onready var global_actors_editor: StorageEditorDialog = $Editors/GlobalActorsEditor
+onready var global_tags_editor: StorageEditorDialog = $Editors/GlobalTagsEditor
 
-onready var _open_dialogue_dialog: FileDialog = $OpenDialogueDialog
-onready var _save_dialogue_as_dialog: FileDialog = $SaveDialogueAsDialog
+onready var _open_dialogue_dialog: FileDialog = $Dialogs/OpenDialogueDialog
+onready var _save_dialogue_as_dialog: FileDialog = $Dialogs/SaveDialogueAsDialog
 
 onready var _tabs_widget: TabsWidget = $VBoxContainer/TabsWidget
 
-onready var _close_unsaved_dialog: ConfirmationDialog = $CloseUnsavedDialog
+onready var _close_unsaved_dialog: ConfirmationDialog = $Dialogs/CloseUnsavedDialog
 
 
 func _init() -> void:
@@ -70,6 +70,11 @@ func _notification(what) -> void:
         set_settings(null)
 
 
+func _unhandled_key_input(event: InputEventKey) -> void:
+    if event.scancode == KEY_ESCAPE:
+        _call_current_tab_method("unselect_all")
+
+
 func set_settings(new_settings: DialogueEditorSettings) -> void:
     if settings:
         settings.disconnect("changed", self, "_on_settings_changed")
@@ -96,12 +101,12 @@ func cut_selected_nodes() -> void:
     _call_current_tab_method("cut_selected_nodes")
 
 
-func shallow_dublicate_selected_nodes() -> void:
-    _call_current_tab_method("shallow_dublicate_selected_nodes")
+func shallow_duplicate_selected_nodes() -> void:
+    _call_current_tab_method("shallow_duplicate_selected_nodes")
 
 
-func deep_dublicate_selected_nodes() -> void:
-    _call_current_tab_method("deep_dublicate_selected_nodes")
+func deep_duplicate_selected_nodes() -> void:
+    _call_current_tab_method("deep_duplicate_selected_nodes")
 
 
 func move_selected_nodes_up() -> void:

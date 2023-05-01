@@ -275,12 +275,26 @@ func is_in_branch(node: DialogueNode, branch_root: DialogueNode) -> bool:
 
 
 # return Array[DialogueNode]
+func get_branch(branch_root: DialogueNode) -> Array:
+    var branch := {}
+    _recursively_collect_children(branch_root, branch)
+    return branch.keys()
+
+
+# return Array[DialogueNode]
 func get_nodes(ids: PoolIntArray) -> Array:
     var output := []
     for id in ids:
         if nodes.has(id):
             output.push_back(nodes[id])
     return output
+
+
+# output: Set[DialogueNode] aka Dictionary[DialogueNode, bool]
+func _recursively_collect_children(subroot_node: DialogueNode, output: Dictionary) -> void:
+    output[subroot_node] = true
+    for child in subroot_node.children:
+        _recursively_collect_children(child, output)
 
 
 func _update_auto_flags() -> void:
@@ -320,3 +334,62 @@ func _update_actors(copy_node: DialogueNode, copy: Dialogue) -> void:
         for actor_type in actors:
             if copy_node.get(actor_type):
                 copy_node.get(actor_type).storage_reference.direct_reference = copy.actors
+
+
+class NodeSorter:
+    var nodes: Dictionary
+    var reverse: bool
+
+    func _init(nodes: Dictionary, reverse := false) -> void:
+        self.nodes = nodes
+        self.reverse = reverse
+
+    func less_than(a: DialogueNode, b: DialogueNode) -> bool:
+        if reverse:
+            return _get_pos(a) > _get_pos(b)
+        return _get_pos(a) < _get_pos(b)
+
+    # virtual
+    func _get_pos(node: DialogueNode) -> int:
+        return -1
+
+
+class NodeVerticalSorter:
+    extends NodeSorter
+
+
+    func _init(nodes: Dictionary, reverse := false).(nodes, reverse) -> void:
+        self.nodes = nodes
+        self.reverse = reverse
+
+
+    func _get_pos(node: DialogueNode) -> int:
+        if not nodes.has(node.parent_id):
+            return 0
+        return nodes[node.parent_id].get_child_position(node)
+
+
+class NodeHorizontalSorter:
+    extends NodeSorter
+
+    # Dictionary[DialogueNode, int]
+    var _cached_depth := {}
+
+
+    func _init(nodes: Dictionary, reverse := false).(nodes, reverse) -> void:
+        self.nodes = nodes
+        self.reverse = reverse
+
+
+    func _get_pos(node: DialogueNode) -> int:
+        if _cached_depth.has(node):
+            return _cached_depth[node]
+
+        var depth := 0
+        var cur_node := node
+        while cur_node.parent_id != DialogueNode.DUMMY_ID:
+            cur_node = nodes[cur_node.parent_id]
+            depth += 1
+        _cached_depth[node] = depth
+
+        return depth

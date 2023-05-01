@@ -99,5 +99,10 @@ static func create_contents(node) -> DialogueNodeContentsRenderer:
     return contents
 
 
+func get_graph_rect() -> Rect2:
+    var padding = Vector2.ONE * _session.settings.node_focus_padding
+    return Rect2(offset - padding, rect_size + padding * 2)
+
+
 func _update_slots() -> void:
     set_slot(0, not node is RootDialogueNode, 0, Color.gray, not is_collapsed and not node is ReferenceDialogueNode, 0, Color.gray)

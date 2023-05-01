@@ -33,6 +33,8 @@ var _cached_node_renderers: Dictionary
 # Dictionary[Script, int]
 var _used_node_renderers: Dictionary
 
+var _is_ready := false
+
 
 func _init() -> void:
     collapsed_nodes = {}
@@ -50,6 +52,14 @@ func set_dialogue(new_dialogue: Dialogue) -> void:
     update_graph()
 
 
+# nodes: Array[DialogueNode]
+func get_node_renderers(nodes: Array) -> Array:
+    var output := []
+    for node in nodes:
+        output.push_back(node_renderers[node.id])
+    return output
+
+
 func get_selected_node_ids() -> Array:
     var out := []
     for renderer in node_renderers.values():
@@ -61,12 +71,39 @@ func get_selected_node_ids() -> Array:
 func set_selected_node_ids(new_ids: Array) -> void:
     var old_ids = self.selected_node_ids
     for id in old_ids:
-        node_renderers[id].selected = false
+        unselect_node_by_id(id)
     for id in new_ids:
-        node_renderers[id].selected = true
+        select_node_by_id(id)
 
 
-func deselect_all() -> void:
+func is_node_selected(node: DialogueNode) -> bool:
+    assert(node_renderers.has(node.id))
+    return node_renderers[node.id].selected
+
+
+func select_node(node: DialogueNode) -> void:
+    select_node_by_id(node.id)
+
+
+func unselect_node(node: DialogueNode) -> void:
+    unselect_node_by_id(node.id)
+
+
+func select_node_by_id(node_id: int) -> void:
+    assert(node_renderers.has(node_id))
+    var renderer: DialogueNodeRenderer = node_renderers[node_id]
+    renderer.selected = true
+    emit_signal("node_selected", renderer)
+
+
+func unselect_node_by_id(node_id: int) -> void:
+    assert(node_renderers.has(node_id))
+    var renderer: DialogueNodeRenderer = node_renderers[node_id]
+    renderer.selected = false
+    emit_signal("node_unselected", renderer)
+
+
+func unselect_all() -> void:
     set_selected_node_ids([])
 
 
@@ -118,6 +155,10 @@ func uncollapse_nodes(nodes: Array) -> void:
         emit_signal("collapsed_nodes_changed")
 
 
+func is_ready() -> bool:
+    return _is_ready
+
+
 func update_node_sizes() -> void:
     for renderer in node_renderers.values():
         renderer.contents.update_size()
@@ -126,6 +167,8 @@ func update_node_sizes() -> void:
 
 
 func update_graph() -> void:
+    _is_ready = false
+
     # save selected node ids (node references get deprecated on dialogue cloning)
     var selected := self.selected_node_ids
 
@@ -180,7 +223,6 @@ func update_graph() -> void:
         for child in node_renderer.node.children:
             connect_node(node_renderer.name, 0, node_renderers[child.id].name, 0)
 
-    _update_renderer_offsets()
     call_deferred("update_node_sizes")
 
 
@@ -194,6 +236,8 @@ func _update_renderer_offsets() -> void:
     var root_offset = root_renderer.offset + Vector2(root_renderer.rect_size.x / 2, -root_renderer.rect_size.y / 2)
     for renderer in node_renderers.values():
         renderer.offset -= root_offset
+
+    _is_ready = true
 
 
 func _get_children_height(node: DialogueNode) -> int:
