@@ -12,8 +12,11 @@ onready var _focus_tween: Tween = $FocusTween
 
 
 func _unhandled_key_input(event: InputEventKey) -> void:
+    if not graph_renderer:
+        return
+
     # TODO: handle though menu buttons
-    if not event.is_pressed() and not graph_renderer.selected_node_ids.empty():
+    if not event.is_pressed():
         match event.scancode:
             KEY_F:
                 focus_selected_nodes(Input.is_key_pressed(KEY_SHIFT))
@@ -31,6 +34,11 @@ func select_vertical_neighbour_nodes(shift: int, keep_old_selection: bool) -> vo
     var dialogue: Dialogue = graph_renderer.dialogue
     # Array[DialogueNode]
     var selected_nodes: Array = dialogue.get_nodes(graph_renderer.get_selected_node_ids())
+
+    if selected_nodes.empty():
+        select_center_node()
+        return
+
     selected_nodes.sort_custom(Dialogue.NodeVerticalSorter.new(dialogue.nodes, shift > 0), "less_than")
 
     for node in selected_nodes:
@@ -51,6 +59,11 @@ func select_horizontal_neighbour_nodes(shift: int, keep_old_selection: bool) -> 
     var dialogue: Dialogue = graph_renderer.dialogue
     # Array[DialogueNode]
     var selected_nodes: Array = dialogue.get_nodes(graph_renderer.get_selected_node_ids())
+
+    if selected_nodes.empty():
+        select_center_node()
+        return
+
     selected_nodes.sort_custom(Dialogue.NodeHorizontalSorter.new(dialogue.nodes, shift > 0), "less_than")
 
     for node in selected_nodes:
@@ -140,6 +153,24 @@ func keep_on_screen(nodes: Array) -> void:
         var target_offset := target_viewport.position + min_delta
 
         _set_zoom_and_offset(target_zoom, target_offset)
+
+
+func select_center_node() -> DialogueNode:
+    var viewport_center_offset = (graph_renderer.scroll_offset + graph_renderer.rect_size * 0.5) / graph_renderer.zoom
+    var closest_node: DialogueNode = null
+    var min_distance: float
+
+    for node_renderer in graph_renderer.node_renderers.values():
+        var distance = (node_renderer.offset - viewport_center_offset).length()
+        if not closest_node or distance < min_distance:
+            min_distance = distance
+            closest_node = node_renderer.node
+
+    if closest_node:
+        graph_renderer.select_node(closest_node)
+        keep_on_screen([closest_node])
+
+    return closest_node
 
 
 func _set_zoom_and_offset(target_zoom: float, target_offset: Vector2) -> void:
