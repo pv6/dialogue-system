@@ -28,6 +28,20 @@ func _unhandled_key_input(event: InputEventKey) -> void:
                 select_horizontal_neighbour_nodes(-1, Input.is_key_pressed(KEY_SHIFT))
             KEY_RIGHT:
                 select_horizontal_neighbour_nodes(1, Input.is_key_pressed(KEY_SHIFT))
+            KEY_PLUS, KEY_KP_ADD:
+                if Input.is_key_pressed(KEY_CONTROL):
+                    zoom_in()
+            KEY_MINUS, KEY_KP_SUBTRACT:
+                if Input.is_key_pressed(KEY_CONTROL):
+                    zoom_out()
+
+
+func zoom_in() -> void:
+    _set_zoom(graph_renderer.zoom * graph_renderer.zoom_step)
+
+
+func zoom_out() -> void:
+    _set_zoom(graph_renderer.zoom / graph_renderer.zoom_step)
 
 
 func select_vertical_neighbour_nodes(shift: int, keep_old_selection: bool) -> void:
@@ -85,7 +99,11 @@ func select_horizontal_neighbour_nodes(shift: int, keep_old_selection: bool) -> 
 
 
 func focus_selected_nodes(with_children: bool = false) -> void:
-    focus_nodes(graph_renderer.dialogue.get_nodes(graph_renderer.get_selected_node_ids()), with_children)
+    var selected_nodes = graph_renderer.dialogue.get_nodes(graph_renderer.get_selected_node_ids())
+    if not selected_nodes.empty():
+        focus_nodes(selected_nodes, with_children)
+    else:
+        focus_nodes(graph_renderer.dialogue.nodes.values())
 
 
 # nodes: Array[DialogueNode]
@@ -156,7 +174,7 @@ func keep_on_screen(nodes: Array) -> void:
 
 
 func select_center_node() -> DialogueNode:
-    var viewport_center_offset = (graph_renderer.scroll_offset + graph_renderer.rect_size * 0.5) / graph_renderer.zoom
+    var viewport_center_offset = _get_viewport_center_offset()
     var closest_node: DialogueNode = null
     var min_distance: float
 
@@ -171,6 +189,16 @@ func select_center_node() -> DialogueNode:
         keep_on_screen([closest_node])
 
     return closest_node
+
+
+func _get_viewport_center_offset() -> Vector2:
+    return (graph_renderer.scroll_offset + graph_renderer.rect_size * 0.5) / graph_renderer.zoom
+
+
+func _set_zoom(target_zoom: float) -> void:
+    target_zoom = clamp(target_zoom, graph_renderer.zoom_min, graph_renderer.zoom_max)
+    var target_scroll_offset = _get_viewport_center_offset() * target_zoom - graph_renderer.rect_size * 0.5
+    _set_zoom_and_offset(target_zoom, target_scroll_offset)
 
 
 func _set_zoom_and_offset(target_zoom: float, target_offset: Vector2) -> void:
