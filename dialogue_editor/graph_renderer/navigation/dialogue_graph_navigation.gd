@@ -16,7 +16,7 @@ func _unhandled_key_input(event: InputEventKey) -> void:
     if not event.is_pressed() and not graph_renderer.selected_node_ids.empty():
         match event.scancode:
             KEY_F:
-                focus_selected_nodes()
+                focus_selected_nodes(Input.is_key_pressed(KEY_SHIFT))
             KEY_UP:
                 select_vertical_neighbour_nodes(-1, Input.is_key_pressed(KEY_SHIFT))
             KEY_DOWN:
@@ -71,12 +71,23 @@ func select_horizontal_neighbour_nodes(shift: int, keep_old_selection: bool) -> 
     keep_on_screen(dialogue.get_nodes(graph_renderer.get_selected_node_ids()))
 
 
-func focus_selected_nodes() -> void:
-    focus_nodes(graph_renderer.dialogue.get_nodes(graph_renderer.get_selected_node_ids()))
+func focus_selected_nodes(with_children: bool = false) -> void:
+    focus_nodes(graph_renderer.dialogue.get_nodes(graph_renderer.get_selected_node_ids()), with_children)
 
 
 # nodes: Array[DialogueNode]
-func focus_nodes(nodes: Array) -> void:
+func focus_nodes(nodes: Array, with_children: bool = false) -> void:
+    if with_children:
+        # Set[DialogueNode]
+        var all_nodes := {}
+        for node in nodes:
+            if all_nodes.has(node):
+                continue
+            all_nodes[node] = true
+            for child in graph_renderer.dialogue.get_branch(node):
+                all_nodes[child] = true
+        nodes = all_nodes.keys()
+
     var target_rect := _get_enclosing_rect(nodes)
     var target_zoom := _get_target_zoom(target_rect)
     var target_offset = target_rect.get_center() * target_zoom - graph_renderer.rect_size / 2
