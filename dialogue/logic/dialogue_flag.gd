@@ -46,7 +46,7 @@ func set_field_id(new_field_id: int) -> void:
 func get_field_id() -> int:
     if blackboard_field:
         return blackboard_field.storage_id
-    return -1
+    return UIDGenerator.DUMMY_ID
 
 
 func set_name(new_name: String) -> void:
@@ -64,9 +64,9 @@ func set_blackboard(new_blackboard: ResourceReference) -> void:
     if not blackboard_field:
         self.blackboard_field = StorageItem.new(new_blackboard)
     else:
-        # reset field field_id to -1 if assigned a new blackboard
+        # reset field_id to DUMMY_ID if assigned a new blackboard
         if not new_blackboard.equals(blackboard_field.storage_reference):
-            self.field_id = -1
+            self.field_id = UIDGenerator.DUMMY_ID
         blackboard_field.storage_reference = new_blackboard
 
 

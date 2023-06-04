@@ -84,7 +84,7 @@ func get_has_changes() -> bool:
 
 
 func _add_item(modified_storage: Storage, args: Dictionary) -> Storage:
-    if modified_storage.add_item(args["item"]) == -1:
+    if modified_storage.add_item(args["item"]) == UIDGenerator.DUMMY_ID:
         return null
     return modified_storage
 

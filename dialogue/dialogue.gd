@@ -6,6 +6,8 @@ extends Clonable
 signal nodes_changed()
 signal blackboards_changed()
 
+const _LOCAL_BLACKBOARD_ID := -2
+
 export(String) var description
 
 # '_local_blackboard_ref' is positioned above 'root_node' because it needs to be
@@ -31,7 +33,7 @@ func _init() -> void:
     actors = Storage.new()
     blackboards = Storage.new()
 
-    self._local_blackboard_ref = DirectResourceReference.new(Storage.new())
+    _set_local_blackboard_ref(DirectResourceReference.new(Storage.new()))
 
     root_node = RootDialogueNode.new()
     root_node.id = get_new_max_id()
@@ -41,11 +43,11 @@ func _init() -> void:
 func _set_local_blackboard_ref(new_local_blackboard_ref: DirectResourceReference) -> void:
     _local_blackboard_ref = new_local_blackboard_ref
 
-    if blackboards.has_id(0):
-        blackboards.set_item(0, _local_blackboard_ref)
+    if blackboards.has_id(_LOCAL_BLACKBOARD_ID):
+        blackboards.set_item(_LOCAL_BLACKBOARD_ID, _local_blackboard_ref)
     else:
-        blackboards.add_item(_local_blackboard_ref)
-        blackboards.lock_item(0)
+        blackboards.add_item(_local_blackboard_ref, _LOCAL_BLACKBOARD_ID)
+    blackboards.lock_item(_LOCAL_BLACKBOARD_ID)
 
     emit_changed()
 
@@ -142,7 +144,7 @@ func clone() -> Clonable:
 
 
 func get_local_blackboard_ref() -> StorageItemResourceReference:
-    return StorageItemResourceReference.new(blackboards.get_item_reference(0))
+    return StorageItemResourceReference.new(blackboards.get_item_reference(_LOCAL_BLACKBOARD_ID))
 
 
 # child_nodes: Array[DialogueNode]
@@ -301,7 +303,7 @@ func _update_auto_flags() -> void:
     for node in nodes.values():
         var visited_flag_name = "auto_visited_node_%d" % node.id
         var flag_id = _local_blackboard_ref.resource.add_item(visited_flag_name)
-        if flag_id == -1:
+        if flag_id == UIDGenerator.DUMMY_ID:
             continue
 
         _local_blackboard_ref.resource.hide_item(flag_id)

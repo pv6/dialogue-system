@@ -12,6 +12,10 @@ export(bool) var can_select_none := true
 
 var selected_item_id: int setget select, get_selected_item_id
 
+# godot's OptionButton mapping only supports 32-bit ids, need own mapping
+var _index_to_id := {}
+var _id_to_index := {}
+
 onready var _option_button: OptionButton = $OptionButton
 onready var _edit_button: IconButton = $EditButton
 
@@ -20,20 +24,20 @@ func _init() -> void:
     _update_options()
 
 
-func select(id) -> void:
+func select(id: int) -> void:
     if id == self.selected_item_id:
         return
 
     if storage and id in storage.ids():
-        _option_button.select(_option_button.get_item_index(id))
+        _option_button.select(_id_to_index[id])
     else:
         _option_button.select(0)
-        emit_signal("item_forced_selected", _convert_id(_option_button.get_selected_id()))
+        emit_signal("item_forced_selected", _index_to_id[0])
 
 
 func get_selected_item_id() -> int:
     if _option_button:
-        return _convert_id(_option_button.get_selected_id())
+        return _index_to_id[_option_button.get_selected()]
     return -1
 
 
@@ -57,6 +61,10 @@ func _update_options() -> void:
     if not _option_button:
         return
 
+    # clear mapping
+    _index_to_id.clear()
+    _id_to_index.clear()
+
     if storage:
         var shown_ids = storage.shown_ids()
         var need_none: bool = can_select_none or shown_ids.empty()
@@ -75,17 +83,22 @@ func _update_options() -> void:
         # set first item as none
         if need_none:
             _option_button.set_item_text(0, "None")
-            _option_button.set_item_id(0, -2)
+            _index_to_id[0] = -1
+            _id_to_index[-1] = 0
 
         # set items
         var start_index: int = 1 if need_none else 0
         for i in range(shown_ids.size()):
-            var id = shown_ids[i]
-            _option_button.set_item_text(start_index + i, str(storage.get_item(id)))
-            _option_button.set_item_id(start_index + i, id)
+            var id: int = shown_ids[i]
+            var cur_index := start_index + i
+            _option_button.set_item_text(cur_index, str(storage.get_item(id)))
+            _index_to_id[cur_index] = id
+            _id_to_index[id] = cur_index
     else:
         _option_button.clear()
-        _option_button.add_item("None", -2)
+        _option_button.add_item("None")
+        _index_to_id[0] = -1
+        _id_to_index[-1] = 0
 
 
 func _on_items_changed() -> void:
@@ -95,14 +108,8 @@ func _on_items_changed() -> void:
 
 
 func _on_item_selected(index: int) -> void:
-    emit_signal("item_selected", _convert_id(_option_button.get_item_id(index)))
+    emit_signal("item_selected", _index_to_id[index])
 
 
 func _on_edit_pressed() -> void:
     emit_signal("edit_storage_pressed")
-
-
-func _convert_id(option_button_id) -> int:
-    if option_button_id == -2:
-        return -1
-    return option_button_id
