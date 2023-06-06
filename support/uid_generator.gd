@@ -5,13 +5,14 @@ extends Reference
 
 const DUMMY_ID := -1
 
-var _uniquifier := 0
+var _uniquifier: int
 var _session_id: int
 
 
 func _init() -> void:
     randomize()
     _session_id = randi()
+    _uniquifier = randi()
 
 
 func generate_id() -> int:
