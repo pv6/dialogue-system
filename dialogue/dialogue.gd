@@ -309,7 +309,7 @@ func _update_auto_flags() -> void:
         _local_blackboard_ref.resource.hide_item(flag_id)
 
         # set visited flag to true on action
-        var visited_flag := DialogueFlag.new()
+        var visited_flag := BlackboardDialogueFlag.new()
         visited_flag.blackboard = get_local_blackboard_ref()
         visited_flag.field_id = flag_id
         visited_flag.value = true
@@ -326,7 +326,7 @@ func _update_flags(copy_node: DialogueNode, copy: Dialogue) -> void:
     for logic_type in logics:
         for flag_type in flags:
             for flag in copy_node.get(logic_type + "_logic").get(flag_type + "flags"):
-                if flag.blackboard:
+                if flag is BlackboardDialogueFlag and flag.blackboard:
                     flag.blackboard.storage_item.storage_reference.direct_reference = copy.blackboards
 
 

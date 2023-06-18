@@ -3,9 +3,9 @@ class_name DialogueNodeLogic
 extends Clonable
 
 
-# Array[DialogueFlags]
+# Array[DialogueFlag]
 export(Array) var flags setget set_flags
-# Array[DialogueFlags]
+# Array[DialogueFlag]
 export(Array) var auto_flags setget set_auto_flags
 export(String) var node_script := "" setget set_node_script
 export(bool) var use_flags := true setget set_use_flags
@@ -52,3 +52,35 @@ func clone() -> Clonable:
     copy.flags = flags_copy
 
     return copy
+
+
+func check(input: DialogueNodeLogicInput) -> bool:
+    # check auto-flags
+    for flag in auto_flags:
+        if not flag.check(input):
+            return false
+
+    # check flags
+    if use_flags:
+        for flag in flags:
+            if not flag.check(input):
+                return false
+
+    # check script
+    if use_script:
+        return bool(input.execute_script(node_script))
+
+    return true
+
+
+func do_action(input: DialogueNodeLogicInput) -> void:
+    for auto_flag in auto_flags:
+        assert(auto_flag is ActionableDialogueFlag)
+        auto_flag.do_action(input)
+
+    if use_flags:
+        for flag in flags:
+            assert(flag is ActionableDialogueFlag)
+            flag.do_action(input)
+    if use_script:
+        input.execute_script(node_script)

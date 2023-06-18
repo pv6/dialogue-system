@@ -12,8 +12,9 @@ var _blackboards: StorageImplementation
 var _dialogue: Dialogue
 var _cur_node: DialogueNode setget _set_cur_node
 
-var _expression := Expression.new()
 var _base_instance
+
+var _logic_input := DialogueNodeLogicInput.new()
 
 
 func play(dialogue: Dialogue, actors: StorageImplementation,
@@ -26,6 +27,10 @@ func play(dialogue: Dialogue, actors: StorageImplementation,
     assert(_is_blackboards_valid())
 
     _base_instance = script_base_instance
+
+    _logic_input.actors = _actors
+    _logic_input.blackboards = blackboards
+    _logic_input.base_instance = _base_instance
 
     self._cur_node = dialogue.root_node
 
@@ -140,7 +145,7 @@ func _translate_text_node(node: TextDialogueNode) -> TextDialogueNode:
         if i % 2 == 0:  # regular text
             compiled_text += tokens[i]
         else:  # code snippet
-            compiled_text += tr(str(_execute_script(tokens[i])))
+            compiled_text += tr(str(_logic_input.execute_script(tokens[i])))
 
     output.text = compiled_text
     return output
@@ -149,61 +154,14 @@ func _translate_text_node(node: TextDialogueNode) -> TextDialogueNode:
 func _set_cur_node(new_cur_node: DialogueNode) -> void:
     _cur_node = new_cur_node
     if _cur_node:
-        _do_node_action(_cur_node)
-
-
-func _do_node_action(node) -> void:
-    for flag in node.action_logic.auto_flags:
-        _blackboards.g(flag.blackboard).s(flag, flag.value)
-
-    if node.action_logic.use_flags:
-        # set flag values
-        for flag in node.action_logic.flags:
-            _blackboards.g(flag.blackboard).s(flag, flag.value)
-    if node.action_logic.use_script:
-        _execute_script(node.action_logic.node_script)
-
-
-func _execute_script(script: String):
-    var blackboard_names = []
-    for template in _blackboards.data.keys():
-        blackboard_names.push_back(str(template))
-    var input_names = _actors.data.keys()
-    input_names.append_array(blackboard_names)
-
-    var error = _expression.parse(script, input_names)
-
-    if error != OK:
-        print_debug(_expression.get_error_text())
-        return false
-
-    var inputs = _actors.data.values()
-    inputs.append_array(_blackboards.data.values())
-    var result = _expression.execute(inputs, _base_instance)
-    if not _expression.has_execute_failed():
-        return result
-
-    print_debug("Script execution failed")
-    return false
+        _cur_node.action_logic.do_action(_logic_input)
 
 
 func _is_node_valid(node: DialogueNode) -> bool:
     # for reference nodes, check referenced node validity
     if node is ReferenceDialogueNode:
         return _is_node_valid(_dialogue.nodes[node.referenced_node_id])
-
-    for flag in node.condition_logic.auto_flags:
-        if (flag.blackboard and _blackboards.g(flag.blackboard).g(flag) != flag.value):
-                return false
-
-    if node.condition_logic.use_flags:
-        # check flags
-        for flag in node.condition_logic.flags:
-            if (flag.blackboard and _blackboards.g(flag.blackboard).g(flag) != flag.value):
-                return false
-    if node.condition_logic.use_script:
-        return bool(_execute_script(node.condition_logic.node_script))
-    return true
+    return node.condition_logic.check(_logic_input)
 
 
 func _is_actors_valid() -> bool:
