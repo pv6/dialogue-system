@@ -2,11 +2,9 @@ tool
 extends "../base_logic_widget/base_dialogue_node_logic_widget.gd"
 
 
-const FlagWidgetItem = preload("flag_widget_item.gd")
+const FlagRendererItem = preload("flag_renderer_item.gd")
 
-const FLAG_WIDGET_ITEM_SCENE := preload("flag_widget_item.tscn")
-
-const FLAG_WIDGET_SCENES := []
+const FLAG_RENDERER_ITEM_SCENE := preload("flag_renderer_item.tscn")
 
 export(Array) var flags := [] setget set_flags
 
@@ -21,7 +19,7 @@ func _ready() -> void:
 
 func _on_node_id_changed() -> void:
     for item in _flag_container.get_children():
-        item.flag_widget.node_id = node_id
+        item.flag_renderer.node_id = node_id
 
 
 func _on_property_changed() -> void:
@@ -35,11 +33,11 @@ func _on_property_changed() -> void:
 
 
 func add_blackboard_flag() -> void:
-    _session.dialogue_undo_redo.commit_action("Add " + property.capitalize() + " Blackboard Flag", self, "_add_blackboard_flag")
+    _session.dialogue_undo_redo.commit_action("Add " + property.capitalize() + " Blackboard Flag", self, "_add_flag", {"flag": BlackboardDialogueFlag.new()})
 
 
 func add_visited_node_flag() -> void:
-    _session.dialogue_undo_redo.commit_action("Add " + property.capitalize() + " Visited Node Flag", self, "_add_visited_node_flag")
+    _session.dialogue_undo_redo.commit_action("Add " + property.capitalize() + " Visited Node Flag", self, "_add_flag", {"flag": VisitedNodeDialogueFlag.new()})
 
 
 func remove_flag(position: int) -> void:
@@ -58,19 +56,19 @@ func _update_values() -> void:
     # remove old flag pickers
     for item in _flag_container.get_children():
         item.remove_button.disconnect("pressed", self, "_on_remove_flag_button_pressed")
-        item.flag_widget.flag = null
+        item.flag_renderer.flag = null
         _flag_container.remove_child(item)
         item.queue_free()
 
     # add new flag pickers
     for i in range(flags.size()):
-        var item: FlagWidgetItem = FLAG_WIDGET_ITEM_SCENE.instance()
+        var item: FlagRendererItem = FLAG_RENDERER_ITEM_SCENE.instance()
         _flag_container.add_child(item)
         item.remove_button.connect("pressed", self, "_on_remove_flag_button_pressed", [i])
-        item.set_flag(flags[i])
-        item.flag_widget.node_id = node_id
-        item.flag_widget.property = property
-        item.flag_widget.flag_index = i
+        item.flag_renderer.flag = flags[i]
+        item.flag_renderer.node_id = node_id
+        item.flag_renderer.property = property
+        item.flag_renderer.flag_index = i
 
 
 func _on_add_flag_button_pressed(id: int = 0) -> void:
@@ -85,19 +83,9 @@ func _on_remove_flag_button_pressed(position: int) -> void:
     remove_flag(position)
 
 
-func _add_blackboard_flag(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    var new_flag := DialogueFlag.new()
-    _get_flags(dialogue).push_back(new_flag)
-    return dialogue
-
-
-func _add_visited_node_flag(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    var new_flag := DialogueFlag.new()
-    new_flag.blackboard = dialogue.get_local_blackboard_ref()
-    new_flag.name = "auto_visited_node_0"
-
-    _get_flags(dialogue).push_back(new_flag)
-
+# args = {"flag": DialogueFlag}
+func _add_flag(dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    _get_flags(dialogue).push_back(args["flag"])
     return dialogue
 
 

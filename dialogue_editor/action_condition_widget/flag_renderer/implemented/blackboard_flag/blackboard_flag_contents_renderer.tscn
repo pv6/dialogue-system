@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/flag_widget/implemented/blackboard_flag/blackboard_flag_widget.gd" type="Script" id=1]
-[ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_picker/storage_picker.tscn" type="PackedScene" id=2]
-[ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/blackboard_picker/blackboard_picker.tscn" type="PackedScene" id=3]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/flag_renderer/implemented/blackboard_flag/blackboard_flag_contents_renderer.gd" type="Script" id=1]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/blackboard_picker/blackboard_picker.tscn" type="PackedScene" id=2]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_picker/storage_picker.tscn" type="PackedScene" id=3]
 
 [node name="BlackboardFlagWidget" type="HBoxContainer"]
 margin_right = 1024.0
@@ -10,18 +10,18 @@ margin_bottom = 24.0
 size_flags_horizontal = 3
 script = ExtResource( 1 )
 
-[node name="BlackboardPicker" parent="." instance=ExtResource( 3 )]
-margin_right = 449.0
+[node name="BlackboardPicker" parent="." instance=ExtResource( 2 )]
+margin_right = 506.0
 size_flags_horizontal = 3
 
 [node name="VSeparator" type="VSeparator" parent="."]
-margin_left = 453.0
-margin_right = 457.0
+margin_left = 510.0
+margin_right = 514.0
 margin_bottom = 24.0
 
 [node name="FlagContainer" type="HBoxContainer" parent="."]
-margin_left = 461.0
-margin_right = 911.0
+margin_left = 518.0
+margin_right = 1024.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 alignment = 2
@@ -33,38 +33,11 @@ margin_bottom = 19.0
 text = "Flag"
 align = 1
 
-[node name="FlagStoragePicker" parent="FlagContainer" instance=ExtResource( 2 )]
+[node name="FlagStoragePicker" parent="FlagContainer" instance=ExtResource( 3 )]
 anchor_right = 0.0
 margin_left = 29.0
-margin_right = 450.0
+margin_right = 506.0
 can_select_none = false
-
-[node name="VSeparator2" type="VSeparator" parent="."]
-margin_left = 915.0
-margin_right = 919.0
-margin_bottom = 24.0
-
-[node name="ValueContainer" type="HBoxContainer" parent="."]
-margin_left = 923.0
-margin_right = 1024.0
-margin_bottom = 24.0
-alignment = 2
-
-[node name="ValueLabel" type="Label" parent="ValueContainer"]
-margin_top = 5.0
-margin_right = 35.0
-margin_bottom = 19.0
-text = "Value"
-align = 1
-
-[node name="ValueOptionButton" type="OptionButton" parent="ValueContainer"]
-margin_left = 39.0
-margin_right = 101.0
-margin_bottom = 24.0
-rect_min_size = Vector2( 62, 0 )
-text = "True"
-items = [ "True", null, false, 0, null, "False", null, false, 1, null ]
-selected = 0
 
 [node name="Dialogs" type="Node" parent="."]
 
@@ -88,4 +61,3 @@ placeholder_text = "Flag name"
 [connection signal="edit_storage_pressed" from="FlagContainer/FlagStoragePicker" to="." method="_on_edit_storage_pressed"]
 [connection signal="item_forced_selected" from="FlagContainer/FlagStoragePicker" to="." method="_on_flag_storage_picker_item_forced_selected"]
 [connection signal="item_selected" from="FlagContainer/FlagStoragePicker" to="." method="_on_flag_storage_picker_item_selected"]
-[connection signal="item_selected" from="ValueContainer/ValueOptionButton" to="." method="_on_flag_value_selected"]

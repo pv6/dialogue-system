@@ -86,11 +86,11 @@ func set_style(style: DialogueNodeStyle) -> void:
 static func create_contents(node) -> DialogueNodeContentsRenderer:
     var contents = COMBINED_CONTENTS_SCENE.instance()
 
-    if node as RootDialogueNode:
+    if node is RootDialogueNode:
         contents.add_child_contents(ROOT_NODE_CONTENTS_SCENE.instance())
-    if node as TextDialogueNode:
+    if node is TextDialogueNode:
         contents.add_child_contents(TEXT_NODE_CONTENTS_SCENE.instance())
-    if node as ReferenceDialogueNode:
+    if node is ReferenceDialogueNode:
         contents.add_child_contents(REFERENCE_NODE_CONTENTS_SCENE.instance())
     else:
         contents.add_child_contents(COMMENT_CONTENTS_SCENE.instance())
