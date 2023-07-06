@@ -5,43 +5,56 @@ extends Resource
 
 # Storage
 export(Resource) var template: Resource setget set_template
-export(Dictionary) var data: Dictionary
+
+export(Dictionary) var _id_to_value: Dictionary
 
 var default_value = null
+
+# Dictionary[String, int]
+var _name_to_id: Dictionary
 
 
 func _init(template: Storage = null, default_value = Reference.new()) -> void:
     self.default_value = default_value
-    self.template = template
+    set_template(template)
 
 
 func s(item, value) -> void:
     var name = str(item)
-    assert(data.has(name))
-    data[name] = value
+    set_by_id(_name_to_id[name], value)
+
+
+func set_by_id(id: int, value) -> void:
+    _id_to_value[id] = value
 
 
 func g(item):
     var name = str(item)
-    assert(data.has(name))
-    return data[name]
+    return get_by_id(_name_to_id[name])
+
+
+func get_by_id(id: int):
+    return _id_to_value[id]
 
 
 func has(item) -> bool:
-    return str(item) in data
+    var name := str(item)
+    return name in _name_to_id and _id_to_value.has(_name_to_id[name])
 
 
 func clear(value = default_value) -> void:
-    for key in data.keys():
-        data[key] = value
+    for id in _id_to_value.keys():
+        _id_to_value[id] = value
 
 
 func set_template(new_template: Storage) -> void:
     template = new_template
     if template:
-        for item in template.items():
-            if not has(item):
-                data[str(item)] = default_value
+        for id in template.ids():
+            var item = template.get_item(id)
+            _name_to_id[str(item)] = id
+            if not _id_to_value.has(id):
+                _id_to_value[id] = default_value
     property_list_changed_notify()
 
 
