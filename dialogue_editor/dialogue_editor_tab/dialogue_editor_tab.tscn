@@ -1,0 +1,46 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/graph_renderer/navigation/dialogue_graph_navigation.tscn" type="PackedScene" id=1]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/graph_renderer/dialogue_graph_renderer.tscn" type="PackedScene" id=2]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/action_condition_widget.tscn" type="PackedScene" id=3]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/dialogue_editor_tab/dialogue_editor_tab.gd" type="Script" id=12]
+
+[node name="DialogueEditorTab" type="HSplitContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 8.0
+margin_right = -4.0
+margin_bottom = -4.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+split_offset = 9999
+script = ExtResource( 12 )
+__meta__ = {
+"_tab_name": "[unsaved]"
+}
+
+[node name="DialogueGraphRenderer" parent="." instance=ExtResource( 2 )]
+margin_right = 804.0
+margin_bottom = 588.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+scroll_offset = Vector2( -502, -64 )
+
+[node name="ActionConditionWidget" parent="." instance=ExtResource( 3 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 816.0
+margin_right = 1016.0
+margin_bottom = 588.0
+size_flags_horizontal = 1
+
+[node name="DialogueGraphNavigation" parent="." instance=ExtResource( 1 )]
+
+[connection signal="collapsed_nodes_changed" from="DialogueGraphRenderer" to="." method="_on_collapsed_nodes_changed"]
+[connection signal="copy_nodes_request" from="DialogueGraphRenderer" to="." method="_on_graph_renderer_copy_nodes_request"]
+[connection signal="delete_nodes_request" from="DialogueGraphRenderer" to="." method="_on_graph_renderer_delete_nodes_request"]
+[connection signal="duplicate_nodes_request" from="DialogueGraphRenderer" to="." method="_on_graph_renderer_duplicate_nodes_request"]
+[connection signal="node_selected" from="DialogueGraphRenderer" to="." method="_on_node_selected"]
+[connection signal="node_unselected" from="DialogueGraphRenderer" to="." method="_on_node_unselected"]
+[connection signal="paste_nodes_request" from="DialogueGraphRenderer" to="." method="_on_graph_renderer_paste_nodes_request"]

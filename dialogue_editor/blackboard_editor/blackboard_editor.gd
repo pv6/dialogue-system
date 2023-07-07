@@ -7,7 +7,7 @@ extends AcceptDialog
 export(Resource) var blackboard setget set_blackboard
 
 onready var _blackboard_picker: BlackboardPicker = $Contents/BlackboardPicker
-onready var _storage_edior: StorageEditor = $Contents/StorageEditor
+onready var _storage_editor: StorageEditor = $Contents/StorageEditor
 
 
 func _ready() -> void:
@@ -21,19 +21,19 @@ func _on_blackboard_selected(new_blackboard_reference: StorageItemResourceRefere
 func set_blackboard(new_blackboard: StorageItem) -> void:
     blackboard = new_blackboard
 
-    if _blackboard_picker and _storage_edior:
+    if _blackboard_picker and _storage_editor:
         # set blackboard picker selection
         _blackboard_picker.selected_blackboard = new_blackboard
 
         # set blackboard fields to storage editor
         if new_blackboard:
-            _storage_edior.storage = new_blackboard.get_value().get_resource()
+            _storage_editor.storage = new_blackboard.get_value().get_resource()
         else:
-            _storage_edior.storage = null
+            _storage_editor.storage = null
 
 
 func _on_blackboard_edited():
-    if blackboard and _storage_edior.storage:
+    if blackboard and _storage_editor and _storage_editor.storage:
         var reference: ResourceReference = blackboard.get_value()
         if reference:
-            reference.set_resource(_storage_edior.storage)
+            reference.set_resource(_storage_editor.storage)

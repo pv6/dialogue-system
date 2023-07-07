@@ -6,6 +6,8 @@ extends Clonable
 signal nodes_changed()
 signal blackboards_changed()
 
+const _LOCAL_BLACKBOARD_ID := -2
+
 export(String) var description
 
 # '_local_blackboard_ref' is positioned above 'root_node' because it needs to be
@@ -31,7 +33,7 @@ func _init() -> void:
     actors = Storage.new()
     blackboards = Storage.new()
 
-    self._local_blackboard_ref = DirectResourceReference.new(Storage.new())
+    _set_local_blackboard_ref(DirectResourceReference.new(Storage.new()))
 
     root_node = RootDialogueNode.new()
     root_node.id = get_new_max_id()
@@ -41,11 +43,11 @@ func _init() -> void:
 func _set_local_blackboard_ref(new_local_blackboard_ref: DirectResourceReference) -> void:
     _local_blackboard_ref = new_local_blackboard_ref
 
-    if blackboards.has_id(0):
-        blackboards.set_item(0, _local_blackboard_ref)
+    if blackboards.has_id(_LOCAL_BLACKBOARD_ID):
+        blackboards.set_item(_LOCAL_BLACKBOARD_ID, _local_blackboard_ref)
     else:
-        blackboards.add_item(_local_blackboard_ref)
-        blackboards.lock_item(0)
+        blackboards.add_item(_local_blackboard_ref, _LOCAL_BLACKBOARD_ID)
+    blackboards.lock_item(_LOCAL_BLACKBOARD_ID)
 
     emit_changed()
 
@@ -119,7 +121,7 @@ func clone() -> Clonable:
 
         # update 'blackboards' direct reference in nodes flags
         _update_flags(copy_node, copy)
-#        # update 'actors' direct reference in speaker and listener
+        # update 'actors' direct reference in speaker and listener
         _update_actors(copy_node, copy)
 
         copy.nodes[node.id] = copy_node
@@ -142,20 +144,172 @@ func clone() -> Clonable:
 
 
 func get_local_blackboard_ref() -> StorageItemResourceReference:
-    return StorageItemResourceReference.new(blackboards.get_item_reference(0))
+    return StorageItemResourceReference.new(blackboards.get_item_reference(_LOCAL_BLACKBOARD_ID))
+
+
+# child_nodes: Array[DialogueNode]
+func make_children_of_node(new_child_nodes: Array, new_parent: DialogueNode, reparent_with_children: bool) -> bool:
+    # check we were passed nodes from THIS dialogue
+    assert(nodes[new_parent.id] == new_parent)
+
+    if new_parent is ReferenceDialogueNode:
+        print("Can't make child of reference node!")
+        return false
+
+    var made_changes := false
+
+    for new_child in new_child_nodes:
+        # check we were passed nodes from THIS dialogue
+        assert(nodes[new_child.id] == new_child)
+
+        if new_child is RootDialogueNode:
+            print("Can't make parent of root node!")
+            continue
+
+        if not nodes.has(new_child.parent_id):
+            print("Node %d has no parent!" % new_child.id)
+            continue
+
+        var need_reparent_old_children: bool = not reparent_with_children and not new_child.children.empty()
+        var already_last_child: bool = not new_parent.children.empty() and new_parent.children[-1] == new_child
+        if not need_reparent_old_children and already_last_child:
+            print("Already last child of parent!")
+            continue
+
+        if new_child.id == new_parent.id:
+            print("Can't make child of self!")
+            continue
+
+        var old_parent: DialogueNode = nodes[new_child.parent_id]
+
+        if reparent_with_children:
+            if is_in_branch(new_parent, new_child):
+                print("New parent %d is within node %d subtree!" % [new_parent.id, new_child.id])
+                continue
+        else:
+            var pos := old_parent.children.find(new_child)
+            while not new_child.children.empty():
+                var child: DialogueNode = new_child.children[-1]
+                new_child.remove_child(child)
+                old_parent.add_child(child, pos)
+
+        old_parent.remove_child(new_child)
+        new_parent.add_child(new_child)
+        made_changes = true
+
+    if not made_changes:
+        return false
+
+    update_nodes()
+    return true
+
+
+func make_parent_of_node(new_parent: DialogueNode, new_child: DialogueNode, keep_old_children: bool) -> bool:
+    # check we were passed nodes from THIS dialogue
+    assert(nodes[new_parent.id] == new_parent)
+    assert(nodes[new_child.id] == new_child)
+
+    if new_parent is ReferenceDialogueNode:
+        print("Can't make child of reference node!")
+        return false
+
+    if new_child is RootDialogueNode:
+        print("Can't make parent of root node!")
+        return false
+
+    if not nodes.has(new_child.parent_id):
+        print("Node %d has no parent!" % new_child.id)
+        return false
+
+    if new_parent.id == new_child.parent_id and (keep_old_children or new_parent.children.size() == 1):
+        print("Already parent of child!")
+        return false
+
+    var old_parent_of_new_parent: DialogueNode = nodes[new_parent.parent_id]
+
+    if not keep_old_children:
+        # assign new parent's children to it's old parent
+        var pos := old_parent_of_new_parent.children.find(new_parent)
+        while not new_parent.children.empty():
+            var child: DialogueNode = new_parent.children[-1]
+            new_parent.remove_child(child)
+            old_parent_of_new_parent.add_child(child, pos)
+
+    var old_parent: DialogueNode = nodes[new_child.parent_id]
+    var new_child_old_pos := old_parent.children.find(new_child)
+
+    old_parent_of_new_parent.remove_child(new_parent)
+    old_parent.remove_child(new_child)
+    old_parent.add_child(new_parent, new_child_old_pos)
+    new_parent.add_child(new_child)
+
+    update_nodes()
+    return true
+
+
+func drag_onto_node(dragged_node: DialogueNode, dragged_onto_node: DialogueNode) -> bool:
+    # move up if dragged onto parent while only child
+    if dragged_onto_node.children.size() == 1 and dragged_onto_node.children[0] == dragged_node:
+        return make_parent_of_node(dragged_node, dragged_onto_node, false)
+
+    # become only child of dragged onto node
+    if dragged_onto_node.children.empty():
+        return make_children_of_node([dragged_node], dragged_onto_node, false)
+
+    # become only child of dragged onto node and inherit its old children
+    # make last child of dragged onto node (abandoning dragged node's old children)
+    var need_to_move_dragged: bool = dragged_onto_node.children[-1] != dragged_node or not dragged_node.children.empty()
+    if need_to_move_dragged and not make_children_of_node([dragged_node], dragged_onto_node, false):
+        return false
+    # inherit old children of dragged onto node
+    return make_children_of_node(dragged_onto_node.children.slice(0, dragged_onto_node.children.size() - 2), dragged_node, true)
+
+
+func is_in_branch(node: DialogueNode, branch_root: DialogueNode) -> bool:
+    if node == branch_root:
+        return true
+
+    for child in branch_root.children:
+        if is_in_branch(node, child):
+            return true
+
+    return false
+
+
+# return Array[DialogueNode]
+func get_branch(branch_root: DialogueNode) -> Array:
+    var branch := {}
+    _recursively_collect_children(branch_root, branch)
+    return branch.keys()
+
+
+# return Array[DialogueNode]
+func get_nodes(ids: PoolIntArray) -> Array:
+    var output := []
+    for id in ids:
+        if nodes.has(id):
+            output.push_back(nodes[id])
+    return output
+
+
+# output: Set[DialogueNode] aka Dictionary[DialogueNode, bool]
+func _recursively_collect_children(subroot_node: DialogueNode, output: Dictionary) -> void:
+    output[subroot_node] = true
+    for child in subroot_node.children:
+        _recursively_collect_children(child, output)
 
 
 func _update_auto_flags() -> void:
     for node in nodes.values():
         var visited_flag_name = "auto_visited_node_%d" % node.id
         var flag_id = _local_blackboard_ref.resource.add_item(visited_flag_name)
-        if flag_id == -1:
+        if flag_id == UIDGenerator.DUMMY_ID:
             continue
 
         _local_blackboard_ref.resource.hide_item(flag_id)
 
         # set visited flag to true on action
-        var visited_flag := DialogueFlag.new()
+        var visited_flag := BlackboardDialogueFlag.new()
         visited_flag.blackboard = get_local_blackboard_ref()
         visited_flag.field_id = flag_id
         visited_flag.value = true
@@ -172,7 +326,7 @@ func _update_flags(copy_node: DialogueNode, copy: Dialogue) -> void:
     for logic_type in logics:
         for flag_type in flags:
             for flag in copy_node.get(logic_type + "_logic").get(flag_type + "flags"):
-                if flag.blackboard:
+                if flag is BlackboardDialogueFlag and flag.blackboard:
                     flag.blackboard.storage_item.storage_reference.direct_reference = copy.blackboards
 
 
@@ -182,3 +336,62 @@ func _update_actors(copy_node: DialogueNode, copy: Dialogue) -> void:
         for actor_type in actors:
             if copy_node.get(actor_type):
                 copy_node.get(actor_type).storage_reference.direct_reference = copy.actors
+
+
+class NodeSorter:
+    var nodes: Dictionary
+    var reverse: bool
+
+    func _init(nodes: Dictionary, reverse := false) -> void:
+        self.nodes = nodes
+        self.reverse = reverse
+
+    func less_than(a: DialogueNode, b: DialogueNode) -> bool:
+        if reverse:
+            return _get_pos(a) > _get_pos(b)
+        return _get_pos(a) < _get_pos(b)
+
+    # virtual
+    func _get_pos(node: DialogueNode) -> int:
+        return -1
+
+
+class NodeVerticalSorter:
+    extends NodeSorter
+
+
+    func _init(nodes: Dictionary, reverse := false).(nodes, reverse) -> void:
+        self.nodes = nodes
+        self.reverse = reverse
+
+
+    func _get_pos(node: DialogueNode) -> int:
+        if not nodes.has(node.parent_id):
+            return 0
+        return nodes[node.parent_id].get_child_position(node)
+
+
+class NodeHorizontalSorter:
+    extends NodeSorter
+
+    # Dictionary[DialogueNode, int]
+    var _cached_depth := {}
+
+
+    func _init(nodes: Dictionary, reverse := false).(nodes, reverse) -> void:
+        self.nodes = nodes
+        self.reverse = reverse
+
+
+    func _get_pos(node: DialogueNode) -> int:
+        if _cached_depth.has(node):
+            return _cached_depth[node]
+
+        var depth := 0
+        var cur_node := node
+        while cur_node.parent_id != DialogueNode.DUMMY_ID:
+            cur_node = nodes[cur_node.parent_id]
+            depth += 1
+        _cached_depth[node] = depth
+
+        return depth

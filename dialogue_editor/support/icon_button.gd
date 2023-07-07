@@ -7,10 +7,8 @@ export(bool) var highlighted := false setget set_highlighted
 
 
 func _init() -> void:
-    if not is_connected("mouse_entered", self, "_on_mouse_entered"):
-        connect("mouse_entered", self, "_on_mouse_entered")
-    if not is_connected("mouse_exited", self, "_on_mouse_exited"):
-        connect("mouse_exited", self, "_on_mouse_exited")
+    connect("mouse_entered", self, "_on_mouse_entered")
+    connect("mouse_exited", self, "_on_mouse_exited")
 
 
 func set_highlighted(new_highlighted: bool) -> void:

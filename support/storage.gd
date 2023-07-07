@@ -3,7 +3,6 @@ class_name Storage
 extends Clonable
 
 
-export(int) var max_id = 0
 export(bool) var must_be_unique = true
 
 var name: String setget ,get_name
@@ -11,9 +10,13 @@ var name: String setget ,get_name
 # export data for it to be saved to disk
 export(Dictionary) var _data: Dictionary
 # this is supposed to be a set, but godot doesn't have those
-export(Dictionary) var _locked_indices: Dictionary
+export(Dictionary) var _locked_ids: Dictionary
 # this is supposed to be a set, but godot doesn't have those
-export(Dictionary) var _hidden_indices: Dictionary
+export(Dictionary) var _hidden_ids: Dictionary
+# this is supposed to be a set, but godot doesn't have those
+export(Dictionary) var _shown_ids: Dictionary setget _set_shown_ids
+
+var _uid_generator := UIDGenerator.new()
 
 
 func _to_string() -> String:
@@ -34,17 +37,20 @@ func get_name() -> String:
 
 func _init() -> void:
     _data = {}
-    _locked_indices = {}
+    _locked_ids = {}
 
 
-func add_item(new_item) -> int:
+func add_item(new_item, id := UIDGenerator.DUMMY_ID) -> int:
     if not _is_item_valid(new_item):
-        return -1
+        return UIDGenerator.DUMMY_ID
 
-    _set_item(max_id, new_item)
-    max_id += 1
+    if id == UIDGenerator.DUMMY_ID:
+        id = _uid_generator.generate_id()
+    assert(not _data.has(id))
+
+    _set_item(id, new_item)
     emit_changed()
-    return max_id - 1
+    return id
 
 
 func set_item(id: int, new_item) -> bool:
@@ -64,7 +70,7 @@ func remove_item(id: int) -> void:
 
 
 func get_item(id: int):
-    if id == -1 or not _data.has(id):
+    if not _data.has(id):
         return null
     return _data[id]
 
@@ -73,7 +79,7 @@ func find_item(item) -> int:
     for id in _data.keys():
         if item == _data[id]:
             return id
-    return -1
+    return UIDGenerator.DUMMY_ID
 
 
 func has_id(id: int) -> bool:
@@ -85,31 +91,33 @@ func has_item(item) -> bool:
 
 
 func lock_item(id: int) -> void:
-    _locked_indices[id] = true
+    _locked_ids[id] = true
     emit_changed()
 
 
 func unlock_item(id: int) -> void:
-    _locked_indices.erase(id)
+    _locked_ids.erase(id)
     emit_changed()
 
 
 func hide_item(id: int) -> void:
-    _hidden_indices[id] = true
+    _hidden_ids[id] = true
+    _shown_ids.erase(id)
     emit_changed()
 
 
 func show_item(id: int) -> void:
-    _hidden_indices.erase(id)
+    _hidden_ids.erase(id)
+    _shown_ids[id] = true
     emit_changed()
 
 
 func is_locked(id: int) -> bool:
-    return _locked_indices.has(id)
+    return _locked_ids.has(id)
 
 
 func is_hidden(id: int) -> bool:
-    return _hidden_indices.has(id)
+    return _hidden_ids.has(id)
 
 
 func is_all_hidden() -> bool:
@@ -119,8 +127,8 @@ func is_all_hidden() -> bool:
     return true
 
 
-func get_item_ids(reference_item) -> PoolIntArray:
-    var output = PoolIntArray()
+func get_item_ids(reference_item) -> Array:
+    var output = []
     for id in ids():
         if _data[id] == reference_item:
             output.append(id)
@@ -129,6 +137,19 @@ func get_item_ids(reference_item) -> PoolIntArray:
 
 func ids() -> Array:
     return _data.keys()
+
+
+func shown_ids() -> Array:
+    return _shown_ids.keys()
+
+
+func _set_shown_ids(new_shown_ids: Dictionary) -> void:
+    _shown_ids = new_shown_ids
+
+    if _shown_ids.size() != _data.size() - _hidden_ids.size():
+        _shown_ids = _data.duplicate()
+        for hidden_id in _hidden_ids.keys():
+            _shown_ids.erase(hidden_id)
 
 
 func items() -> Array:
@@ -141,7 +162,7 @@ func clone() -> Clonable:
     for id in _data.keys():
         copy._set_item(id, _data[id])
 
-    copy._locked_indices = _locked_indices.duplicate()
+    copy._locked_ids = _locked_ids.duplicate()
 
     return copy
 

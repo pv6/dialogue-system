@@ -17,6 +17,8 @@ var _to_remove_ids := []
 
 var _edited_item_id: int
 
+var _working_storage_manager := WorkingResourceManager.new("Storage")
+
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
 onready var _add_item_dialog: ConfirmationDialog = $Dialogs/AddItemDialog
@@ -29,7 +31,9 @@ onready var _add_button: IconButton = $Buttons/AddButton
 onready var _edit_button: IconButton = $Buttons/EditButton
 onready var _remove_button: IconButton = $Buttons/RemoveButton
 
-onready var _working_storage_manager := $WorkingStorageManager
+
+func _init() -> void:
+    _working_storage_manager.connect("resource_changed", self, "_on_working_storage_manager_resource_changed")
 
 
 func _ready() -> void:
@@ -71,7 +75,7 @@ func set_storage(new_storage: Storage) -> void:
 
 func get_storage() -> Storage:
     if _working_storage_manager:
-        return _working_storage_manager.resource
+        return _working_storage_manager.resource as Storage
     return null
 
 
@@ -80,7 +84,7 @@ func get_has_changes() -> bool:
 
 
 func _add_item(modified_storage: Storage, args: Dictionary) -> Storage:
-    if modified_storage.add_item(args["item"]) == -1:
+    if modified_storage.add_item(args["item"]) == UIDGenerator.DUMMY_ID:
         return null
     return modified_storage
 

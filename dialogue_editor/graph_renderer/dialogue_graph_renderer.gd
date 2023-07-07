@@ -28,8 +28,12 @@ var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dial
 var _cached_node_heights := {}
 var _cached_children_heights := {}
 
-var _cached_node_renderers: Array
-var _used_node_renderers: int
+# Dictionary[Script, Array[DialogueNodeRenderer]]
+var _cached_node_renderers: Dictionary
+# Dictionary[Script, int]
+var _used_node_renderers: Dictionary
+
+var _is_ready := false
 
 
 func _init() -> void:
@@ -48,6 +52,14 @@ func set_dialogue(new_dialogue: Dialogue) -> void:
     update_graph()
 
 
+# nodes: Array[DialogueNode]
+func get_node_renderers(nodes: Array) -> Array:
+    var output := []
+    for node in nodes:
+        output.push_back(node_renderers[node.id])
+    return output
+
+
 func get_selected_node_ids() -> Array:
     var out := []
     for renderer in node_renderers.values():
@@ -59,13 +71,92 @@ func get_selected_node_ids() -> Array:
 func set_selected_node_ids(new_ids: Array) -> void:
     var old_ids = self.selected_node_ids
     for id in old_ids:
-        node_renderers[id].selected = false
+        unselect_node_by_id(id)
     for id in new_ids:
-        node_renderers[id].selected = true
+        select_node_by_id(id)
 
 
-func deselect_all() -> void:
+func is_node_selected(node: DialogueNode) -> bool:
+    assert(node_renderers.has(node.id))
+    return node_renderers[node.id].selected
+
+
+func select_node(node: DialogueNode) -> void:
+    select_node_by_id(node.id)
+
+
+func unselect_node(node: DialogueNode) -> void:
+    unselect_node_by_id(node.id)
+
+
+func select_node_by_id(node_id: int) -> void:
+    assert(node_renderers.has(node_id))
+    var renderer: DialogueNodeRenderer = node_renderers[node_id]
+    renderer.selected = true
+    emit_signal("node_selected", renderer)
+
+
+func unselect_node_by_id(node_id: int) -> void:
+    assert(node_renderers.has(node_id))
+    var renderer: DialogueNodeRenderer = node_renderers[node_id]
+    renderer.selected = false
+    emit_signal("node_unselected", renderer)
+
+
+func unselect_all() -> void:
     set_selected_node_ids([])
+
+
+func collapse_node(node: DialogueNode) -> void:
+    if collapsed_nodes.has(node.id):
+        return
+
+    collapsed_nodes[node.id] = true
+    update_graph()
+    emit_signal("collapsed_nodes_changed")
+
+
+func uncollapse_node(node: DialogueNode) -> void:
+    if not collapsed_nodes.has(node.id):
+        return
+
+    collapsed_nodes.erase(node.id)
+    update_graph()
+    emit_signal("collapsed_nodes_changed")
+
+
+# nodes: Array[DialogueNode]
+func collapse_nodes(nodes: Array) -> void:
+    var made_changes := false
+
+    for node in nodes:
+        if collapsed_nodes.has(node.id):
+            continue
+        collapsed_nodes[node.id] = true
+        made_changes = true
+
+    if made_changes:
+        update_graph()
+        emit_signal("collapsed_nodes_changed")
+
+
+# nodes: Array[DialogueNode]
+func uncollapse_nodes(nodes: Array) -> void:
+    var made_changes := false
+
+    for node in nodes:
+        if not collapsed_nodes.has(node.id):
+            continue
+        collapsed_nodes.erase(node.id)
+        made_changes = true
+
+    if made_changes:
+        update_graph()
+        emit_signal("collapsed_nodes_changed")
+
+
+func is_ready() -> bool:
+    return _is_ready
 
 
 func update_node_sizes() -> void:
@@ -76,6 +167,8 @@ func update_node_sizes() -> void:
 
 
 func update_graph() -> void:
+    _is_ready = false
+
     # save selected node ids (node references get deprecated on dialogue cloning)
     var selected := self.selected_node_ids
 
@@ -92,15 +185,26 @@ func update_graph() -> void:
     assert(dialogue.root_node)
 
     # create node renderers
-    var old_used_renderers = _used_node_renderers
+    var old_used_renderers := {}
+    for node_type in _cached_node_renderers.keys():
+        old_used_renderers[node_type] = _used_node_renderers[node_type]
+
     _recursively_add_node_renderers(dialogue.root_node)
-    if _session.settings.cache_unused_node_renderers:
-        for i in range(_used_node_renderers, old_used_renderers):
-            _reset_node_renderer(_cached_node_renderers[i])
-    else:
-        for i in range(_used_node_renderers, _cached_node_renderers.size()):
-            _cached_node_renderers[i].queue_free()
-        _cached_node_renderers.resize(_used_node_renderers)
+
+    for node_type in _cached_node_renderers.keys():
+        # Array[DialogueNodeRenderer]
+        var cached_renderers: Array = _cached_node_renderers[node_type]
+
+        if _session.settings.cache_unused_node_renderers:
+            if not old_used_renderers.has(node_type):
+                old_used_renderers[node_type] = 0
+            for i in range(_used_node_renderers[node_type], old_used_renderers[node_type]):
+                _reset_node_renderer(cached_renderers[i])
+        else:
+            var cur_used_renderers: int = _used_node_renderers[node_type]
+            for i in range(cur_used_renderers, cached_renderers.size()):
+                cached_renderers[i].queue_free()
+            cached_renderers.resize(cur_used_renderers)
 
     # restore selected nodes
     for id in selected:
@@ -110,11 +214,15 @@ func update_graph() -> void:
     # connect child nodes
     for node_renderer in node_renderers.values():
         if collapsed_nodes.has(node_renderer.node.id):
-            continue
+            # uncollapse nodes that have no children
+            if node_renderer.node.children.empty():
+                collapsed_nodes.erase(node_renderer.node.id)
+                node_renderer.is_collapsed = false
+            else:
+                continue
         for child in node_renderer.node.children:
             connect_node(node_renderer.name, 0, node_renderers[child.id].name, 0)
 
-    _update_renderer_offsets()
     call_deferred("update_node_sizes")
 
 
@@ -128,6 +236,8 @@ func _update_renderer_offsets() -> void:
     var root_offset = root_renderer.offset + Vector2(root_renderer.rect_size.x / 2, -root_renderer.rect_size.y / 2)
     for renderer in node_renderers.values():
         renderer.offset -= root_offset
+
+    _is_ready = true
 
 
 func _get_children_height(node: DialogueNode) -> int:
@@ -214,20 +324,30 @@ func _calculate_below_node_offset(node: DialogueNode, above_node: DialogueNode) 
     return _get_bottom(above_node) + delta
 
 
-func _allocate_node_renderer() -> DialogueNodeRenderer:
-    _used_node_renderers += 1
+func _allocate_node_renderer(node: DialogueNode) -> DialogueNodeRenderer:
+    var type: Script = node.get_script()
 
-    if _used_node_renderers > _cached_node_renderers.size():
-        _cached_node_renderers.resize(_used_node_renderers)
-        for i in range(_used_node_renderers - 1, _cached_node_renderers.size()):
+    var cached_renderers: Array
+    if not _cached_node_renderers.has(type):
+        _cached_node_renderers[type] = []
+        _used_node_renderers[type] = 0
+
+    cached_renderers = _cached_node_renderers[type]
+
+    _used_node_renderers[type] += 1
+    var used_renderers: int = _used_node_renderers[type]
+
+    if used_renderers > cached_renderers.size():
+        cached_renderers.resize(used_renderers)
+        for i in range(used_renderers - 1, cached_renderers.size()):
             var node_renderer = NODE_RENDERER_SCENE.instance() as DialogueNodeRenderer
-            _cached_node_renderers[i] = node_renderer
+            cached_renderers[i] = node_renderer
             add_child(node_renderer)
             node_renderer.connect("dragged", self, "_on_node_dragged", [node_renderer])
             node_renderer.connect("close_request", self, "_on_node_collapsed", [node_renderer])
             _reset_node_renderer(node_renderer)
 
-    var res: DialogueNodeRenderer = _cached_node_renderers[_used_node_renderers - 1]
+    var res: DialogueNodeRenderer = cached_renderers[used_renderers - 1]
     res.show()
     res.selected = false
 
@@ -235,14 +355,16 @@ func _allocate_node_renderer() -> DialogueNodeRenderer:
 
 
 func _add_node_renderer(node: DialogueNode) -> void:
-    var node_renderer = _allocate_node_renderer()
+    var node_renderer = _allocate_node_renderer(node)
     node_renderers[node.id] = node_renderer
     node_renderer.node = node
     node_renderer.is_collapsed = collapsed_nodes.has(node.id)
 
 
 func _recursively_add_node_renderers(node: DialogueNode) -> void:
-    _used_node_renderers = 0
+    for type in _used_node_renderers:
+        _used_node_renderers[type] = 0
+
     var stack := [node]
     while not stack.empty():
         node = stack.pop_back()
@@ -272,10 +394,10 @@ func _drag_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     # cache parameters
     var dragged_node_renderer: DialogueNodeRenderer = args["node_renderer"]
     var from: Vector2 = args["from"]
-    var to: Vector2 = args["to"]
+    var to: Vector2 = args["to"] + get_local_mouse_position() - dragged_node_renderer.rect_position
 
     # ignore dragging of root node
-    if dragged_node_renderer.node.parent_id == DialogueNode.DUMMY_ID:
+    if dragged_node_renderer.node is RootDialogueNode:
         dragged_node_renderer.offset = from
         return null
 
@@ -284,6 +406,27 @@ func _drag_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     # there was a bug idk
     if from == Vector2.ZERO:
         return null
+
+    var dragged_node: DialogueNode = dialogue.nodes[dragged_node_renderer.node.id]
+
+    # see if dragged onto another non-sibling node
+    for node_renderer in node_renderers.values():
+        # skip siblings
+        if node_renderer.node.parent_id == dragged_node_renderer.node.parent_id:
+            continue
+
+        var ul: Vector2 = node_renderer.offset
+        var lr: Vector2 = ul + node_renderer.rect_size
+
+        if to.x >= ul.x and to.y >= ul.y and to.x <= lr.x and to.y <= lr.y:
+            var dragged_onto_node: DialogueNode = dialogue.nodes[node_renderer.node.id]
+
+            if dialogue.drag_onto_node(dragged_node, dragged_onto_node):
+                return dialogue
+
+            # ignore dragging if no changes
+            dragged_node_renderer.offset = from
+            return null
 
     # move child node
     var move_up := to.y < from.y
@@ -298,7 +441,6 @@ func _drag_node(dialogue: Dialogue, args: Dictionary) -> Dialogue:
                 (not move_up and to.y + dragged_node_renderer.rect_size.y * (1 - dragging_percentage) > sibling_renderer.offset.y)):
             # reference nodes in new dialogue
             parent = dialogue.nodes[parent.id]
-            var dragged_node = dialogue.nodes[dragged_node_renderer.node.id]
 
             parent.children.erase(dragged_node)
             parent.children.insert(i, dragged_node)

@@ -4,12 +4,14 @@
 
 [resource]
 script = ExtResource( 1 )
-max_id = 1
 must_be_unique = true
 _data = {
 0: "example_flag"
 }
-_locked_indices = {
+_locked_ids = {
 }
-_hidden_indices = {
+_hidden_ids = {
+}
+_shown_ids = {
+0: "example_flag"
 }

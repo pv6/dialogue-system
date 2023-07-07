@@ -1,14 +1,9 @@
 tool
-extends "../../flag_widget.gd"
+extends "../../dialogue_flag_contents_renderer.gd"
 
-
-const VALUES := [true, false]
 
 onready var _blackboard_picker: BlackboardPicker = $BlackboardPicker
 onready var _flag_storage_picker: StoragePicker = $FlagContainer/FlagStoragePicker
-onready var _value_option_button: OptionButton = $ValueContainer/ValueOptionButton
-onready var _flag_label: Label = $FlagContainer/FlagLabel
-onready var _value_label: Label = $ValueContainer/ValueLabel
 
 
 # takes storage item that points to blackboard within dialogue.blackboards
@@ -24,7 +19,7 @@ func _set_blackboard(blackboard: StorageItem) -> void:
 
 
 func _update_values() -> void:
-    if not _flag_storage_picker or not _value_option_button:
+    if not _flag_storage_picker:
         return
 
     if flag:
@@ -33,10 +28,8 @@ func _update_values() -> void:
             item = flag.blackboard.storage_item
         _set_blackboard(item)
         _flag_storage_picker.select(flag.field_id)
-        _value_option_button.select(0 if flag.value else 1)
     else:
         _set_blackboard(null)
-        _value_option_button.select(0)
 
 
 func _on_blackboard_selected(blackboard_reference: ResourceReference) -> void:
@@ -45,10 +38,6 @@ func _on_blackboard_selected(blackboard_reference: ResourceReference) -> void:
 
 func _on_blackboard_forced_selected(blackboard_reference: ResourceReference) -> void:
     flag.blackboard = blackboard_reference
-
-
-func _on_flag_value_selected(value_index: int) -> void:
-    _session.dialogue_undo_redo.commit_action("Set Flag Value", self, "_set_flag_value", {"value": VALUES[value_index]})
 
 
 func _on_edit_storage_pressed() -> void:
@@ -77,12 +66,4 @@ func _set_flag_id(dialogue: Dialogue, args: Dictionary) -> Dialogue:
         return null
 
     _get_flag(dialogue).field_id = args["id"]
-    return dialogue
-
-
-func _set_flag_value(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    if property == "":
-        return null
-
-    _get_flag(dialogue).value = args["value"]
     return dialogue

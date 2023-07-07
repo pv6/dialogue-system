@@ -5,12 +5,12 @@ extends Clonable
 
 # ResourceReference
 export(Resource) var storage_reference: Resource setget set_storage_reference
-export(int) var storage_id := -1 setget set_storage_id
+export(int) var storage_id := UIDGenerator.DUMMY_ID setget set_storage_id
 
 var value setget set_value, get_value
 
 
-func _init(storage_reference: ResourceReference = null, storage_id := -1) -> void:
+func _init(storage_reference: ResourceReference = null, storage_id := UIDGenerator.DUMMY_ID) -> void:
     self.storage_reference = storage_reference
     self.storage_id = storage_id
 

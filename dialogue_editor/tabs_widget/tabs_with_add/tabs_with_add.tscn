@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/support/icon_button.gd" type="Script" id=1]
+[ext_resource path="res://addons/dialogue_system/assets/icons/add.svg" type="Texture" id=2]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/tabs_widget/tabs_with_add/tabs_with_add.gd" type="Script" id=3]
+
+[node name="TabsWithAdd" type="Tabs"]
+margin_right = 1024.0
+margin_bottom = 24.0
+tab_align = 0
+tab_close_display_policy = 1
+script = ExtResource( 3 )
+
+[node name="AddButton" type="ToolButton" parent="."]
+margin_right = 32.0
+margin_bottom = 24.0
+icon = ExtResource( 2 )
+script = ExtResource( 1 )
+
+[connection signal="pressed" from="AddButton" to="." method="emit_signal" binds= [ "tab_add" ]]

@@ -33,14 +33,6 @@ func set_logic(new_logic: DialogueNodeLogic) -> void:
     _update_values()
 
 
-func set_disabled(new_disabled: bool) -> void:
-    .set_disabled(new_disabled)
-    if _multi_flag_picker:
-        _multi_flag_picker.disabled = disabled or not _flags_check_box.pressed
-    if _script_text_edit:
-        _script_text_edit.readonly = disabled or not _script_check_box.pressed
-
-
 func _set_flag_checkbox(value: bool) -> void:
     _flags_check_box.pressed = value
     _multi_flag_picker.disabled = disabled or not value

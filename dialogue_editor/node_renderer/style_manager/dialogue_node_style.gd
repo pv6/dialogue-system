@@ -3,15 +3,11 @@ class_name DialogueNodeStyle
 extends Resource
 
 
-export(String) var node_scipt_path: String setget set_node_scipt_path
+export(Script) var node_scipt: Script
 export(Color) var color: Color setget set_color
 
-var frame_stylebox: StyleBoxFlat = preload("res://addons/dialogue_system/dialogue_editor/node_renderer/style_manager/frame_stylebox.tres").duplicate()
-var selected_frame_stylebox: StyleBoxFlat = preload("res://addons/dialogue_system/dialogue_editor/node_renderer/style_manager/selected_frame_stylebox.tres").duplicate()
-
-
-func set_node_scipt_path(new_node_scipt_path: String) -> void:
-    node_scipt_path = new_node_scipt_path
+var frame_stylebox: StyleBoxFlat = preload("frame_stylebox.tres").duplicate()
+var selected_frame_stylebox: StyleBoxFlat = preload("selected_frame_stylebox.tres").duplicate()
 
 
 func set_color(new_color: Color) -> void:

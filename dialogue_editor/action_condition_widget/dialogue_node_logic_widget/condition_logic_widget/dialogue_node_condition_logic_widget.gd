@@ -48,7 +48,7 @@ func _set_can_only_visit_once(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     if args["value"]:
         if pos != -1:
             return null
-        var can_visit_once_flag := DialogueFlag.new()
+        var can_visit_once_flag := BlackboardDialogueFlag.new()
         can_visit_once_flag.blackboard = dialogue.get_local_blackboard_ref()
         can_visit_once_flag.name = flag_name
         can_visit_once_flag.value = false

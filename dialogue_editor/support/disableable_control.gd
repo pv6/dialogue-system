@@ -5,10 +5,6 @@ extends Control
 export(bool) var disabled := false setget set_disabled
 
 
-#func _ready() -> void:
-#    call_deferred("set_disabled", disabled)
-
-
 static func _recursive_disable(node: Node, disabled: bool) -> void:
     for child in node.get_children():
         if "disabled" in child:
@@ -24,5 +20,8 @@ static func _recursive_disable(node: Node, disabled: bool) -> void:
 
 
 func set_disabled(new_disabled: bool) -> void:
+    if disabled == new_disabled:
+        return
+
     disabled = new_disabled
     _recursive_disable(self, new_disabled)

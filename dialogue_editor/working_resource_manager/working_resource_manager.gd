@@ -1,6 +1,6 @@
 tool
 class_name WorkingResourceManager
-extends Control
+extends Reference
 
 
 signal resource_changed()
@@ -17,14 +17,11 @@ var has_unsaved_changes := false setget set_has_unsaved_changes
 
 var _undo_redo := UndoRedo.new()
 
-var _open_dialog: FileDialog
-var _save_as_dialog: FileDialog
-
 var _resource_script_path = ""
 
-func _init():
-    _open_dialog = _create_file_dialog("Open", FileDialog.MODE_OPEN_FILE, "_on_open_file_selected")
-    _save_as_dialog = _create_file_dialog("Save", FileDialog.MODE_SAVE_FILE, "_on_save_as_file_selected")
+
+func _init(resource_class_name := "Resource") -> void:
+    set_resource_class_name(resource_class_name)
 
 
 func set_has_unsaved_changes(value: bool) -> void:
@@ -54,27 +51,29 @@ func new_file() -> void:
     emit_signal("file_changed")
 
 
-func open() -> void:
-    if save_path.get_file().is_valid_filename():
-        _open_dialog.current_path = save_path
-    else:
-        _open_dialog.current_file = ""
-    _open_dialog.popup_centered()
+func open(new_save_path: String) -> void:
+    var res = ResourceLoader.load(new_save_path, "", true)
+    if res:
+        save_path = ""
+        self.resource = res
+        self.save_path = new_save_path
+        clear_undo_redo_history()
+        emit_signal("file_changed")
 
 
 func save() -> void:
-    if save_path == "":
-        save_as()
-    else:
-        _save()
+    if not resource:
+        return
+    assert(save_path.get_file().is_valid_filename())
+
+    ResourceSaver.save(save_path, resource.clone(), ResourceSaver.FLAG_REPLACE_SUBRESOURCE_PATHS)
+
+    self.has_unsaved_changes = false
 
 
-func save_as() -> void:
-    if save_path.get_file().is_valid_filename():
-        _save_as_dialog.current_path = save_path
-    else:
-        _save_as_dialog.current_file = "new_" + resource_class_name.to_lower() + ".tres"
-    _save_as_dialog.popup_centered()
+func save_as(new_save_path: String) -> void:
+    set_save_path(new_save_path)
+    save()
 
 
 func set_resource(new_resource: Clonable) -> void:
@@ -138,50 +137,12 @@ func commit_action(action_name: String, object, method: String, args: Dictionary
     return true
 
 
-func _save() -> void:
-    if not resource:
-        return
-    assert(save_path.get_file().is_valid_filename())
-
-    ResourceSaver.save(save_path, resource.clone(), ResourceSaver.FLAG_REPLACE_SUBRESOURCE_PATHS)
-
-    self.has_unsaved_changes = false
-
-
 func _autosave() -> void:
     if autosave and has_unsaved_changes and save_path != "":
-        _save()
-
-
-func _on_save_as_file_selected(save_path: String):
-    self.save_path = save_path
-    _save()
-
-
-func _on_open_file_selected(new_save_path: String):
-    var res = ResourceLoader.load(new_save_path, "", true)
-#    var res = load(save_path)
-    if res:
-        save_path = ""
-        self.resource = res
-        self.save_path = new_save_path
-        clear_undo_redo_history()
-        emit_signal("file_changed")
+        save()
 
 
 func _new_resource() -> Resource:
     if _resource_script_path == "":
         return null
     return load(_resource_script_path).new()
-
-
-func _create_file_dialog(title: String, mode: int, callback: String) -> FileDialog:
-    var dialog = FileDialog.new()
-    # first set mode then title, because Godot changes window title with mode...
-    dialog.mode = mode
-    dialog.window_title = title + " " + resource_class_name.capitalize()
-    dialog.connect("file_selected", self, callback)
-    dialog.rect_min_size = Vector2(300, 300)
-    add_child(dialog)
-
-    return dialog
