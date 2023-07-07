@@ -27,9 +27,6 @@ func _update_contents() -> void:
 
 
 func set_has_comment(new_has_comment: bool) -> void:
-    if new_has_comment == has_comment:
-        return
-
     has_comment = new_has_comment
     if not _add_comment_button or not _comment_text_edit:
         return

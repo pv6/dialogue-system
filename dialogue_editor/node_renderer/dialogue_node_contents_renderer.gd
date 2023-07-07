@@ -8,6 +8,8 @@ var node: DialogueNode setget set_node
 
 func _ready():
     size_flags_vertical = SIZE_EXPAND_FILL
+    # wait 1 frame for inherited nodes to initialize
+    yield(get_tree(), "idle_frame")
     _update_contents()
 
 

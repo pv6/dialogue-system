@@ -92,8 +92,8 @@ static func create_contents(node) -> DialogueNodeContentsRenderer:
         contents.add_child_contents(TEXT_NODE_CONTENTS_SCENE.instance())
     if node is ReferenceDialogueNode:
         contents.add_child_contents(REFERENCE_NODE_CONTENTS_SCENE.instance())
-    else:
-        contents.add_child_contents(COMMENT_CONTENTS_SCENE.instance())
+
+    contents.add_child_contents(COMMENT_CONTENTS_SCENE.instance())
 
     contents.node = node
     return contents
