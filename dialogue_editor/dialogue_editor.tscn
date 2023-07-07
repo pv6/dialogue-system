@@ -149,6 +149,7 @@ window_title = "Save Dialogue As"
 [connection signal="cut_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="cut_selected_nodes"]
 [connection signal="deep_delete_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="deep_delete_selected_nodes"]
 [connection signal="deep_duplicate_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="deep_duplicate_selected_nodes"]
+[connection signal="edit_selected_node_text" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="edit_selected_node_text"]
 [connection signal="insert_child_hear_node" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="insert_child_hear_node"]
 [connection signal="insert_child_say_node" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="insert_child_say_node"]
 [connection signal="insert_parent_hear_node" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="insert_parent_hear_node"]

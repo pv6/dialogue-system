@@ -165,6 +165,28 @@ func shallow_delete_selected_nodes() -> void:
     working_dialogue_manager.commit_action("Shallow Delete Selected Nodes", self, "_shallow_delete_selected_nodes")
 
 
+func edit_selected_node_text() -> void:
+    var selected_node_ids = graph_renderer.selected_node_ids
+    if selected_node_ids.size() > 1:
+        print("Selected more than one node!")
+        return
+    if selected_node_ids.size() < 1:
+        print("No node selected!")
+        return
+
+    var text_node := get_dialogue().get_node(selected_node_ids[0]) as TextDialogueNode
+    if not text_node:
+        print("Selected node not Text Node!")
+        return
+    var renderer := graph_renderer.get_node_renderer(text_node)
+    assert(renderer)
+    renderer.contents.child_contents[0].text_edit.grab_focus()
+
+
+func get_dialogue() -> Dialogue:
+    return working_dialogue_manager.resource as Dialogue
+
+
 func _copy_selected_node_ids_to_clipboard(header: String) -> void:
     var id_string := header
 

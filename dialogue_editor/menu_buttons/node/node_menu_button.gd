@@ -23,6 +23,8 @@ signal deep_duplicate_selected_nodes()
 signal shallow_delete_selected_nodes()
 signal deep_delete_selected_nodes()
 
+signal edit_selected_node_text()
+
 
 func _ready() -> void:
     _add_button("Insert Child Hear Node", "insert_child_hear_node", KEY_A)
@@ -53,3 +55,7 @@ func _ready() -> void:
 
     _add_button("Shallow Delete Selected Nodes", "shallow_delete_selected_nodes", KEY_DELETE)
     _add_button("Deep Delete Selected Nodes", "deep_delete_selected_nodes", KEY_DELETE, false, true)
+
+    _popup.add_separator()
+
+    _add_button("Edit Selected Node's Text", "edit_selected_node_text", KEY_E, true)

@@ -157,6 +157,10 @@ func shallow_delete_selected_nodes() -> void:
     _call_current_tab_method("shallow_delete_selected_nodes")
 
 
+func edit_selected_node_text() -> void:
+    _call_current_tab_method("edit_selected_node_text")
+
+
 func new_dialogue() -> void:
     _tabs_widget.add_tab()
     _tabs_widget.set_current_tab(_tabs_widget.get_tab_count() - 1)

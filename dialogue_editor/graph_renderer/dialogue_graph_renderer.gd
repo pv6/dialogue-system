@@ -52,6 +52,18 @@ func set_dialogue(new_dialogue: Dialogue) -> void:
     update_graph()
 
 
+func get_node_renderer_by_id(node_id: int) -> DialogueNodeRenderer:
+    if not node_renderers.has(node_id):
+        return null
+    return node_renderers[node_id]
+
+
+func get_node_renderer(node: DialogueNode) -> DialogueNodeRenderer:
+    if not node:
+        return null
+    return get_node_renderer_by_id(node.id)
+
+
 # nodes: Array[DialogueNode]
 func get_node_renderers(nodes: Array) -> Array:
     var output := []
