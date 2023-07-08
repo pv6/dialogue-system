@@ -26,6 +26,7 @@ export(int) var max_id := 0
 export(String) var editor_version = "0.0.0"
 
 # id -> node
+# Dictionary[int, DialogueNode]
 var nodes := {}
 
 

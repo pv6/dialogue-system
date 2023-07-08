@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/dialogue_editor.gd" type="Script" id=1]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/tabs_widget/tabs_widget.tscn" type="PackedScene" id=2]
@@ -8,6 +8,7 @@
 [ext_resource path="res://dialogue_editor_settings.tres" type="Resource" id=6]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/dialogue_editor_tab/dialogue_editor_tab.tscn" type="PackedScene" id=7]
 [ext_resource path="res://addons/dialogue_system/support/my_confirmation_dialog.gd" type="Script" id=8]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/go_to_node_widget/go_to_node_widget.tscn" type="PackedScene" id=9]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor_dialog/storage_editor_dialog.tscn" type="PackedScene" id=10]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/file_dialog/storage_item_file_dialog_editor.tscn" type="PackedScene" id=14]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/storage_widgets/storage_editor/item_editor/storage_picker/storage_item_storage_picker_editor.tscn" type="PackedScene" id=15]
@@ -42,6 +43,7 @@ items = [ "New Dialogue", null, 0, false, false, 0, 0, null, "", false, "Open Di
 [node name="NodeMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 4 )]
 margin_left = 72.0
 margin_right = 118.0
+items = [ "Insert Child Hear Node", null, 0, false, false, 0, 0, null, "", false, "Insert Child Say Node", null, 0, false, false, 1, 0, null, "", false, "Insert Parent Hear Node", null, 0, false, false, 2, 0, null, "", false, "Insert Parent Say Node", null, 0, false, false, 3, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Move Selected Nodes Up", null, 0, false, false, 4, 0, null, "", false, "Move Selected Nodes Down", null, 0, false, false, 5, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Copy Selected Nodes", null, 0, false, false, 6, 0, null, "", false, "Cut Selected Nodes", null, 0, false, false, 7, 0, null, "", false, "Paste Nodes", null, 0, false, false, 8, 0, null, "", false, "Paste Cut Nodes With Children", null, 0, false, false, 9, 0, null, "", false, "Paste Cut Node As Parent", null, 0, false, false, 10, 0, null, "", false, "Paste Cut Node With Children As Parent", null, 0, false, false, 11, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Shallow Duplicate Selected Nodes", null, 0, false, false, 12, 0, null, "", false, "Deep Duplicate Selected Nodes", null, 0, false, false, 13, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Shallow Delete Selected Nodes", null, 0, false, false, 14, 0, null, "", false, "Deep Delete Selected Nodes", null, 0, false, false, 15, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Edit Selected Node's Text", null, 0, false, false, 16, 0, null, "", false, "Go To Node...", null, 0, false, false, 17, 0, null, "", false ]
 
 [node name="ActorsMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 16 )]
 margin_left = 122.0
@@ -139,6 +141,12 @@ margin_right = 477.0
 margin_bottom = 363.0
 window_title = "Save Dialogue As"
 
+[node name="GoToNodeWidget" parent="Dialogs" instance=ExtResource( 9 )]
+margin_left = 409.0
+margin_top = 252.0
+margin_right = 615.0
+margin_bottom = 347.0
+
 [connection signal="new_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="new_dialogue"]
 [connection signal="open_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="open_dialogue"]
 [connection signal="redo" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="redo"]
@@ -150,6 +158,7 @@ window_title = "Save Dialogue As"
 [connection signal="deep_delete_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="deep_delete_selected_nodes"]
 [connection signal="deep_duplicate_selected_nodes" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="deep_duplicate_selected_nodes"]
 [connection signal="edit_selected_node_text" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="edit_selected_node_text"]
+[connection signal="go_to_node" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="go_to_node"]
 [connection signal="insert_child_hear_node" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="insert_child_hear_node"]
 [connection signal="insert_child_say_node" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="insert_child_say_node"]
 [connection signal="insert_parent_hear_node" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="insert_parent_hear_node"]
@@ -178,6 +187,7 @@ window_title = "Save Dialogue As"
 [connection signal="custom_action" from="Dialogs/CloseUnsavedDialog" to="." method="_on_close_unsaved_dialog_custom_action"]
 [connection signal="file_selected" from="Dialogs/OpenDialogueDialog" to="." method="_on_open_dialogue_dialog_file_selected"]
 [connection signal="file_selected" from="Dialogs/SaveDialogueAsDialog" to="." method="_on_save_dialogue_as_dialog_file_selected"]
+[connection signal="go_to_node" from="Dialogs/GoToNodeWidget" to="." method="_on_go_to_node_widget_go_to_node"]
 
 [editable path="Editors/ActorsEditor"]
 [editable path="Editors/TagsEditor"]

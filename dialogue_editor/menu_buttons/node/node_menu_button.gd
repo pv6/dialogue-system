@@ -25,6 +25,8 @@ signal deep_delete_selected_nodes()
 
 signal edit_selected_node_text()
 
+signal go_to_node()
+
 
 func _ready() -> void:
     add_button("Insert Child Hear Node", "insert_child_hear_node", KEY_A)
@@ -59,3 +61,5 @@ func _ready() -> void:
     add_separator()
 
     add_button("Edit Selected Node's Text", "edit_selected_node_text", KEY_E, CTRL)
+
+    add_button("Go To Node...", "go_to_node", KEY_G, CTRL)

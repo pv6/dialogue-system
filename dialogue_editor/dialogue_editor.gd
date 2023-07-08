@@ -8,6 +8,7 @@ signal _dialogue_saved()
 const StorageEditorDialog := preload("storage_widgets/storage_editor_dialog/storage_editor_dialog.gd")
 const TabsWidget := preload("tabs_widget/tabs_widget.gd")
 const DialogueEditorTab := preload("dialogue_editor_tab/dialogue_editor_tab.gd")
+const GoToNodeWidget := preload("go_to_node_widget/go_to_node_widget.gd")
 
 const DEFAULT_SETTINGS_PATH := "res://dialogue_editor_settings.tres"
 const DEFAULT_GLOBAL_ACTORS_PATH := "res://dialogue_global_actors.tres"
@@ -43,6 +44,8 @@ onready var _tabs_widget: TabsWidget = $VBoxContainer/TabsWidget
 
 onready var _close_unsaved_dialog: ConfirmationDialog = $Dialogs/CloseUnsavedDialog
 
+onready var _go_to_node_widget: GoToNodeWidget = $Dialogs/GoToNodeWidget
+
 
 func _init() -> void:
     session.clear_connections()
@@ -61,8 +64,7 @@ func _ready() -> void:
     tags_editor.storage_editor.item_editor.connect("edit_storage_pressed", self, "open_global_tags_editor")
 
     _close_unsaved_dialog.add_button("Don't Save", true, "close_without_save")
-    _close_unsaved_dialog.get_cancel().connect("pressed", self, "_on_save_dialogue_as_dialog_canceled")
-    _close_unsaved_dialog.get_close_button().connect("pressed", self, "_on_save_dialogue_as_dialog_canceled")
+    _close_unsaved_dialog.connect("canceled", self, "_on_save_dialogue_as_dialog_canceled")
 
 
 func _notification(what) -> void:
@@ -254,6 +256,15 @@ func get_dialogue() -> Dialogue:
     return working_dialogue_manager.resource as Dialogue
 
 
+func go_to_node() -> void:
+    var dialogue := get_dialogue()
+    if not dialogue:
+        return
+    _go_to_node_widget.valid_ids = dialogue.nodes
+    _go_to_node_widget.popup_centered()
+
+
+
 func _on_actors_editor_confirmed() -> void:
     if actors_editor.storage_editor.has_changes:
         _get_current_working_dialogue_manager().commit_action("Edit Dialogue Actors", self, "_edit_actors")
@@ -418,3 +429,9 @@ func _call_current_tab_method(method: String) -> void:
         current_tab.call(method)
     else:
         print("No dialogue opened!")
+
+
+func _on_go_to_node_widget_go_to_node(id: int) -> void:
+    var cur_tab := _get_current_editor_tab()
+    assert(cur_tab)
+    cur_tab.graph_renderer_navigation.focus_nodes([get_dialogue().nodes[id]])
