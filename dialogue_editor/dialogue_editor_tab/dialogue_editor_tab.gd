@@ -3,6 +3,7 @@ extends "res://addons/dialogue_system/dialogue_editor/tabs_widget/tab.gd"
 
 
 const DialogueGraphRendererNavigation := preload("res://addons/dialogue_system/dialogue_editor/graph_renderer/navigation/dialogue_graph_navigation.gd")
+const TextDialogueNodeContentsRenderer := preload("res://addons/dialogue_system/dialogue_editor/node_renderer/implemented_contents/text_node/text_dialogue_node_contents_renderer.gd")
 
 const COPY_NODES_STRING_HEADER := "copy ids:"
 const CUT_NODES_STRING_HEADER := "cut ids:"
@@ -174,13 +175,16 @@ func edit_selected_node_text() -> void:
         print("No node selected!")
         return
 
-    var text_node := get_dialogue().get_node(selected_node_ids[0]) as TextDialogueNode
+    var text_node := get_dialogue().get_node(selected_node_ids.front()) as TextDialogueNode
     if not text_node:
         print("Selected node not Text Node!")
         return
-    var renderer := graph_renderer.get_node_renderer(text_node)
-    assert(renderer)
-    renderer.contents.child_contents[0].text_edit.grab_focus()
+
+    var node_renderer := graph_renderer.get_node_renderer(text_node)
+    assert(node_renderer)
+    var text_node_contents_renderer := node_renderer.contents.get_contents_by_node_type(TextDialogueNode) as TextDialogueNodeContentsRenderer
+    assert(text_node_contents_renderer)
+    text_node_contents_renderer.text_edit.grab_focus()
 
 
 func get_dialogue() -> Dialogue:

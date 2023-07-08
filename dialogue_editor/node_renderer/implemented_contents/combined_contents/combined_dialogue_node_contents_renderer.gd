@@ -3,10 +3,14 @@ class_name CombinedDialogueNodeContentsRenderer
 extends DialogueNodeContentsRenderer
 
 
+# Array[DialogueNodeContentsRenderer]
 var child_contents := []
 
+# Dictionary[Script, DialogueNodeContentsRenderer]
+var _node_type_to_contents := {}
 
-func add_child_contents(contents: DialogueNodeContentsRenderer) -> void:
+
+func add_child_contents(contents: DialogueNodeContentsRenderer, node_type: Script = null) -> void:
     if not contents:
         return
 
@@ -16,7 +20,11 @@ func add_child_contents(contents: DialogueNodeContentsRenderer) -> void:
 
     child_contents.push_back(contents)
 
-    # add as child, then set node, so contents' children are created
+    if node_type:
+        assert(not _node_type_to_contents.has(node_type))
+        _node_type_to_contents[node_type] = contents
+
+    # add as child first, so contents' children are created, then set node
     add_child(contents)
     contents.node = node
 
@@ -24,6 +32,12 @@ func add_child_contents(contents: DialogueNodeContentsRenderer) -> void:
 func update_size() -> void:
     for contents in child_contents:
         contents.update_size()
+
+
+func get_contents_by_node_type(node_type: Script) -> DialogueNodeContentsRenderer:
+    if _node_type_to_contents.has(node_type):
+        return _node_type_to_contents[node_type]
+    return null
 
 
 func _on_set_node() -> void:
