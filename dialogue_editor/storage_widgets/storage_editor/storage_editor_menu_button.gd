@@ -7,5 +7,5 @@ signal redo()
 
 
 func _ready() -> void:
-    _add_button("Undo", "undo", KEY_Z, true)
-    _add_button("Redo", "redo", KEY_Z, true, true)
+    add_button("Undo", "undo", KEY_Z, CTRL)
+    add_button("Redo", "redo", KEY_Z, CTRL | SHIFT)

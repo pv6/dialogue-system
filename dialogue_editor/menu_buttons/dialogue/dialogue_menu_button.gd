@@ -11,15 +11,15 @@ signal redo()
 
 
 func _ready() -> void:
-    _add_button("New Dialogue", "new_dialogue", KEY_N, true)
-    _add_button("Open Dialogue...", "open_dialogue", KEY_O, true)
+    add_button("New Dialogue", "new_dialogue", KEY_N, CTRL)
+    add_button("Open Dialogue...", "open_dialogue", KEY_O, CTRL)
 
-    _popup.add_separator()
+    add_separator()
 
-    _add_button("Save Dialogue", "save_dialogue", KEY_S, true)
-    _add_button("Save Dialogue As...", "save_dialogue_as", KEY_S, true, true)
+    add_button("Save Dialogue", "save_dialogue", KEY_S, CTRL)
+    add_button("Save Dialogue As...", "save_dialogue_as", KEY_S, CTRL | SHIFT)
 
-    _popup.add_separator()
+    add_separator()
 
-    _add_button("Undo", "undo", KEY_Z, true)
-    _add_button("Redo", "redo", KEY_Z, true, true)
+    add_button("Undo", "undo", KEY_Z, CTRL)
+    add_button("Redo", "redo", KEY_Z, CTRL | SHIFT)
