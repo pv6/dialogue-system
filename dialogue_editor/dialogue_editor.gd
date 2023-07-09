@@ -244,7 +244,7 @@ func open_blackboard_editor(blackboard: StorageItem = null) -> void:
         if not dialogue:
             print("No dialogue opened!")
             return
-        blackboard = dialogue.blackboards.get_item_reference(0)
+        blackboard = dialogue.get_local_blackboard_ref().storage_item
     blackboard_editor.blackboard = blackboard
     blackboard_editor.popup_centered()
 
