@@ -318,7 +318,6 @@ func go_to_node() -> void:
     _go_to_node_widget.popup_centered()
 
 
-
 func _on_actors_editor_confirmed() -> void:
     if actors_editor.storage_editor.has_changes:
         _get_current_working_dialogue_manager().commit_action("Edit Dialogue Actors", self, "_edit_actors")

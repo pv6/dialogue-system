@@ -242,7 +242,13 @@ func edit_selected_node_text() -> void:
     assert(node_renderer)
     var text_node_contents_renderer := node_renderer.contents.get_contents_by_node_type(TextDialogueNode) as TextDialogueNodeContentsRenderer
     assert(text_node_contents_renderer)
-    text_node_contents_renderer.text_edit.grab_focus()
+    var text_edit := text_node_contents_renderer.text_edit
+    text_edit.grab_focus()
+
+    var last_line = text_edit.get_line_count() - 1
+    var last_column = text_edit.get_line(last_line).length()
+    text_edit.cursor_set_line(last_line)
+    text_edit.cursor_set_column(last_column)
 
 
 func get_dialogue() -> Dialogue:
