@@ -35,3 +35,8 @@ func get_settings() -> DialogueEditorSettings:
 func clear_connections() -> void:
     for connection in get_signal_connection_list("changed"):
         disconnect(connection["signal"], connection["target"], connection["method"])
+
+
+func focus_graph_renderer() -> void:
+    if dialogue_editor:
+        dialogue_editor.focus_graph_renderer()

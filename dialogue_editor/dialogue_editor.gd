@@ -304,6 +304,12 @@ func get_dialogue() -> Dialogue:
     return working_dialogue_manager.resource as Dialogue
 
 
+func focus_graph_renderer() -> void:
+    var cur_tab := _get_current_editor_tab()
+    if cur_tab:
+        cur_tab.graph_renderer.grab_focus()
+
+
 func go_to_node() -> void:
     var dialogue := get_dialogue()
     if not dialogue:
@@ -422,9 +428,7 @@ func _on_tab_close(tab) -> void:
 
 func _on_tab_changed(tab_index: int) -> void:
     session.dialogue_undo_redo = _get_current_working_dialogue_manager()
-    var cur_tab := _get_current_editor_tab()
-    if cur_tab:
-        cur_tab.graph_renderer.grab_focus()
+    focus_graph_renderer()
 
 
 func _on_save_before_close_pressed():

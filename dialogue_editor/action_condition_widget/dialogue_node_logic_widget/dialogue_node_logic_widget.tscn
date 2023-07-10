@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/multi_flag_widget/multi_flag_widget.tscn" type="PackedScene" id=1]
 [ext_resource path="res://addons/dialogue_system/dialogue_editor/action_condition_widget/dialogue_node_logic_widget/dialogue_node_logic_widget.gd" type="Script" id=2]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/support/unfocusable_text_edit.gd" type="Script" id=3]
 
 [node name="DialogueNodeLogicWidget" type="VBoxContainer"]
 anchor_right = 1.0
@@ -58,6 +59,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 readonly = true
 syntax_highlighting = true
+script = ExtResource( 3 )
 
 [node name="ScriptCheckBox" type="CheckBox" parent="ScriptContainer"]
 margin_left = 1000.0
