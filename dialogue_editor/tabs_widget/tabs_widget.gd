@@ -67,6 +67,22 @@ func get_tab_count() -> int:
     return _tabs.get_tab_count()
 
 
+func set_next_tab(cycle: bool = true) -> void:
+    var cur_index = get_current_tab_index()
+    cur_index += 1
+    if cycle and cur_index >= get_tab_count():
+        cur_index %= get_tab_count()
+    set_current_tab(cur_index)
+
+
+func set_previous_tab(cycle: bool = true) -> void:
+    var cur_index = get_current_tab_index()
+    cur_index -= 1
+    if cycle and cur_index < 0:
+        cur_index = get_tab_count() + cur_index
+    set_current_tab(cur_index)
+
+
 func set_current_tab(tab_index: int) -> void:
     _tabs.current_tab = tab_index
     emit_signal("tab_changed", tab_index)

@@ -4,10 +4,15 @@ extends MyMenuButton
 
 signal new_dialogue()
 signal open_dialogue()
+
 signal save_dialogue()
 signal save_dialogue_as()
+
 signal undo()
 signal redo()
+
+signal next_dialogue()
+signal previous_dialogue()
 
 
 func _ready() -> void:
@@ -23,3 +28,8 @@ func _ready() -> void:
 
     add_button("Undo", "undo", KEY_Z, CTRL)
     add_button("Redo", "redo", KEY_Z, CTRL | SHIFT)
+
+    add_separator()
+
+    add_button("Next Opened Dialogue", "next_dialogue", KEY_TAB, CTRL)
+    add_button("Previous Opened Dialogue", "previous_dialogue", KEY_TAB, CTRL | SHIFT)
