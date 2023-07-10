@@ -93,8 +93,44 @@ func save_dialogue_as(file_path: String) -> void:
     working_dialogue_manager.save_as(file_path)
 
 
+func select_node(node: DialogueNode) -> void:
+    graph_renderer.select_node(node)
+
+
+func select_node_by_id(node_id: int) -> void:
+    graph_renderer.select_node_by_id(node_id)
+
+
+# Array[DialogueNode]
+func select_nodes(nodes: Array) -> void:
+    for node in nodes:
+        select_node(node)
+
+
+# Array[int]
+func select_nodes_by_id(node_ids: Array) -> void:
+    for id in node_ids:
+        select_node_by_id(id)
+
+
 func unselect_all() -> void:
     graph_renderer.unselect_all()
+
+
+func focus_selected_nodes() -> void:
+    graph_renderer_navigation.focus_selected_nodes()
+
+
+func focus_selected_nodes_with_children() -> void:
+    graph_renderer_navigation.focus_selected_nodes(true)
+
+
+func zoom_in() -> void:
+    graph_renderer_navigation.zoom_in()
+
+
+func zoom_out() -> void:
+    graph_renderer_navigation.zoom_out()
 
 
 func apply_settings() -> void:

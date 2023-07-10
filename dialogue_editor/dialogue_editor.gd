@@ -74,7 +74,7 @@ func _notification(what) -> void:
 
 func _unhandled_key_input(event: InputEventKey) -> void:
     if event.scancode == KEY_ESCAPE:
-        _call_current_tab_method("unselect_all")
+        call_current_tab_method("unselect_all")
 
 
 func set_settings(new_settings: DialogueEditorSettings) -> void:
@@ -88,85 +88,86 @@ func set_settings(new_settings: DialogueEditorSettings) -> void:
 
 
 func undo() -> void:
-    _call_current_tab_method("undo")
+    call_current_tab_method("undo")
 
 
 func redo() -> void:
-    _call_current_tab_method("redo")
+    call_current_tab_method("redo")
 
 
 func copy_selected_nodes() -> void:
-    _call_current_tab_method("copy_selected_nodes")
+    call_current_tab_method("copy_selected_nodes")
 
 
 func cut_selected_nodes() -> void:
-    _call_current_tab_method("cut_selected_nodes")
+    call_current_tab_method("cut_selected_nodes")
 
 
 func shallow_duplicate_selected_nodes() -> void:
-    _call_current_tab_method("shallow_duplicate_selected_nodes")
+    call_current_tab_method("shallow_duplicate_selected_nodes")
 
 
 func deep_duplicate_selected_nodes() -> void:
-    _call_current_tab_method("deep_duplicate_selected_nodes")
+    call_current_tab_method("deep_duplicate_selected_nodes")
 
 
 func move_selected_nodes_up() -> void:
-    _call_current_tab_method("move_selected_nodes_up")
+    call_current_tab_method("move_selected_nodes_up")
 
 
 func move_selected_nodes_down() -> void:
-    _call_current_tab_method("move_selected_nodes_down")
+    call_current_tab_method("move_selected_nodes_down")
 
 
 func paste_nodes() -> void:
-    _call_current_tab_method("paste_nodes")
+    call_current_tab_method("paste_nodes")
 
 
 func paste_cut_nodes_with_children() -> void:
-    _call_current_tab_method("paste_cut_nodes_with_children")
+    call_current_tab_method("paste_cut_nodes_with_children")
 
 
 func paste_cut_node_as_parent() -> void:
-    _call_current_tab_method("paste_cut_node_as_parent")
+    call_current_tab_method("paste_cut_node_as_parent")
 
 
 func paste_cut_node_with_children_as_parent() -> void:
-    _call_current_tab_method("paste_cut_node_with_children_as_parent")
+    call_current_tab_method("paste_cut_node_with_children_as_parent")
 
 
 func insert_parent_hear_node() -> void:
-    _call_current_tab_method("insert_parent_hear_node")
+    call_current_tab_method("insert_parent_hear_node")
 
 
 func insert_parent_say_node() -> void:
-    _call_current_tab_method("insert_parent_say_node")
+    call_current_tab_method("insert_parent_say_node")
 
 
 func insert_child_hear_node() -> void:
-    _call_current_tab_method("insert_child_hear_node")
+    call_current_tab_method("insert_child_hear_node")
 
 
 func insert_child_say_node() -> void:
-    _call_current_tab_method("insert_child_say_node")
+    call_current_tab_method("insert_child_say_node")
 
 
 func deep_delete_selected_nodes() -> void:
-    _call_current_tab_method("deep_delete_selected_nodes")
+    call_current_tab_method("deep_delete_selected_nodes")
 
 
 func shallow_delete_selected_nodes() -> void:
-    _call_current_tab_method("shallow_delete_selected_nodes")
+    call_current_tab_method("shallow_delete_selected_nodes")
 
 
 func edit_selected_node_text() -> void:
-    _call_current_tab_method("edit_selected_node_text")
+    call_current_tab_method("edit_selected_node_text")
 
 
 func new_dialogue() -> void:
     _tabs_widget.add_tab()
-    _tabs_widget.set_current_tab(_tabs_widget.get_tab_count() - 1)
-    _get_current_editor_tab().new_dialogue()
+    var cur_tab := _get_current_editor_tab()
+    cur_tab.new_dialogue()
+    cur_tab.graph_renderer.grab_focus()
 
 
 func open_dialogue() -> void:
@@ -403,7 +404,9 @@ func _on_close_unsaved_dialog_custom_action(action: String) -> void:
 
 func _on_open_dialogue_dialog_file_selected(path: String):
     _tabs_widget.add_tab()
-    _get_current_editor_tab().open_dialogue(path)
+    var cur_tab := _get_current_editor_tab()
+    cur_tab.open_dialogue(path)
+    cur_tab.graph_renderer.grab_focus()
 
 
 func _on_save_dialogue_as_dialog_file_selected(path: String):
@@ -423,7 +426,7 @@ func _on_save_dialogue_as_dialog_canceled():
     _close_after_save_as = false
 
 
-func _call_current_tab_method(method: String) -> void:
+func call_current_tab_method(method: String) -> void:
     var current_tab := _get_current_editor_tab()
     if current_tab:
         current_tab.call(method)
@@ -435,3 +438,5 @@ func _on_go_to_node_widget_go_to_node(id: int) -> void:
     var cur_tab := _get_current_editor_tab()
     assert(cur_tab)
     cur_tab.graph_renderer_navigation.focus_nodes([get_dialogue().nodes[id]])
+    cur_tab.unselect_all()
+    cur_tab.select_node_by_id(id)

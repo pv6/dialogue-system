@@ -5,6 +5,12 @@
 [node name="DialogueGraphRenderer" type="GraphEdit"]
 margin_right = 1024.0
 margin_bottom = 600.0
+focus_neighbour_left = NodePath(".")
+focus_neighbour_top = NodePath(".")
+focus_neighbour_right = NodePath(".")
+focus_neighbour_bottom = NodePath(".")
+focus_next = NodePath(".")
+focus_previous = NodePath(".")
 scroll_offset = Vector2( -352, -185 )
 use_snap = false
 script = ExtResource( 1 )

@@ -8,32 +8,38 @@ var graph_renderer: DialogueGraphRenderer
 
 var _prev_target_offsets: Vector2
 
+var _up_shortcut: ShortCut
+
 onready var _focus_tween: Tween = $FocusTween
+
+
+func _ready():
+    _up_shortcut = ShortCut.new()
 
 
 func _unhandled_key_input(event: InputEventKey) -> void:
     if not graph_renderer:
         return
 
-    # TODO: handle though menu buttons
-    if not event.is_pressed():
-        match event.scancode:
-            KEY_F:
-                focus_selected_nodes(Input.is_key_pressed(KEY_SHIFT))
-            KEY_UP:
-                select_vertical_neighbour_nodes(-1, Input.is_key_pressed(KEY_SHIFT))
-            KEY_DOWN:
-                select_vertical_neighbour_nodes(1, Input.is_key_pressed(KEY_SHIFT))
-            KEY_LEFT:
-                select_horizontal_neighbour_nodes(-1, Input.is_key_pressed(KEY_SHIFT))
-            KEY_RIGHT:
-                select_horizontal_neighbour_nodes(1, Input.is_key_pressed(KEY_SHIFT))
-            KEY_PLUS, KEY_KP_ADD:
-                if Input.is_key_pressed(KEY_CONTROL):
-                    zoom_in()
-            KEY_MINUS, KEY_KP_SUBTRACT:
-                if Input.is_key_pressed(KEY_CONTROL):
-                    zoom_out()
+    var focus_owner = graph_renderer.get_focus_owner()
+    if focus_owner != graph_renderer or event.is_pressed():
+        return
+
+    match event.scancode:
+        KEY_UP:
+            select_vertical_neighbour_nodes(-1, Input.is_key_pressed(KEY_SHIFT))
+        KEY_DOWN:
+            select_vertical_neighbour_nodes(1, Input.is_key_pressed(KEY_SHIFT))
+        KEY_LEFT:
+            select_horizontal_neighbour_nodes(-1, Input.is_key_pressed(KEY_SHIFT))
+        KEY_RIGHT:
+            select_horizontal_neighbour_nodes(1, Input.is_key_pressed(KEY_SHIFT))
+        KEY_KP_ADD:
+            if Input.is_key_pressed(KEY_CONTROL):
+                zoom_in()
+        KEY_KP_SUBTRACT:
+            if Input.is_key_pressed(KEY_CONTROL):
+                zoom_out()
 
 
 func zoom_in() -> void:
