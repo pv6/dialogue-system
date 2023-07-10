@@ -225,6 +225,12 @@ func save_dialogue_as() -> void:
     _save_dialogue_as_dialog.popup_centered()
 
 
+func save_all_dialogues() -> void:
+    for tab in _tabs_widget.get_tabs():
+        if tab.working_dialogue_manager.save_path != "":
+            tab.working_dialogue_manager.save()
+
+
 func close_dialogue() -> void:
     var working_dialogue_manager := _get_current_working_dialogue_manager()
     if working_dialogue_manager.has_unsaved_changes:

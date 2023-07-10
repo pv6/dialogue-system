@@ -7,6 +7,7 @@ signal open_dialogue()
 
 signal save_dialogue()
 signal save_dialogue_as()
+signal save_all_dialogues()
 
 signal undo()
 signal redo()
@@ -24,6 +25,7 @@ func _ready() -> void:
 
     add_button("Save Dialogue", "save_dialogue", KEY_S, CTRL)
     add_button("Save Dialogue As...", "save_dialogue_as", KEY_S, CTRL | SHIFT)
+    add_button("Save All Dialogue", "save_all_dialogues", KEY_S, CTRL | ALT | SHIFT)
 
     add_separator()
 
