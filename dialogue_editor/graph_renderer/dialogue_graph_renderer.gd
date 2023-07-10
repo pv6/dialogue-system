@@ -4,6 +4,7 @@ extends GraphEdit
 
 
 signal collapsed_nodes_changed()
+signal finished_updating()
 
 const NODE_RENDERER_SCENE := preload("../node_renderer/dialogue_node_renderer.tscn")
 const CACHED_RENDERER_OFFSET := Vector2(-690, 0)
@@ -21,7 +22,7 @@ export(Array) var selected_node_ids: Array setget set_selected_node_ids, get_sel
 var node_renderers: Dictionary
 
 # Set of ids
-var collapsed_nodes: Dictionary
+var collapsed_node_ids: Dictionary
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
@@ -37,7 +38,7 @@ var _is_ready := false
 
 
 func _init() -> void:
-    collapsed_nodes = {}
+    collapsed_node_ids = {}
     node_renderers = {}
 
 
@@ -120,19 +121,19 @@ func unselect_all() -> void:
 
 
 func collapse_node(node: DialogueNode) -> void:
-    if collapsed_nodes.has(node.id):
+    if collapsed_node_ids.has(node.id):
         return
 
-    collapsed_nodes[node.id] = true
+    collapsed_node_ids[node.id] = true
     update_graph()
     emit_signal("collapsed_nodes_changed")
 
 
 func uncollapse_node(node: DialogueNode) -> void:
-    if not collapsed_nodes.has(node.id):
+    if not collapsed_node_ids.has(node.id):
         return
 
-    collapsed_nodes.erase(node.id)
+    collapsed_node_ids.erase(node.id)
     update_graph()
     emit_signal("collapsed_nodes_changed")
 
@@ -142,9 +143,9 @@ func collapse_nodes(nodes: Array) -> void:
     var made_changes := false
 
     for node in nodes:
-        if collapsed_nodes.has(node.id):
+        if collapsed_node_ids.has(node.id):
             continue
-        collapsed_nodes[node.id] = true
+        collapsed_node_ids[node.id] = true
         made_changes = true
 
     if made_changes:
@@ -157,9 +158,9 @@ func uncollapse_nodes(nodes: Array) -> void:
     var made_changes := false
 
     for node in nodes:
-        if not collapsed_nodes.has(node.id):
+        if not collapsed_node_ids.has(node.id):
             continue
-        collapsed_nodes.erase(node.id)
+        collapsed_node_ids.erase(node.id)
         made_changes = true
 
     if made_changes:
@@ -225,10 +226,10 @@ func update_graph() -> void:
 
     # connect child nodes
     for node_renderer in node_renderers.values():
-        if collapsed_nodes.has(node_renderer.node.id):
+        if collapsed_node_ids.has(node_renderer.node.id):
             # uncollapse nodes that have no children
             if node_renderer.node.children.empty():
-                collapsed_nodes.erase(node_renderer.node.id)
+                collapsed_node_ids.erase(node_renderer.node.id)
                 node_renderer.is_collapsed = false
             else:
                 continue
@@ -250,10 +251,11 @@ func _update_renderer_offsets() -> void:
         renderer.offset -= root_offset
 
     _is_ready = true
+    emit_signal("finished_updating")
 
 
 func _get_children_height(node: DialogueNode) -> int:
-    if node.children.empty() or collapsed_nodes.has(node.id):
+    if node.children.empty() or collapsed_node_ids.has(node.id):
         return 0
     if not _cached_children_heights.has(node):
         var sum = 0
@@ -291,14 +293,14 @@ func _shift_offset(node: DialogueNode, shift: Vector2) -> void:
 
 
 func _shift_children_offset(node: DialogueNode, shift: Vector2) -> void:
-    if collapsed_nodes.has(node.id):
+    if collapsed_node_ids.has(node.id):
         return
     for child in node.children:
         _shift_offset(child, shift)
 
 
 func _calculate_children_global_offset(node) -> void:
-    if collapsed_nodes.has(node.id):
+    if collapsed_node_ids.has(node.id):
         return
     for child in node.children:
         _shift_offset(child, node_renderers[node.id].offset)
@@ -306,7 +308,7 @@ func _calculate_children_global_offset(node) -> void:
 
 
 func _calculate_children_local_offset(node: DialogueNode) -> void:
-    if not node or collapsed_nodes.has(node.id):
+    if not node or collapsed_node_ids.has(node.id):
         return
     var renderer = node_renderers[node.id]
     var children_height = _get_children_height(node)
@@ -370,7 +372,7 @@ func _add_node_renderer(node: DialogueNode) -> void:
     var node_renderer = _allocate_node_renderer(node)
     node_renderers[node.id] = node_renderer
     node_renderer.node = node
-    node_renderer.is_collapsed = collapsed_nodes.has(node.id)
+    node_renderer.is_collapsed = collapsed_node_ids.has(node.id)
 
 
 func _recursively_add_node_renderers(node: DialogueNode) -> void:
@@ -381,7 +383,7 @@ func _recursively_add_node_renderers(node: DialogueNode) -> void:
     while not stack.empty():
         node = stack.pop_back()
         _add_node_renderer(node)
-        if collapsed_nodes.has(node.id):
+        if collapsed_node_ids.has(node.id):
             continue
         for child in node.children:
             stack.push_back(child)
@@ -389,7 +391,7 @@ func _recursively_add_node_renderers(node: DialogueNode) -> void:
 
 #func _recursively_add_node_renderers(node: DialogueNode) -> void:
 #    _add_node_renderer(node)
-#    if collapsed_nodes.has(node.id):
+#    if collapsed_node_ids.has(node.id):
 #        return
 #    for child in node.children:
 #        _recursively_add_node_renderers(child)
@@ -467,10 +469,10 @@ func _on_node_collapsed(node_renderer: DialogueNodeRenderer) -> void:
     if not node_renderer or not node_renderer.node:
         return
 
-    if collapsed_nodes.has(node_renderer.node.id):
-        collapsed_nodes.erase(node_renderer.node.id)
+    if collapsed_node_ids.has(node_renderer.node.id):
+        collapsed_node_ids.erase(node_renderer.node.id)
     else:
-        collapsed_nodes[node_renderer.node.id] = true
+        collapsed_node_ids[node_renderer.node.id] = true
 
     update_graph()
     emit_signal("collapsed_nodes_changed")

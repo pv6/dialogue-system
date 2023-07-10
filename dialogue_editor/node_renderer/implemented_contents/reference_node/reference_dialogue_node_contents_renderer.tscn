@@ -27,4 +27,14 @@ text = "Start Of Node"
 items = [ "Start Of Node", null, false, 0, null, "End Of Node", null, false, 1, null ]
 selected = 0
 
+[node name="GoToReferencedButton" type="Button" parent="."]
+margin_top = 24.0
+margin_right = 163.0
+margin_bottom = 44.0
+focus_mode = 0
+size_flags_horizontal = 0
+enabled_focus_mode = 0
+text = "Go To Referenced Node"
+
 [connection signal="item_selected" from="JumpToContents/OptionButton" to="." method="_on_jump_to_option_button_item_selected"]
+[connection signal="pressed" from="GoToReferencedButton" to="." method="_on_go_to_referenced_button_pressed"]

@@ -62,14 +62,14 @@ func redo() -> void:
 func new_dialogue() -> void:
     print("New Dialogue")
     working_dialogue_manager.new_file()
-    graph_renderer.collapsed_nodes.clear()
+    graph_renderer.collapsed_node_ids.clear()
     graph_renderer.unselect_all()
 
 
 func open_dialogue(file_path: String) -> void:
     print("Open Dialogue '%s'" % file_path)
     working_dialogue_manager.open(file_path)
-    graph_renderer.collapsed_nodes.clear()
+    graph_renderer.collapsed_node_ids.clear()
     graph_renderer.unselect_all()
 
 
@@ -125,6 +125,18 @@ func get_selected_nodes() -> Array:
 
 func unselect_all() -> void:
     graph_renderer.unselect_all()
+
+
+# nodes: Array[DialogueNode]
+func focus_nodes(nodes: Array) -> void:
+    graph_renderer_navigation.focus_nodes(nodes)
+    unselect_all()
+    select_nodes(nodes)
+
+
+# nodes: Array[DialogueNode]
+func focus_nodes_with_children(nodes: Array) -> void:
+    graph_renderer_navigation.focus_nodes(nodes, true)
 
 
 func focus_selected_nodes() -> void:
@@ -363,7 +375,7 @@ func _paste_copied_nodes(dialogue: Dialogue, id_string: String) -> Dialogue:
     var success := false
     var pasted_node_ids := id_string.split(",", false)
     for parent in selected_nodes:
-        if graph_renderer.collapsed_nodes.has(parent.id):
+        if graph_renderer.collapsed_node_ids.has(parent.id):
             print("Can't paste into collapsed node!")
             continue
 
@@ -403,7 +415,7 @@ func _paste_cut_nodes_as_children(dialogue: Dialogue, id_string: String, paste_w
         return null
 
     var parent: DialogueNode = selected_nodes[0]
-    if graph_renderer.collapsed_nodes.has(parent.id):
+    if graph_renderer.collapsed_node_ids.has(parent.id):
         print("Can't paste into collapsed node!")
         return null
     if parent is ReferenceDialogueNode:
@@ -559,7 +571,7 @@ func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
 
     var first_parent := true
     for parent in selected_nodes:
-        if graph_renderer.collapsed_nodes.has(parent.id):
+        if graph_renderer.collapsed_node_ids.has(parent.id):
             print("Can't add child to collapsed node!")
             continue
         if parent is ReferenceDialogueNode:

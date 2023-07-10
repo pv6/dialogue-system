@@ -179,6 +179,11 @@ func edit_selected_node_text() -> void:
     call_current_tab_method("edit_selected_node_text")
 
 
+# nodes: Array[DialogueNode]
+func focus_nodes(nodes: Array) -> void:
+    call_current_tab_method_one_arg("focus_nodes", nodes)
+
+
 func new_dialogue() -> void:
     _tabs_widget.add_tab()
     var cur_tab := _get_current_editor_tab()
@@ -450,9 +455,13 @@ func call_current_tab_method(method: String) -> void:
         print("No dialogue opened!")
 
 
+func call_current_tab_method_one_arg(method: String, arg) -> void:
+    var current_tab := _get_current_editor_tab()
+    if current_tab:
+        current_tab.call(method, arg)
+    else:
+        print("No dialogue opened!")
+
+
 func _on_go_to_node_widget_go_to_node(id: int) -> void:
-    var cur_tab := _get_current_editor_tab()
-    assert(cur_tab)
-    cur_tab.graph_renderer_navigation.focus_nodes([get_dialogue().nodes[id]])
-    cur_tab.unselect_all()
-    cur_tab.select_node_by_id(id)
+    focus_nodes([get_dialogue().nodes[id]])

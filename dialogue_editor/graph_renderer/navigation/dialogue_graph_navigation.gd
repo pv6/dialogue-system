@@ -125,7 +125,12 @@ func focus_nodes(nodes: Array, with_children: bool = false) -> void:
                 all_nodes[child] = true
         nodes = all_nodes.keys()
 
-    var target_rect := _get_enclosing_rect(nodes)
+
+    var result = _get_enclosing_rect(nodes)
+    if result is GDScriptFunctionState:
+        result = yield(result, "completed")
+
+    var target_rect: Rect2 = result
     var target_zoom := _get_target_zoom(target_rect)
     var target_offset = target_rect.get_center() * target_zoom - graph_renderer.rect_size / 2
     _set_zoom_and_offset(target_zoom, target_offset)
@@ -141,7 +146,11 @@ func keep_on_screen_with_children(nodes: Array) -> void:
 
 # nodes: Array[DialogueNode]
 func keep_on_screen(nodes: Array) -> void:
-    var enclosing_rect := _get_enclosing_rect(nodes)
+    var result = _get_enclosing_rect(nodes)
+    if result is GDScriptFunctionState:
+        result = yield(result, "completed")
+
+    var enclosing_rect: Rect2 = result
     var enclosing_rect_zoomed := enclosing_rect
     var zoom: float = graph_renderer.zoom
     enclosing_rect_zoomed.position *= zoom
@@ -217,7 +226,28 @@ func _set_zoom_and_offset(target_zoom: float, target_offset: Vector2) -> void:
 
 
 # nodes: Array[DialogueNode]
+func _uncollapse_parent_nodes(nodes: Array) -> void:
+    # Array[DialogueNode]
+    var nodes_to_uncollapse := []
+
+    for node in nodes:
+        var cur_node: DialogueNode = graph_renderer.dialogue.get_node(node.parent_id)
+        while cur_node:
+            if graph_renderer.collapsed_node_ids.has(cur_node.id):
+                nodes_to_uncollapse.append(cur_node)
+            cur_node = graph_renderer.dialogue.get_node(cur_node.parent_id)
+
+    if not nodes_to_uncollapse.empty():
+        graph_renderer.uncollapse_nodes(nodes_to_uncollapse)
+        yield(graph_renderer, "finished_updating")
+
+
+# nodes: Array[DialogueNode]
 func _get_enclosing_rect(nodes: Array) -> Rect2:
+    var result = _uncollapse_parent_nodes(nodes)
+    if result is GDScriptFunctionState:
+        yield(result, "completed")
+
     var node_renderers := graph_renderer.get_node_renderers(nodes)
 
     var enclosing_rect: Rect2
