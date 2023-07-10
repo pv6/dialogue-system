@@ -225,6 +225,20 @@ func save_dialogue_as() -> void:
     _save_dialogue_as_dialog.popup_centered()
 
 
+func close_dialogue() -> void:
+    var working_dialogue_manager := _get_current_working_dialogue_manager()
+    if working_dialogue_manager.has_unsaved_changes:
+        var name := working_dialogue_manager.save_path
+        if name == "":
+            name = "unsaved dialogue"
+        _close_unsaved_dialog.dialog_text = "Save changes to '%s' before closing?" % name
+        _close_unsaved_dialog.popup_centered()
+    else:
+        if _is_saving:
+            yield(self, "_dialogue_saved")
+        _tabs_widget.remove_current_tab()
+
+
 func next_dialogue() -> void:
     _tabs_widget.set_next_tab()
 
@@ -398,17 +412,7 @@ func _get_current_editor_tab() -> DialogueEditorTab:
 
 
 func _on_tab_close(tab) -> void:
-    var working_dialogue_manager := _get_current_working_dialogue_manager()
-    if working_dialogue_manager.has_unsaved_changes:
-        var name := working_dialogue_manager.save_path
-        if name == "":
-            name = "unsaved dialogue"
-        _close_unsaved_dialog.dialog_text = "Save changes to '%s' before closing?" % name
-        _close_unsaved_dialog.popup_centered()
-    else:
-        if _is_saving:
-            yield(self, "_dialogue_saved")
-        _tabs_widget.remove_current_tab()
+    close_dialogue()
 
 
 func _on_tab_changed(tab_index: int) -> void:

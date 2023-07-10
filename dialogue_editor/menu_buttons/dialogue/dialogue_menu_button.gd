@@ -11,6 +11,7 @@ signal save_dialogue_as()
 signal undo()
 signal redo()
 
+signal close_dialogue()
 signal next_dialogue()
 signal previous_dialogue()
 
@@ -31,5 +32,6 @@ func _ready() -> void:
 
     add_separator()
 
-    add_button("Next Opened Dialogue", "next_dialogue", KEY_TAB, CTRL)
-    add_button("Previous Opened Dialogue", "previous_dialogue", KEY_TAB, CTRL | SHIFT)
+    add_button("Close Dialogue", "close_dialogue", KEY_W, CTRL)
+    add_button("Next Dialogue", "next_dialogue", KEY_TAB, CTRL)
+    add_button("Previous Dialogue", "previous_dialogue", KEY_TAB, CTRL | SHIFT)

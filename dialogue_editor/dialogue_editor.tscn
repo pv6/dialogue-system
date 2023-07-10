@@ -39,7 +39,7 @@ margin_bottom = 20.0
 size_flags_horizontal = 3
 
 [node name="DialogueMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 3 )]
-items = [ "New Dialogue", null, 0, false, false, 0, 0, null, "", false, "Open Dialogue...", null, 0, false, false, 1, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Save Dialogue", null, 0, false, false, 2, 0, null, "", false, "Save Dialogue As...", null, 0, false, false, 3, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Undo", null, 0, false, false, 4, 0, null, "", false, "Redo", null, 0, false, false, 5, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Next Opened Dialogue", null, 0, false, false, 6, 0, null, "", false, "Previous Opened Dialogue", null, 0, false, false, 7, 0, null, "", false ]
+items = [ "New Dialogue", null, 0, false, false, 0, 0, null, "", false, "Open Dialogue...", null, 0, false, false, 1, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Save Dialogue", null, 0, false, false, 2, 0, null, "", false, "Save Dialogue As...", null, 0, false, false, 3, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Undo", null, 0, false, false, 4, 0, null, "", false, "Redo", null, 0, false, false, 5, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Close Dialogue", null, 0, false, false, 6, 0, null, "", false, "Next Dialogue", null, 0, false, false, 7, 0, null, "", false, "Previous Dialogue", null, 0, false, false, 8, 0, null, "", false ]
 
 [node name="NodeMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 4 )]
 margin_left = 72.0
@@ -153,6 +153,7 @@ margin_top = 252.0
 margin_right = 615.0
 margin_bottom = 347.0
 
+[connection signal="close_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="close_dialogue"]
 [connection signal="new_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="new_dialogue"]
 [connection signal="next_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="next_dialogue"]
 [connection signal="open_dialogue" from="VBoxContainer/MenuButtonsContainer/DialogueMenuButton" to="." method="open_dialogue"]
