@@ -72,11 +72,6 @@ func _notification(what) -> void:
         set_settings(null)
 
 
-func _unhandled_key_input(event: InputEventKey) -> void:
-    if event.scancode == KEY_ESCAPE:
-        call_current_tab_method("unselect_all")
-
-
 func set_settings(new_settings: DialogueEditorSettings) -> void:
     if settings:
         settings.disconnect("changed", self, "_on_settings_changed")
@@ -101,6 +96,10 @@ func get_selected_node_ids() -> Array:
     if not cur_tab:
         return []
     return cur_tab.get_selected_node_ids()
+
+
+func unselect_all():
+    call_current_tab_method("unselect_all")
 
 
 func undo() -> void:

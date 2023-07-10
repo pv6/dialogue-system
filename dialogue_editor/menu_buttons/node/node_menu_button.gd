@@ -24,6 +24,7 @@ signal shallow_delete_selected_nodes()
 signal deep_delete_selected_nodes()
 
 signal edit_selected_node_text()
+signal unselect_all()
 
 
 func _ready() -> void:
@@ -59,3 +60,4 @@ func _ready() -> void:
     add_separator()
 
     add_button("Edit Selected Node's Text", "edit_selected_node_text", KEY_ENTER)
+    add_button("Unselect All", "unselect_all", KEY_ESCAPE)
