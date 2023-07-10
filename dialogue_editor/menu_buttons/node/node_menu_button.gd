@@ -58,4 +58,4 @@ func _ready() -> void:
 
     add_separator()
 
-    add_button("Edit Selected Node's Text", "edit_selected_node_text", KEY_E, CTRL)
+    add_button("Edit Selected Node's Text", "edit_selected_node_text", KEY_ENTER)
