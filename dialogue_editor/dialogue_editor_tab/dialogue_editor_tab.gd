@@ -113,6 +113,16 @@ func select_nodes_by_id(node_ids: Array) -> void:
         select_node_by_id(id)
 
 
+# return Array[int]
+func get_selected_node_ids() -> Array:
+    return graph_renderer.selected_node_ids
+
+
+# return Array[DialogueNode]
+func get_selected_nodes() -> Array:
+    return _get_selected_nodes(get_dialogue())
+
+
 func unselect_all() -> void:
     graph_renderer.unselect_all()
 

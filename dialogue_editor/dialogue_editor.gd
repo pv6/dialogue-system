@@ -87,6 +87,22 @@ func set_settings(new_settings: DialogueEditorSettings) -> void:
     _apply_settings()
 
 
+# return Array[DialogueNode]
+func get_selected_nodes() -> Array:
+    var cur_tab := _get_current_editor_tab()
+    if not cur_tab:
+        return []
+    return cur_tab.get_selected_nodes()
+
+
+# return Array[int]
+func get_selected_node_ids() -> Array:
+    var cur_tab := _get_current_editor_tab()
+    if not cur_tab:
+        return []
+    return cur_tab.get_selected_node_ids()
+
+
 func undo() -> void:
     call_current_tab_method("undo")
 

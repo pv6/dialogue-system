@@ -7,6 +7,7 @@ var dialogue: Dialogue setget ,get_dialogue
 var dialogue_undo_redo: WorkingResourceManager setget set_dialogue_undo_redo
 var settings: DialogueEditorSettings setget ,get_settings
 
+# DialogueEditor
 var dialogue_editor
 
 

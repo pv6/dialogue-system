@@ -49,7 +49,7 @@ items = [ "Insert Child Hear Node", null, 0, false, false, 0, 0, null, "", false
 [node name="NavigationMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 11 )]
 margin_left = 122.0
 margin_right = 201.0
-items = [ "Go To Node...", null, 0, false, false, 0, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Focus Selected Nodes", null, 0, false, false, 1, 0, null, "", false, "Focus Selected Nodes With Children", null, 0, false, false, 2, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Zoom In", null, 0, false, false, 3, 0, null, "", false, "Zoom Out", null, 0, false, false, 4, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Move Selection Left", null, 0, false, false, 5, 0, null, "", false, "Move Selection Right", null, 0, false, false, 6, 0, null, "", false, "Move Selection Up", null, 0, false, false, 7, 0, null, "", false, "Move Selection Down", null, 0, false, false, 8, 0, null, "", false ]
+items = [ "Go To Node...", null, 0, false, false, 0, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Focus Selected Nodes", null, 0, false, false, 1, 0, null, "", false, "Focus Selected Nodes With Children", null, 0, false, false, 2, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Zoom In", null, 0, false, false, 3, 0, null, "", false, "Zoom Out", null, 0, false, false, 4, 0, null, "", false ]
 
 [node name="ActorsMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 16 )]
 margin_left = 205.0
