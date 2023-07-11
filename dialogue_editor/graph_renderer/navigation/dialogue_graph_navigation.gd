@@ -15,12 +15,12 @@ onready var _focus_tween: Tween = $FocusTween
 onready var _label: Label = $Label
 
 
-func _unhandled_key_input(event: InputEventKey) -> void:
-    if not graph_renderer:
+func _input(event: InputEvent) -> void:
+    if not graph_renderer or not event is InputEventKey or not event.is_pressed():
         return
 
     var focus_owner = graph_renderer.get_focus_owner()
-    if focus_owner != graph_renderer or event.is_pressed():
+    if focus_owner != graph_renderer:
         return
 
     match event.scancode:
