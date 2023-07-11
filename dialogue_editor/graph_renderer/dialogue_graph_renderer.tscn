@@ -16,3 +16,12 @@ use_snap = false
 script = ExtResource( 1 )
 vertical_spacing = 90
 horizontal_spacing = 90
+
+[node name="FocusRect" type="ReferenceRect" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 1.0
+margin_bottom = -1.0
+border_color = Color( 0.45, 0.45, 0.45, 1 )
+editor_only = false

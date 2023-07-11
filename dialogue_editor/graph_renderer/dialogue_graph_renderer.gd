@@ -36,10 +36,19 @@ var _used_node_renderers: Dictionary
 
 var _is_ready := false
 
+onready var _focus_rect: Control = $FocusRect
+
 
 func _init() -> void:
     collapsed_node_ids = {}
     node_renderers = {}
+
+
+func _draw():
+    if has_focus():
+         _focus_rect.show()
+    else:
+         _focus_rect.hide()
 
 
 func set_dialogue(new_dialogue: Dialogue) -> void:
