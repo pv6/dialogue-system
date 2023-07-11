@@ -13,6 +13,7 @@ func _ready():
     _update_contents()
 
 
+# virtual
 func update_size() -> void:
     pass
 

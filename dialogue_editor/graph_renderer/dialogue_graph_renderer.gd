@@ -98,9 +98,14 @@ func set_selected_node_ids(new_ids: Array) -> void:
         select_node_by_id(id)
 
 
+func is_node_selected_by_id(node_id: int) -> bool:
+    if not node_renderers.has(node_id):
+        return false
+    return node_renderers[node_id].selected
+
+
 func is_node_selected(node: DialogueNode) -> bool:
-    assert(node_renderers.has(node.id))
-    return node_renderers[node.id].selected
+    return is_node_selected_by_id(node.id)
 
 
 func select_node(node: DialogueNode) -> void:
@@ -129,11 +134,16 @@ func unselect_all() -> void:
     set_selected_node_ids([])
 
 
+func is_collapsed(node: DialogueNode) -> bool:
+    return collapsed_node_ids.has(node.id)
+
+
 func collapse_node(node: DialogueNode) -> void:
-    if collapsed_node_ids.has(node.id):
+    if is_collapsed(node):
         return
 
-    collapsed_node_ids[node.id] = true
+    _collapse_node_internal(node)
+
     update_graph()
     emit_signal("collapsed_nodes_changed")
 
@@ -152,9 +162,9 @@ func collapse_nodes(nodes: Array) -> void:
     var made_changes := false
 
     for node in nodes:
-        if collapsed_node_ids.has(node.id):
+        if is_collapsed(node):
             continue
-        collapsed_node_ids[node.id] = true
+        _collapse_node_internal(node)
         made_changes = true
 
     if made_changes:
@@ -167,7 +177,7 @@ func uncollapse_nodes(nodes: Array) -> void:
     var made_changes := false
 
     for node in nodes:
-        if not collapsed_node_ids.has(node.id):
+        if not is_collapsed(node):
             continue
         collapsed_node_ids.erase(node.id)
         made_changes = true
@@ -479,12 +489,9 @@ func _on_node_collapsed(node_renderer: DialogueNodeRenderer) -> void:
         return
 
     if collapsed_node_ids.has(node_renderer.node.id):
-        collapsed_node_ids.erase(node_renderer.node.id)
+        uncollapse_node(node_renderer.node)
     else:
-        collapsed_node_ids[node_renderer.node.id] = true
-
-    update_graph()
-    emit_signal("collapsed_nodes_changed")
+        collapse_node(node_renderer.node)
 
 
 func _reset_node_renderer(node_renderer: DialogueNodeRenderer) -> void:
@@ -494,3 +501,13 @@ func _reset_node_renderer(node_renderer: DialogueNodeRenderer) -> void:
     node_renderer.selected = false
     node_renderer.offset = CACHED_RENDERER_OFFSET
     node_renderer.hide()
+
+
+func _collapse_node_internal(node: DialogueNode) -> void:
+    collapsed_node_ids[node.id] = true
+
+    for child_node in dialogue.get_branch(node):
+        if child_node == node:
+            continue
+        if is_node_selected(child_node):
+            unselect_node(child_node)

@@ -9,6 +9,8 @@ const COMBINED_CONTENTS_SCENE = preload("implemented_contents/combined_contents/
 const EXPAND_ICON = preload("res://addons/dialogue_system/assets/icons/add.svg")
 const COLLAPSE_ICON = preload("res://addons/dialogue_system/assets/icons/collapse.svg")
 
+const CURSOR_STYLEBOX: StyleBoxFlat = preload("cursor_stylebox.tres")
+
 export var contents_scenes := {
     RootDialogueNode: preload("implemented_contents/root_node/root_dialogue_node_contents_renderer.tscn"),
     TextDialogueNode: preload("implemented_contents/text_node/text_dialogue_node_contents_renderer.tscn"),
@@ -30,6 +32,7 @@ var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dial
 func _init() -> void:
     theme = Theme.new()
     theme.set_icon("close", "GraphNode", COLLAPSE_ICON)
+    add_stylebox_override("breakpoint", CURSOR_STYLEBOX)
 
 
 func set_node(new_node: DialogueNode) -> void:

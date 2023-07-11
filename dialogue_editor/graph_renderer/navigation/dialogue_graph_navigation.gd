@@ -4,17 +4,15 @@ extends Node
 
 export(float) var reach_target_time := 0.30
 
-var graph_renderer: DialogueGraphRenderer
+var graph_renderer: DialogueGraphRenderer setget set_graph_renderer
 
 var _prev_target_offsets: Vector2
 
-var _up_shortcut: ShortCut
+# node id
+var _cursor_position: int setget _set_cursor_position
 
 onready var _focus_tween: Tween = $FocusTween
-
-
-func _ready():
-    _up_shortcut = ShortCut.new()
+onready var _label: Label = $Label
 
 
 func _unhandled_key_input(event: InputEventKey) -> void:
@@ -27,19 +25,29 @@ func _unhandled_key_input(event: InputEventKey) -> void:
 
     match event.scancode:
         KEY_UP:
-            select_vertical_neighbour_nodes(-1, Input.is_key_pressed(KEY_SHIFT))
+            move_cursor_vertically(-1, Input.is_key_pressed(KEY_SHIFT))
         KEY_DOWN:
-            select_vertical_neighbour_nodes(1, Input.is_key_pressed(KEY_SHIFT))
+            move_cursor_vertically(1, Input.is_key_pressed(KEY_SHIFT))
         KEY_LEFT:
-            select_horizontal_neighbour_nodes(-1, Input.is_key_pressed(KEY_SHIFT))
+            move_cursor_horizontally(-1, Input.is_key_pressed(KEY_SHIFT))
         KEY_RIGHT:
-            select_horizontal_neighbour_nodes(1, Input.is_key_pressed(KEY_SHIFT))
+            move_cursor_horizontally(1, Input.is_key_pressed(KEY_SHIFT))
         KEY_KP_ADD:
             if Input.is_key_pressed(KEY_CONTROL):
                 zoom_in()
         KEY_KP_SUBTRACT:
             if Input.is_key_pressed(KEY_CONTROL):
                 zoom_out()
+
+
+func set_graph_renderer(new_graph_renderer: DialogueGraphRenderer) -> void:
+    if graph_renderer:
+        graph_renderer.disconnect("node_selected", self, "_on_node_selected")
+        graph_renderer.disconnect("node_unselected", self, "_on_node_unselected")
+    graph_renderer = new_graph_renderer
+    if graph_renderer:
+        graph_renderer.connect("node_selected", self, "_on_node_selected")
+        graph_renderer.connect("node_unselected", self, "_on_node_unselected")
 
 
 func zoom_in() -> void:
@@ -50,58 +58,49 @@ func zoom_out() -> void:
     _set_zoom(graph_renderer.zoom / graph_renderer.zoom_step)
 
 
-func select_vertical_neighbour_nodes(shift: int, keep_old_selection: bool) -> void:
-    var dialogue: Dialogue = graph_renderer.dialogue
-    # Array[DialogueNode]
-    var selected_nodes: Array = dialogue.get_nodes(graph_renderer.get_selected_node_ids())
+func move_cursor_vertically(direction: int, keep_old_selection: bool) -> void:
+    var cur_node: DialogueNode = graph_renderer.dialogue.get_node(_cursor_position)
 
-    if selected_nodes.empty():
-        select_center_node()
+    if not cur_node:
+        select_center_node(keep_old_selection)
         return
 
-    selected_nodes.sort_custom(Dialogue.NodeVerticalSorter.new(dialogue.nodes, shift > 0), "less_than")
-
-    for node in selected_nodes:
-        var parent := dialogue.get_node(node.parent_id)
-        if not parent:
-            continue
-        var node_pos := parent.get_child_position(node)
-        var new_selection_pos := node_pos + shift
-        if new_selection_pos < 0 or new_selection_pos >= parent.children.size():
-            continue
-        var new_selected_node: DialogueNode = parent.children[new_selection_pos]
-        _handle_selection(node, new_selected_node, keep_old_selection)
-
-    keep_on_screen(dialogue.get_nodes(graph_renderer.get_selected_node_ids()))
-
-
-func select_horizontal_neighbour_nodes(shift: int, keep_old_selection: bool) -> void:
-    var dialogue: Dialogue = graph_renderer.dialogue
-    # Array[DialogueNode]
-    var selected_nodes: Array = dialogue.get_nodes(graph_renderer.get_selected_node_ids())
-
-    if selected_nodes.empty():
-        select_center_node()
+    var parent: DialogueNode = graph_renderer.dialogue.get_node(cur_node.parent_id)
+    if not parent:
         return
 
-    selected_nodes.sort_custom(Dialogue.NodeHorizontalSorter.new(dialogue.nodes, shift > 0), "less_than")
+    var new_pos = parent.get_child_position(cur_node) + direction
+    new_pos = clamp(new_pos, 0, parent.children.size() - 1)
 
-    for node in selected_nodes:
-        var new_selected_node: DialogueNode = node
-        for i in range(abs(shift)):
-            if shift < 0:
-                if new_selected_node.parent_id == DialogueNode.DUMMY_ID:
-                    break
-                new_selected_node = dialogue.nodes[new_selected_node.parent_id]
-            else:
-                if new_selected_node.children.empty():
-                    break
-                var middle_pos := (new_selected_node.children.size() - 1) / 2
-                new_selected_node = new_selected_node.children[middle_pos]
+    if not keep_old_selection:
+        graph_renderer.unselect_all()
+    graph_renderer.select_node(parent.children[new_pos])
 
-        _handle_selection(node, new_selected_node, keep_old_selection)
+    keep_on_screen([parent.children[new_pos]])
 
-    keep_on_screen(dialogue.get_nodes(graph_renderer.get_selected_node_ids()))
+
+func move_cursor_horizontally(direction: int, keep_old_selection: bool) -> void:
+    var cur_node: DialogueNode = graph_renderer.dialogue.get_node(_cursor_position)
+
+    if not cur_node:
+        select_center_node(keep_old_selection)
+        return
+
+    var new_cursor_pos = _cursor_position
+
+    if direction < 0:
+        if cur_node.parent_id != -1:
+            new_cursor_pos = cur_node.parent_id
+    else:
+        if not cur_node.children.empty():
+            var middle_child_pos := (cur_node.children.size() - 1) / 2
+            new_cursor_pos = cur_node.children[middle_child_pos].id
+
+    if not keep_old_selection:
+        graph_renderer.unselect_all()
+    graph_renderer.select_node_by_id(new_cursor_pos)
+
+    keep_on_screen([graph_renderer.dialogue.get_node(new_cursor_pos)])
 
 
 func focus_selected_nodes(with_children: bool = false) -> void:
@@ -188,7 +187,7 @@ func keep_on_screen(nodes: Array) -> void:
         _set_zoom_and_offset(target_zoom, target_offset)
 
 
-func select_center_node() -> DialogueNode:
+func select_center_node(keep_old_selection: bool) -> DialogueNode:
     var viewport_center_offset = _get_viewport_center_offset()
     var closest_node: DialogueNode = null
     var min_distance: float
@@ -200,6 +199,8 @@ func select_center_node() -> DialogueNode:
             closest_node = node_renderer.node
 
     if closest_node:
+        if not keep_old_selection:
+            graph_renderer.unselect_all()
         graph_renderer.select_node(closest_node)
         keep_on_screen([closest_node])
 
@@ -284,19 +285,20 @@ func _get_corners(rect: Rect2) -> PoolVector2Array:
     return output
 
 
-func _handle_selection(old_selected_node: DialogueNode, new_selected_node: DialogueNode, keep_old_selection: bool) -> void:
-    if graph_renderer.is_node_selected(new_selected_node):
-        return
-    if not keep_old_selection:
-        graph_renderer.unselect_node(old_selected_node)
-    graph_renderer.select_node(new_selected_node)
-#    if keep_old_selection:
-#        if graph_renderer.is_node_selected(new_selected_node):
-#            graph_renderer.unselect_node(new_selected_node)
-#        else:
-#            graph_renderer.select_node(new_selected_node)
-#    else:
-#        if graph_renderer.is_node_selected(new_selected_node):
-#            return
-#        graph_renderer.unselect_node(old_selected_node)
-#        graph_renderer.select_node(new_selected_node)
+func _on_node_selected(node_renderer: DialogueNodeRenderer) -> void:
+    _set_cursor_position(node_renderer.node.id)
+
+
+func _on_node_unselected(node_renderer: DialogueNodeRenderer) -> void:
+    if node_renderer.node.id == _cursor_position:
+        _set_cursor_position(-1)
+
+
+func _set_cursor_position(new_cursor_position: int) -> void:
+    if graph_renderer.node_renderers.has(_cursor_position):
+        graph_renderer.node_renderers[_cursor_position].overlay = GraphNode.OVERLAY_DISABLED
+    _cursor_position = new_cursor_position
+    if graph_renderer.node_renderers.has(_cursor_position):
+        graph_renderer.node_renderers[_cursor_position].overlay = GraphNode.OVERLAY_BREAKPOINT
+
+    _label.text = "CURSOR POS: %d" % _cursor_position
