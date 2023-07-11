@@ -29,7 +29,9 @@ func get_tab(tab_index: int) -> Tab:
 
 
 func get_current_tab() -> Tab:
-    return _tab_container.get_current_tab_control() as Tab
+    # this one worked incorrectly when closing tab:
+    # return _tab_container.get_current_tab_control() as Tab
+    return get_tab(get_current_tab_index())
 
 
 # returns Array[Tab]
