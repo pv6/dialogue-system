@@ -4,6 +4,7 @@ extends GraphEdit
 
 
 signal collapsed_nodes_changed()
+signal finished_updating()
 
 const NODE_RENDERER_SCENE := preload("../node_renderer/dialogue_node_renderer.tscn")
 const CACHED_RENDERER_OFFSET := Vector2(-690, 0)
@@ -21,7 +22,7 @@ export(Array) var selected_node_ids: Array setget set_selected_node_ids, get_sel
 var node_renderers: Dictionary
 
 # Set of ids
-var collapsed_nodes: Dictionary
+var collapsed_node_ids: Dictionary
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
 
@@ -35,10 +36,19 @@ var _used_node_renderers: Dictionary
 
 var _is_ready := false
 
+onready var _focus_rect: Control = $FocusRect
+
 
 func _init() -> void:
-    collapsed_nodes = {}
+    collapsed_node_ids = {}
     node_renderers = {}
+
+
+func _draw():
+    if has_focus():
+         _focus_rect.show()
+    else:
+         _focus_rect.hide()
 
 
 func set_dialogue(new_dialogue: Dialogue) -> void:
@@ -50,6 +60,18 @@ func set_dialogue(new_dialogue: Dialogue) -> void:
         if not dialogue.is_connected("nodes_changed", self, "update_graph"):
             dialogue.connect("nodes_changed", self, "update_graph")
     update_graph()
+
+
+func get_node_renderer_by_id(node_id: int) -> DialogueNodeRenderer:
+    if not node_renderers.has(node_id):
+        return null
+    return node_renderers[node_id]
+
+
+func get_node_renderer(node: DialogueNode) -> DialogueNodeRenderer:
+    if not node:
+        return null
+    return get_node_renderer_by_id(node.id)
 
 
 # nodes: Array[DialogueNode]
@@ -76,9 +98,14 @@ func set_selected_node_ids(new_ids: Array) -> void:
         select_node_by_id(id)
 
 
+func is_node_selected_by_id(node_id: int) -> bool:
+    if not node_renderers.has(node_id):
+        return false
+    return node_renderers[node_id].selected
+
+
 func is_node_selected(node: DialogueNode) -> bool:
-    assert(node_renderers.has(node.id))
-    return node_renderers[node.id].selected
+    return is_node_selected_by_id(node.id)
 
 
 func select_node(node: DialogueNode) -> void:
@@ -105,22 +132,28 @@ func unselect_node_by_id(node_id: int) -> void:
 
 func unselect_all() -> void:
     set_selected_node_ids([])
+    emit_signal("node_unselected", null)
+
+
+func is_collapsed(node: DialogueNode) -> bool:
+    return collapsed_node_ids.has(node.id)
 
 
 func collapse_node(node: DialogueNode) -> void:
-    if collapsed_nodes.has(node.id):
+    if is_collapsed(node):
         return
 
-    collapsed_nodes[node.id] = true
+    _collapse_node_internal(node)
+
     update_graph()
     emit_signal("collapsed_nodes_changed")
 
 
 func uncollapse_node(node: DialogueNode) -> void:
-    if not collapsed_nodes.has(node.id):
+    if not collapsed_node_ids.has(node.id):
         return
 
-    collapsed_nodes.erase(node.id)
+    collapsed_node_ids.erase(node.id)
     update_graph()
     emit_signal("collapsed_nodes_changed")
 
@@ -130,9 +163,9 @@ func collapse_nodes(nodes: Array) -> void:
     var made_changes := false
 
     for node in nodes:
-        if collapsed_nodes.has(node.id):
+        if is_collapsed(node):
             continue
-        collapsed_nodes[node.id] = true
+        _collapse_node_internal(node)
         made_changes = true
 
     if made_changes:
@@ -145,9 +178,9 @@ func uncollapse_nodes(nodes: Array) -> void:
     var made_changes := false
 
     for node in nodes:
-        if not collapsed_nodes.has(node.id):
+        if not is_collapsed(node):
             continue
-        collapsed_nodes.erase(node.id)
+        collapsed_node_ids.erase(node.id)
         made_changes = true
 
     if made_changes:
@@ -170,7 +203,7 @@ func update_graph() -> void:
     _is_ready = false
 
     # save selected node ids (node references get deprecated on dialogue cloning)
-    var selected := self.selected_node_ids
+    var selected := get_selected_node_ids()
 
     # disconnect child nodes
     for node_renderer_a in node_renderers.values():
@@ -207,16 +240,21 @@ func update_graph() -> void:
             cached_renderers.resize(cur_used_renderers)
 
     # restore selected nodes
+    var stub_renderer = NODE_RENDERER_SCENE.instance() as DialogueNodeRenderer
+    stub_renderer.node = DialogueNode.new()
     for id in selected:
         if dialogue.nodes.has(id) and node_renderers.has(id):
             node_renderers[id].selected = true
+        else:
+            stub_renderer.node.id = id
+            emit_signal("node_unselected", stub_renderer)
 
     # connect child nodes
     for node_renderer in node_renderers.values():
-        if collapsed_nodes.has(node_renderer.node.id):
+        if collapsed_node_ids.has(node_renderer.node.id):
             # uncollapse nodes that have no children
             if node_renderer.node.children.empty():
-                collapsed_nodes.erase(node_renderer.node.id)
+                collapsed_node_ids.erase(node_renderer.node.id)
                 node_renderer.is_collapsed = false
             else:
                 continue
@@ -238,10 +276,11 @@ func _update_renderer_offsets() -> void:
         renderer.offset -= root_offset
 
     _is_ready = true
+    emit_signal("finished_updating")
 
 
 func _get_children_height(node: DialogueNode) -> int:
-    if node.children.empty() or collapsed_nodes.has(node.id):
+    if node.children.empty() or collapsed_node_ids.has(node.id):
         return 0
     if not _cached_children_heights.has(node):
         var sum = 0
@@ -279,14 +318,14 @@ func _shift_offset(node: DialogueNode, shift: Vector2) -> void:
 
 
 func _shift_children_offset(node: DialogueNode, shift: Vector2) -> void:
-    if collapsed_nodes.has(node.id):
+    if collapsed_node_ids.has(node.id):
         return
     for child in node.children:
         _shift_offset(child, shift)
 
 
 func _calculate_children_global_offset(node) -> void:
-    if collapsed_nodes.has(node.id):
+    if collapsed_node_ids.has(node.id):
         return
     for child in node.children:
         _shift_offset(child, node_renderers[node.id].offset)
@@ -294,7 +333,7 @@ func _calculate_children_global_offset(node) -> void:
 
 
 func _calculate_children_local_offset(node: DialogueNode) -> void:
-    if not node or collapsed_nodes.has(node.id):
+    if not node or collapsed_node_ids.has(node.id):
         return
     var renderer = node_renderers[node.id]
     var children_height = _get_children_height(node)
@@ -347,18 +386,19 @@ func _allocate_node_renderer(node: DialogueNode) -> DialogueNodeRenderer:
             node_renderer.connect("close_request", self, "_on_node_collapsed", [node_renderer])
             _reset_node_renderer(node_renderer)
 
-    var res: DialogueNodeRenderer = cached_renderers[used_renderers - 1]
-    res.show()
-    res.selected = false
+    var output: DialogueNodeRenderer = cached_renderers[used_renderers - 1]
+    output.show()
+    output.selected = false
+    output.overlay = GraphNode.OVERLAY_DISABLED
 
-    return res
+    return output
 
 
 func _add_node_renderer(node: DialogueNode) -> void:
     var node_renderer = _allocate_node_renderer(node)
     node_renderers[node.id] = node_renderer
     node_renderer.node = node
-    node_renderer.is_collapsed = collapsed_nodes.has(node.id)
+    node_renderer.is_collapsed = collapsed_node_ids.has(node.id)
 
 
 func _recursively_add_node_renderers(node: DialogueNode) -> void:
@@ -369,7 +409,7 @@ func _recursively_add_node_renderers(node: DialogueNode) -> void:
     while not stack.empty():
         node = stack.pop_back()
         _add_node_renderer(node)
-        if collapsed_nodes.has(node.id):
+        if collapsed_node_ids.has(node.id):
             continue
         for child in node.children:
             stack.push_back(child)
@@ -377,7 +417,7 @@ func _recursively_add_node_renderers(node: DialogueNode) -> void:
 
 #func _recursively_add_node_renderers(node: DialogueNode) -> void:
 #    _add_node_renderer(node)
-#    if collapsed_nodes.has(node.id):
+#    if collapsed_node_ids.has(node.id):
 #        return
 #    for child in node.children:
 #        _recursively_add_node_renderers(child)
@@ -455,13 +495,10 @@ func _on_node_collapsed(node_renderer: DialogueNodeRenderer) -> void:
     if not node_renderer or not node_renderer.node:
         return
 
-    if collapsed_nodes.has(node_renderer.node.id):
-        collapsed_nodes.erase(node_renderer.node.id)
+    if collapsed_node_ids.has(node_renderer.node.id):
+        uncollapse_node(node_renderer.node)
     else:
-        collapsed_nodes[node_renderer.node.id] = true
-
-    update_graph()
-    emit_signal("collapsed_nodes_changed")
+        collapse_node(node_renderer.node)
 
 
 func _reset_node_renderer(node_renderer: DialogueNodeRenderer) -> void:
@@ -470,4 +507,15 @@ func _reset_node_renderer(node_renderer: DialogueNodeRenderer) -> void:
     node_renderer.node = null
     node_renderer.selected = false
     node_renderer.offset = CACHED_RENDERER_OFFSET
+    node_renderer.overlay = GraphNode.OVERLAY_DISABLED
     node_renderer.hide()
+
+
+func _collapse_node_internal(node: DialogueNode) -> void:
+    collapsed_node_ids[node.id] = true
+
+    for child_node in dialogue.get_branch(node):
+        if child_node == node:
+            continue
+        if is_node_selected(child_node):
+            unselect_node(child_node)

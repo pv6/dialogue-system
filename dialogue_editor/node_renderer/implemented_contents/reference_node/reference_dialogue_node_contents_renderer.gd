@@ -57,3 +57,8 @@ func _set_jump_to(dialogue: Dialogue, args: Dictionary) -> Dialogue:
         return null
     dialogue.nodes[node.id].jump_to = args["jump_to"]
     return dialogue
+
+
+func _on_go_to_referenced_button_pressed():
+    var referenced_node: DialogueNode = _session.dialogue.nodes[_reference_node.referenced_node_id]
+    _session.dialogue_editor.focus_nodes([referenced_node])

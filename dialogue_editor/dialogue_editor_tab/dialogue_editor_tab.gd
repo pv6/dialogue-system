@@ -3,6 +3,7 @@ extends "res://addons/dialogue_system/dialogue_editor/tabs_widget/tab.gd"
 
 
 const DialogueGraphRendererNavigation := preload("res://addons/dialogue_system/dialogue_editor/graph_renderer/navigation/dialogue_graph_navigation.gd")
+const TextDialogueNodeContentsRenderer := preload("res://addons/dialogue_system/dialogue_editor/node_renderer/implemented_contents/text_node/text_dialogue_node_contents_renderer.gd")
 
 const COPY_NODES_STRING_HEADER := "copy ids:"
 const CUT_NODES_STRING_HEADER := "cut ids:"
@@ -61,14 +62,14 @@ func redo() -> void:
 func new_dialogue() -> void:
     print("New Dialogue")
     working_dialogue_manager.new_file()
-    graph_renderer.collapsed_nodes.clear()
+    graph_renderer.collapsed_node_ids.clear()
     graph_renderer.unselect_all()
 
 
 func open_dialogue(file_path: String) -> void:
     print("Open Dialogue '%s'" % file_path)
     working_dialogue_manager.open(file_path)
-    graph_renderer.collapsed_nodes.clear()
+    graph_renderer.collapsed_node_ids.clear()
     graph_renderer.unselect_all()
 
 
@@ -92,8 +93,66 @@ func save_dialogue_as(file_path: String) -> void:
     working_dialogue_manager.save_as(file_path)
 
 
+func select_node(node: DialogueNode) -> void:
+    graph_renderer.select_node(node)
+
+
+func select_node_by_id(node_id: int) -> void:
+    graph_renderer.select_node_by_id(node_id)
+
+
+# Array[DialogueNode]
+func select_nodes(nodes: Array) -> void:
+    for node in nodes:
+        select_node(node)
+
+
+# Array[int]
+func select_nodes_by_id(node_ids: Array) -> void:
+    for id in node_ids:
+        select_node_by_id(id)
+
+
+# return Array[int]
+func get_selected_node_ids() -> Array:
+    return graph_renderer.selected_node_ids
+
+
+# return Array[DialogueNode]
+func get_selected_nodes() -> Array:
+    return _get_selected_nodes(get_dialogue())
+
+
 func unselect_all() -> void:
     graph_renderer.unselect_all()
+
+
+# nodes: Array[DialogueNode]
+func focus_nodes(nodes: Array) -> void:
+    graph_renderer_navigation.focus_nodes(nodes)
+    unselect_all()
+    select_nodes(nodes)
+
+
+# nodes: Array[DialogueNode]
+func focus_nodes_with_children(nodes: Array) -> void:
+    graph_renderer_navigation.focus_nodes(nodes, true)
+
+
+func focus_selected_nodes() -> void:
+    graph_renderer_navigation.focus_selected_nodes()
+
+
+func focus_selected_nodes_with_children() -> void:
+    graph_renderer_navigation.focus_selected_nodes(true)
+
+
+func zoom_in() -> void:
+    graph_renderer_navigation.zoom_in()
+
+
+func zoom_out() -> void:
+    graph_renderer_navigation.zoom_out()
 
 
 func apply_settings() -> void:
@@ -163,6 +222,37 @@ func deep_delete_selected_nodes() -> void:
 
 func shallow_delete_selected_nodes() -> void:
     working_dialogue_manager.commit_action("Shallow Delete Selected Nodes", self, "_shallow_delete_selected_nodes")
+
+
+func edit_selected_node_text() -> void:
+    var selected_node_ids = graph_renderer.selected_node_ids
+    if selected_node_ids.size() > 1:
+        print("Selected more than one node!")
+        return
+    if selected_node_ids.size() < 1:
+        print("No node selected!")
+        return
+
+    var text_node := get_dialogue().get_node(selected_node_ids.front()) as TextDialogueNode
+    if not text_node:
+        print("Selected node not Text Node!")
+        return
+
+    var node_renderer := graph_renderer.get_node_renderer(text_node)
+    assert(node_renderer)
+    var text_node_contents_renderer := node_renderer.contents.get_contents_by_node_type(TextDialogueNode) as TextDialogueNodeContentsRenderer
+    assert(text_node_contents_renderer)
+    var text_edit := text_node_contents_renderer.text_edit
+    text_edit.grab_focus()
+
+    var last_line = text_edit.get_line_count() - 1
+    var last_column = text_edit.get_line(last_line).length()
+    text_edit.cursor_set_line(last_line)
+    text_edit.cursor_set_column(last_column)
+
+
+func get_dialogue() -> Dialogue:
+    return working_dialogue_manager.resource as Dialogue
 
 
 func _copy_selected_node_ids_to_clipboard(header: String) -> void:
@@ -291,7 +381,7 @@ func _paste_copied_nodes(dialogue: Dialogue, id_string: String) -> Dialogue:
     var success := false
     var pasted_node_ids := id_string.split(",", false)
     for parent in selected_nodes:
-        if graph_renderer.collapsed_nodes.has(parent.id):
+        if graph_renderer.collapsed_node_ids.has(parent.id):
             print("Can't paste into collapsed node!")
             continue
 
@@ -331,7 +421,7 @@ func _paste_cut_nodes_as_children(dialogue: Dialogue, id_string: String, paste_w
         return null
 
     var parent: DialogueNode = selected_nodes[0]
-    if graph_renderer.collapsed_nodes.has(parent.id):
+    if graph_renderer.collapsed_node_ids.has(parent.id):
         print("Can't paste into collapsed node!")
         return null
     if parent is ReferenceDialogueNode:
@@ -487,7 +577,7 @@ func _insert_child_node(dialogue: Dialogue, node: DialogueNode) -> Dialogue:
 
     var first_parent := true
     for parent in selected_nodes:
-        if graph_renderer.collapsed_nodes.has(parent.id):
+        if graph_renderer.collapsed_node_ids.has(parent.id):
             print("Can't add child to collapsed node!")
             continue
         if parent is ReferenceDialogueNode:
@@ -527,6 +617,8 @@ func _delete_selected_nodes(dialogue: Dialogue, save_children: bool) -> Dialogue
     if nodes_to_delete.empty():
         return null
 
+    var made_changes := false
+
     while not nodes_to_delete.empty():
         # extract node from queue
         var node: DialogueNode = nodes_to_delete.pop_front()
@@ -556,6 +648,11 @@ func _delete_selected_nodes(dialogue: Dialogue, save_children: bool) -> Dialogue
             var ref_node := other_node as ReferenceDialogueNode
             if ref_node and ref_node.referenced_node_id == node.id:
                 nodes_to_delete.push_back(ref_node)
+
+        made_changes = true
+
+    if not made_changes:
+        return null
 
     dialogue.update_nodes()
 

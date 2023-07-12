@@ -8,6 +8,7 @@ signal _dialogue_saved()
 const StorageEditorDialog := preload("storage_widgets/storage_editor_dialog/storage_editor_dialog.gd")
 const TabsWidget := preload("tabs_widget/tabs_widget.gd")
 const DialogueEditorTab := preload("dialogue_editor_tab/dialogue_editor_tab.gd")
+const GoToNodeWidget := preload("go_to_node_widget/go_to_node_widget.gd")
 
 const DEFAULT_SETTINGS_PATH := "res://dialogue_editor_settings.tres"
 const DEFAULT_GLOBAL_ACTORS_PATH := "res://dialogue_global_actors.tres"
@@ -43,6 +44,8 @@ onready var _tabs_widget: TabsWidget = $VBoxContainer/TabsWidget
 
 onready var _close_unsaved_dialog: ConfirmationDialog = $Dialogs/CloseUnsavedDialog
 
+onready var _go_to_node_widget: GoToNodeWidget = $Dialogs/GoToNodeWidget
+
 
 func _init() -> void:
     session.clear_connections()
@@ -61,18 +64,12 @@ func _ready() -> void:
     tags_editor.storage_editor.item_editor.connect("edit_storage_pressed", self, "open_global_tags_editor")
 
     _close_unsaved_dialog.add_button("Don't Save", true, "close_without_save")
-    _close_unsaved_dialog.get_cancel().connect("pressed", self, "_on_save_dialogue_as_dialog_canceled")
-    _close_unsaved_dialog.get_close_button().connect("pressed", self, "_on_save_dialogue_as_dialog_canceled")
+    _close_unsaved_dialog.connect("canceled", self, "_on_save_dialogue_as_dialog_canceled")
 
 
 func _notification(what) -> void:
     if what == NOTIFICATION_PREDELETE:
         set_settings(null)
-
-
-func _unhandled_key_input(event: InputEventKey) -> void:
-    if event.scancode == KEY_ESCAPE:
-        _call_current_tab_method("unselect_all")
 
 
 func set_settings(new_settings: DialogueEditorSettings) -> void:
@@ -85,82 +82,111 @@ func set_settings(new_settings: DialogueEditorSettings) -> void:
     _apply_settings()
 
 
+# return Array[DialogueNode]
+func get_selected_nodes() -> Array:
+    var cur_tab := _get_current_editor_tab()
+    if not cur_tab:
+        return []
+    return cur_tab.get_selected_nodes()
+
+
+# return Array[int]
+func get_selected_node_ids() -> Array:
+    var cur_tab := _get_current_editor_tab()
+    if not cur_tab:
+        return []
+    return cur_tab.get_selected_node_ids()
+
+
+func unselect_all():
+    call_current_tab_method("unselect_all")
+
+
 func undo() -> void:
-    _call_current_tab_method("undo")
+    call_current_tab_method("undo")
 
 
 func redo() -> void:
-    _call_current_tab_method("redo")
+    call_current_tab_method("redo")
 
 
 func copy_selected_nodes() -> void:
-    _call_current_tab_method("copy_selected_nodes")
+    call_current_tab_method("copy_selected_nodes")
 
 
 func cut_selected_nodes() -> void:
-    _call_current_tab_method("cut_selected_nodes")
+    call_current_tab_method("cut_selected_nodes")
 
 
 func shallow_duplicate_selected_nodes() -> void:
-    _call_current_tab_method("shallow_duplicate_selected_nodes")
+    call_current_tab_method("shallow_duplicate_selected_nodes")
 
 
 func deep_duplicate_selected_nodes() -> void:
-    _call_current_tab_method("deep_duplicate_selected_nodes")
+    call_current_tab_method("deep_duplicate_selected_nodes")
 
 
 func move_selected_nodes_up() -> void:
-    _call_current_tab_method("move_selected_nodes_up")
+    call_current_tab_method("move_selected_nodes_up")
 
 
 func move_selected_nodes_down() -> void:
-    _call_current_tab_method("move_selected_nodes_down")
+    call_current_tab_method("move_selected_nodes_down")
 
 
 func paste_nodes() -> void:
-    _call_current_tab_method("paste_nodes")
+    call_current_tab_method("paste_nodes")
 
 
 func paste_cut_nodes_with_children() -> void:
-    _call_current_tab_method("paste_cut_nodes_with_children")
+    call_current_tab_method("paste_cut_nodes_with_children")
 
 
 func paste_cut_node_as_parent() -> void:
-    _call_current_tab_method("paste_cut_node_as_parent")
+    call_current_tab_method("paste_cut_node_as_parent")
 
 
 func paste_cut_node_with_children_as_parent() -> void:
-    _call_current_tab_method("paste_cut_node_with_children_as_parent")
+    call_current_tab_method("paste_cut_node_with_children_as_parent")
 
 
 func insert_parent_hear_node() -> void:
-    _call_current_tab_method("insert_parent_hear_node")
+    call_current_tab_method("insert_parent_hear_node")
 
 
 func insert_parent_say_node() -> void:
-    _call_current_tab_method("insert_parent_say_node")
+    call_current_tab_method("insert_parent_say_node")
 
 
 func insert_child_hear_node() -> void:
-    _call_current_tab_method("insert_child_hear_node")
+    call_current_tab_method("insert_child_hear_node")
 
 
 func insert_child_say_node() -> void:
-    _call_current_tab_method("insert_child_say_node")
+    call_current_tab_method("insert_child_say_node")
 
 
 func deep_delete_selected_nodes() -> void:
-    _call_current_tab_method("deep_delete_selected_nodes")
+    call_current_tab_method("deep_delete_selected_nodes")
 
 
 func shallow_delete_selected_nodes() -> void:
-    _call_current_tab_method("shallow_delete_selected_nodes")
+    call_current_tab_method("shallow_delete_selected_nodes")
+
+
+func edit_selected_node_text() -> void:
+    call_current_tab_method("edit_selected_node_text")
+
+
+# nodes: Array[DialogueNode]
+func focus_nodes(nodes: Array) -> void:
+    call_current_tab_method_one_arg("focus_nodes", nodes)
 
 
 func new_dialogue() -> void:
     _tabs_widget.add_tab()
-    _tabs_widget.set_current_tab(_tabs_widget.get_tab_count() - 1)
-    _get_current_editor_tab().new_dialogue()
+    var cur_tab := _get_current_editor_tab()
+    cur_tab.new_dialogue()
 
 
 func open_dialogue() -> void:
@@ -196,6 +222,34 @@ func save_dialogue_as() -> void:
     else:
         _save_dialogue_as_dialog.current_file = "new_dialogue.tres"
     _save_dialogue_as_dialog.popup_centered()
+
+
+func save_all_dialogues() -> void:
+    for tab in _tabs_widget.get_tabs():
+        if tab.working_dialogue_manager.save_path != "":
+            tab.working_dialogue_manager.save()
+
+
+func close_dialogue() -> void:
+    var working_dialogue_manager := _get_current_working_dialogue_manager()
+    if working_dialogue_manager.has_unsaved_changes:
+        var name := working_dialogue_manager.save_path
+        if name == "":
+            name = "unsaved dialogue"
+        _close_unsaved_dialog.dialog_text = "Save changes to '%s' before closing?" % name
+        _close_unsaved_dialog.popup_centered()
+    else:
+        if _is_saving:
+            yield(self, "_dialogue_saved")
+        _tabs_widget.remove_current_tab()
+
+
+func next_dialogue() -> void:
+    _tabs_widget.set_next_tab()
+
+
+func previous_dialogue() -> void:
+    _tabs_widget.set_previous_tab()
 
 
 func open_actors_editor() -> void:
@@ -238,7 +292,7 @@ func open_blackboard_editor(blackboard: StorageItem = null) -> void:
         if not dialogue:
             print("No dialogue opened!")
             return
-        blackboard = dialogue.blackboards.get_item_reference(0)
+        blackboard = dialogue.get_local_blackboard_ref().storage_item
     blackboard_editor.blackboard = blackboard
     blackboard_editor.popup_centered()
 
@@ -248,6 +302,20 @@ func get_dialogue() -> Dialogue:
     if not working_dialogue_manager:
         return null
     return working_dialogue_manager.resource as Dialogue
+
+
+func focus_graph_renderer() -> void:
+    var cur_tab := _get_current_editor_tab()
+    if cur_tab:
+        cur_tab.graph_renderer.grab_focus()
+
+
+func go_to_node() -> void:
+    var dialogue := get_dialogue()
+    if not dialogue:
+        return
+    _go_to_node_widget.valid_ids = dialogue.nodes
+    _go_to_node_widget.popup_centered()
 
 
 func _on_actors_editor_confirmed() -> void:
@@ -354,21 +422,12 @@ func _get_current_editor_tab() -> DialogueEditorTab:
 
 
 func _on_tab_close(tab) -> void:
-    var working_dialogue_manager := _get_current_working_dialogue_manager()
-    if working_dialogue_manager.has_unsaved_changes:
-        var name := working_dialogue_manager.save_path
-        if name == "":
-            name = "unsaved dialogue"
-        _close_unsaved_dialog.dialog_text = "Save changes to '%s' before closing?" % name
-        _close_unsaved_dialog.popup_centered()
-    else:
-        if _is_saving:
-            yield(self, "_dialogue_saved")
-        _tabs_widget.remove_current_tab()
+    close_dialogue()
 
 
 func _on_tab_changed(tab_index: int) -> void:
     session.dialogue_undo_redo = _get_current_working_dialogue_manager()
+    focus_graph_renderer()
 
 
 func _on_save_before_close_pressed():
@@ -388,7 +447,8 @@ func _on_close_unsaved_dialog_custom_action(action: String) -> void:
 
 func _on_open_dialogue_dialog_file_selected(path: String):
     _tabs_widget.add_tab()
-    _get_current_editor_tab().open_dialogue(path)
+    var cur_tab := _get_current_editor_tab()
+    cur_tab.open_dialogue(path)
 
 
 func _on_save_dialogue_as_dialog_file_selected(path: String):
@@ -408,9 +468,21 @@ func _on_save_dialogue_as_dialog_canceled():
     _close_after_save_as = false
 
 
-func _call_current_tab_method(method: String) -> void:
+func call_current_tab_method(method: String) -> void:
     var current_tab := _get_current_editor_tab()
     if current_tab:
         current_tab.call(method)
     else:
         print("No dialogue opened!")
+
+
+func call_current_tab_method_one_arg(method: String, arg) -> void:
+    var current_tab := _get_current_editor_tab()
+    if current_tab:
+        current_tab.call(method, arg)
+    else:
+        print("No dialogue opened!")
+
+
+func _on_go_to_node_widget_go_to_node(id: int) -> void:
+    focus_nodes([get_dialogue().nodes[id]])

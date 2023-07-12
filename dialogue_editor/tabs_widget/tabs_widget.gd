@@ -29,7 +29,9 @@ func get_tab(tab_index: int) -> Tab:
 
 
 func get_current_tab() -> Tab:
-    return _tab_container.get_current_tab_control() as Tab
+    # this one worked incorrectly when closing tab:
+    # return _tab_container.get_current_tab_control() as Tab
+    return get_tab(get_current_tab_index())
 
 
 # returns Array[Tab]
@@ -65,6 +67,22 @@ func remove_current_tab() -> void:
 
 func get_tab_count() -> int:
     return _tabs.get_tab_count()
+
+
+func set_next_tab(cycle: bool = true) -> void:
+    var cur_index = get_current_tab_index()
+    cur_index += 1
+    if cycle and cur_index >= get_tab_count():
+        cur_index %= get_tab_count()
+    set_current_tab(cur_index)
+
+
+func set_previous_tab(cycle: bool = true) -> void:
+    var cur_index = get_current_tab_index()
+    cur_index -= 1
+    if cycle and cur_index < 0:
+        cur_index = get_tab_count() + cur_index
+    set_current_tab(cur_index)
 
 
 func set_current_tab(tab_index: int) -> void:
