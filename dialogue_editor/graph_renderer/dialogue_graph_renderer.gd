@@ -132,6 +132,7 @@ func unselect_node_by_id(node_id: int) -> void:
 
 func unselect_all() -> void:
     set_selected_node_ids([])
+    emit_signal("node_unselected", null)
 
 
 func is_collapsed(node: DialogueNode) -> bool:
@@ -202,7 +203,7 @@ func update_graph() -> void:
     _is_ready = false
 
     # save selected node ids (node references get deprecated on dialogue cloning)
-    var selected := self.selected_node_ids
+    var selected := get_selected_node_ids()
 
     # disconnect child nodes
     for node_renderer_a in node_renderers.values():
@@ -239,9 +240,14 @@ func update_graph() -> void:
             cached_renderers.resize(cur_used_renderers)
 
     # restore selected nodes
+    var stub_renderer = NODE_RENDERER_SCENE.instance() as DialogueNodeRenderer
+    stub_renderer.node = DialogueNode.new()
     for id in selected:
         if dialogue.nodes.has(id) and node_renderers.has(id):
             node_renderers[id].selected = true
+        else:
+            stub_renderer.node.id = id
+            emit_signal("node_unselected", stub_renderer)
 
     # connect child nodes
     for node_renderer in node_renderers.values():
@@ -380,11 +386,12 @@ func _allocate_node_renderer(node: DialogueNode) -> DialogueNodeRenderer:
             node_renderer.connect("close_request", self, "_on_node_collapsed", [node_renderer])
             _reset_node_renderer(node_renderer)
 
-    var res: DialogueNodeRenderer = cached_renderers[used_renderers - 1]
-    res.show()
-    res.selected = false
+    var output: DialogueNodeRenderer = cached_renderers[used_renderers - 1]
+    output.show()
+    output.selected = false
+    output.overlay = GraphNode.OVERLAY_DISABLED
 
-    return res
+    return output
 
 
 func _add_node_renderer(node: DialogueNode) -> void:
@@ -500,6 +507,7 @@ func _reset_node_renderer(node_renderer: DialogueNodeRenderer) -> void:
     node_renderer.node = null
     node_renderer.selected = false
     node_renderer.offset = CACHED_RENDERER_OFFSET
+    node_renderer.overlay = GraphNode.OVERLAY_DISABLED
     node_renderer.hide()
 
 

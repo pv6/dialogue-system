@@ -290,7 +290,7 @@ func _on_node_selected(node_renderer: DialogueNodeRenderer) -> void:
 
 
 func _on_node_unselected(node_renderer: DialogueNodeRenderer) -> void:
-    if node_renderer.node.id == _cursor_position:
+    if not node_renderer or node_renderer.node.id == _cursor_position:
         _set_cursor_position(-1)
 
 
