@@ -79,9 +79,10 @@ func clone() -> Clonable:
 
 # virtual
 func do_action(input: DialogueNodeLogicInput) -> void:
-    input.blackboards.g(blackboard).s(self, value)
+    input.blackboards.g(get_blackboard()).s(self, value)
 
 
 # virtual
 func check(input: DialogueNodeLogicInput) -> bool:
+    var blackboard := get_blackboard()
     return blackboard and input.blackboards.g(blackboard).g(self) == value
