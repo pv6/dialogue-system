@@ -44,10 +44,12 @@ func set_graph_renderer(new_graph_renderer: DialogueGraphRenderer) -> void:
     if graph_renderer:
         graph_renderer.disconnect("node_selected", self, "_on_node_selected")
         graph_renderer.disconnect("node_unselected", self, "_on_node_unselected")
+        graph_renderer.disconnect("finished_updating", self, "_on_graph_renderer_finished_updating")
     graph_renderer = new_graph_renderer
     if graph_renderer:
         graph_renderer.connect("node_selected", self, "_on_node_selected")
         graph_renderer.connect("node_unselected", self, "_on_node_unselected")
+        graph_renderer.connect("finished_updating", self, "_on_graph_renderer_finished_updating")
 
 
 func zoom_in() -> void:
@@ -302,3 +304,8 @@ func _set_cursor_position(new_cursor_position: int) -> void:
         graph_renderer.node_renderers[_cursor_position].overlay = GraphNode.OVERLAY_BREAKPOINT
 
     _label.text = "CURSOR POS: %d" % _cursor_position
+
+
+func _on_graph_renderer_finished_updating() -> void:
+    if graph_renderer.node_renderers.has(_cursor_position):
+        graph_renderer.node_renderers[_cursor_position].overlay = GraphNode.OVERLAY_BREAKPOINT
