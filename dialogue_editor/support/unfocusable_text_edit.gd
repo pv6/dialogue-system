@@ -10,7 +10,7 @@ func _input(event: InputEvent) -> void:
     if not event is InputEventKey or get_focus_owner() != self:
         return
 
-    if event.scancode == KEY_ESCAPE:
+    if event.scancode == KEY_ESCAPE or event.scancode == KEY_ENTER and Input.is_key_pressed(KEY_CONTROL):
         release_focus()
         _session.focus_graph_renderer()
 
