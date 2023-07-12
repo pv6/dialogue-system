@@ -617,6 +617,8 @@ func _delete_selected_nodes(dialogue: Dialogue, save_children: bool) -> Dialogue
     if nodes_to_delete.empty():
         return null
 
+    var made_changes := false
+
     while not nodes_to_delete.empty():
         # extract node from queue
         var node: DialogueNode = nodes_to_delete.pop_front()
@@ -646,6 +648,11 @@ func _delete_selected_nodes(dialogue: Dialogue, save_children: bool) -> Dialogue
             var ref_node := other_node as ReferenceDialogueNode
             if ref_node and ref_node.referenced_node_id == node.id:
                 nodes_to_delete.push_back(ref_node)
+
+        made_changes = true
+
+    if not made_changes:
+        return null
 
     dialogue.update_nodes()
 
