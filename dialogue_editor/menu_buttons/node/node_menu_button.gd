@@ -49,13 +49,13 @@ func _ready() -> void:
 
     add_separator()
 
-    add_button("Shallow Duplicate Selected Nodes", "shallow_duplicate_selected_nodes", KEY_D, CTRL)
-    add_button("Deep Duplicate Selected Nodes", "deep_duplicate_selected_nodes", KEY_D, CTRL | SHIFT)
+    add_button("Duplicate Selected Nodes", "shallow_duplicate_selected_nodes", KEY_D, CTRL)
+    add_button("Duplicate Selected Nodes With Children", "deep_duplicate_selected_nodes", KEY_D, CTRL | SHIFT)
 
     add_separator()
 
-    add_button("Shallow Delete Selected Nodes", "shallow_delete_selected_nodes", KEY_DELETE)
-    add_button("Deep Delete Selected Nodes", "deep_delete_selected_nodes", KEY_DELETE, SHIFT)
+    add_button("Delete Selected Nodes", "shallow_delete_selected_nodes", KEY_DELETE)
+    add_button("Delete Selected Nodes With Children", "deep_delete_selected_nodes", KEY_DELETE, SHIFT)
 
     add_separator()
 
