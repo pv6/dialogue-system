@@ -31,7 +31,6 @@ func get_style(node: DialogueNode) -> DialogueNodeStyle:
     if node is ReferenceDialogueNode:
         return get_style(_session.dialogue.nodes[node.referenced_node_id])
 
-
     var type = node.get_script()
     if _node_styles.has(type):
         return _node_styles[type]
