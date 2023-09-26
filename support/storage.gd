@@ -63,9 +63,13 @@ func set_item(id: int, new_item) -> bool:
 
 
 func remove_item(id: int) -> void:
-    assert(_data.has(id))
-    _set_item(id, null)  # disconnect from 'changed' signal of item
-    _data.erase(id)
+    _remove_item(id)
+    emit_changed()
+
+
+func remove_items(ids: Array) -> void:
+    for id in ids:
+        _remove_item(id)
     emit_changed()
 
 
@@ -209,3 +213,9 @@ func _set_item(id: int, new_item) -> void:
     _data[id] = new_item
     if new_item is Resource:
         new_item.connect("changed", self, "emit_changed")
+
+
+func _remove_item(id: int) -> void:
+    assert(_data.has(id))
+    _set_item(id, null)  # disconnect from 'changed' signal of item
+    _data.erase(id)

@@ -38,6 +38,10 @@ func set_value(new_value) -> bool:
     return storage().set_item(storage_id, new_value)
 
 
+func is_valid() -> bool:
+    return storage_id != UIDGenerator.DUMMY_ID and storage_reference and storage_reference.get_resource()
+
+
 func equals(other: StorageItem) -> bool:
     if not other:
         return storage_reference.equals(null)
