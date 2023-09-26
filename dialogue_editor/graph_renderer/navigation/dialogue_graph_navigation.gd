@@ -19,8 +19,7 @@ func _input(event: InputEvent) -> void:
     if not graph_renderer or not event is InputEventKey or not event.is_pressed():
         return
 
-    var focus_owner = graph_renderer.get_focus_owner()
-    if focus_owner != graph_renderer:
+    if !graph_renderer.has_focus():
         return
 
     match event.scancode:
