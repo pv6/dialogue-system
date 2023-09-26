@@ -261,6 +261,8 @@ func update_graph() -> void:
         for child in node_renderer.node.children:
             connect_node(node_renderer.name, 0, node_renderers[child.id].name, 0)
 
+    # contents are fully set only on the next frame, so need to wait 2 frames
+    yield(get_tree(), "idle_frame")
     call_deferred("update_node_sizes")
 
 

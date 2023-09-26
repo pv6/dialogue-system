@@ -15,6 +15,11 @@ func _on_set_node() -> void:
     _reference_node = node as ReferenceDialogueNode
 
 
+func update_size() -> void:
+    if _referenced_contents:
+        _referenced_contents.update_size()
+
+
 func _update_contents() -> void:
     if not _reference_node or not _jump_to_option_button:
         return
