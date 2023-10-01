@@ -76,9 +76,8 @@ func move_cursor_vertically(direction: int, keep_old_selection: bool) -> void:
 
     if not keep_old_selection:
         graph_renderer.unselect_all()
-    graph_renderer.select_node(parent.children[new_pos])
 
-    keep_on_screen([parent.children[new_pos]])
+    _select_node(parent.children[new_pos])
 
 
 func move_cursor_horizontally(direction: int, keep_old_selection: bool) -> void:
@@ -100,9 +99,8 @@ func move_cursor_horizontally(direction: int, keep_old_selection: bool) -> void:
 
     if not keep_old_selection:
         graph_renderer.unselect_all()
-    graph_renderer.select_node_by_id(new_cursor_pos)
 
-    keep_on_screen([graph_renderer.dialogue.get_node(new_cursor_pos)])
+    _select_node(graph_renderer.dialogue.get_node(new_cursor_pos))
 
 
 func focus_selected_nodes(with_children: bool = false) -> void:
@@ -203,10 +201,16 @@ func select_center_node(keep_old_selection: bool) -> DialogueNode:
     if closest_node:
         if not keep_old_selection:
             graph_renderer.unselect_all()
-        graph_renderer.select_node(closest_node)
-        keep_on_screen([closest_node], focus_time)
+        _select_node(closest_node)
 
     return closest_node
+
+
+func _select_node(node: DialogueNode) -> void:
+    graph_renderer.select_node(node)
+    # wait 1 frame for action/condition widget to resize
+    yield(get_tree(), "idle_frame")
+    keep_on_screen([node])
 
 
 func _get_viewport_center_offset() -> Vector2:
