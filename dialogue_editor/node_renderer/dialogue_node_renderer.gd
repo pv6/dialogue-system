@@ -38,6 +38,11 @@ func _init() -> void:
 
 
 func set_node(new_node: DialogueNode) -> void:
+    # redo modulation even with old node in case triggered by settings update
+    self_modulate.v = 1
+    if node is ReferenceDialogueNode:
+        self_modulate.v *= _session.settings.reference_node_brightness
+
     if new_node == node:
         return
 
@@ -53,10 +58,6 @@ func set_node(new_node: DialogueNode) -> void:
     if style != new_style:
         set_style(new_style)
         _update_slots()
-
-    self_modulate.v = 1
-    if node is ReferenceDialogueNode:
-        self_modulate.v *= _session.settings.reference_node_brightness
 
 
 func set_is_collapsed(new_is_collapsed: bool) -> void:
