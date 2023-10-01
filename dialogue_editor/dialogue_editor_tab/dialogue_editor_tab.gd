@@ -35,7 +35,7 @@ func _process(delta) -> void:
         graph_renderer.update_graph()
         need_to_redraw_graph = false
     if not _look_at_nodes.empty() and graph_renderer and graph_renderer.is_ready() and graph_renderer_navigation:
-        graph_renderer_navigation.keep_on_screen(_look_at_nodes)
+        graph_renderer_navigation.keep_on_screen(_look_at_nodes, graph_renderer_navigation.focus_time)
         _look_at_nodes.clear()
 
 
