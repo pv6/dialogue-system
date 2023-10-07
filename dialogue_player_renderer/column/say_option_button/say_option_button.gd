@@ -43,7 +43,7 @@ func _update_visuals() -> void:
         if use_quotes:
             text = "\"%s\"" % [text]
         _text_label.bbcode_text = " " + text
-            
+
 
 func _on_text_label_mouse_entered() -> void:
     _is_hover = true

@@ -40,7 +40,7 @@ func _init() -> void:
 func set_node(new_node: DialogueNode) -> void:
     # redo modulation even with old node in case triggered by settings update
     self_modulate.v = 1
-    if node is ReferenceDialogueNode:
+    if new_node is ReferenceDialogueNode:
         self_modulate.v *= _session.settings.reference_node_brightness
 
     if new_node == node:

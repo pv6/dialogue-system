@@ -80,7 +80,7 @@ func get_say_options() -> Array:
 
 
 func can_continue() -> bool:
-    return _cur_node and not _cur_node.children.empty()
+    return _cur_node and not _get_valid_children(_cur_node.children).empty()
 
 
 func say(say_option: SayDialogueNode) -> void:
@@ -93,6 +93,14 @@ func is_over() -> bool:
 
 
 func get_actor_implementation(actor: StorageItem):
+    return _get_actor_implementation(actor)
+
+
+func get_actor_implementation_by_name(actor_name: String):
+    return _get_actor_implementation(actor_name)
+
+
+func _get_actor_implementation(actor):
     if not actor or not _actors.has(actor):
         return null
     return _actors.g(actor)
@@ -103,13 +111,15 @@ func _get_valid_children(children: Array) -> Array:
     for next_node in children:
         if _is_node_valid(next_node):
             if next_node is ReferenceDialogueNode:
-                var referenced_node = _dialogue.nodes[next_node.referenced_node_id]
+                var referenced_node: DialogueNode = _dialogue.nodes[next_node.referenced_node_id]
                 if (next_node.jump_to == ReferenceDialogueNode.JumpTo.START_OF_NODE and
                         not referenced_node is RootDialogueNode):
                     output.push_back(referenced_node)
                 else:
-                    assert(not next_node in referenced_node.children)
-                    output.append_array(_get_valid_children(referenced_node.children))
+                    var referenced_children := referenced_node.children.duplicate()
+                    if next_node in referenced_node.children:
+                        referenced_children.erase(next_node)
+                    output.append_array(_get_valid_children(referenced_children))
             else:
                 output.push_back(next_node)
     return output

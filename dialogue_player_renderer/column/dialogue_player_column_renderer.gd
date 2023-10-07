@@ -28,11 +28,11 @@ onready var _portrait: TextureRect = $Control/Portrait
 
 
 func _ready():
-    _show_say_options_immidiately = true
     if not Engine.editor_hint:
         start_dialogue()
 
 
+# override
 func _clear() -> void:
     _say_options.hide()
     _continue_button.hide()
@@ -40,10 +40,12 @@ func _clear() -> void:
     _scroll_down()
 
 
+# override
 func _set_continue() -> void:
     _continue_button.show()
 
 
+# override
 func _spawn_say_button(index: int, say_node: SayDialogueNode) -> void:
     var button: SayOptionButton = SAY_OPTION_BUTTON_SCENE.instance()
     button.index = index
@@ -54,6 +56,7 @@ func _spawn_say_button(index: int, say_node: SayDialogueNode) -> void:
     _say_options.add_child(button)
 
 
+# override
 func _set_say_options(say_options: Array) -> void:
     _continue_button.hide()
     _say_options.show()
@@ -61,6 +64,7 @@ func _set_say_options(say_options: Array) -> void:
     _scroll_down()
 
 
+# override
 func _set_hear_node(hear_node: HearDialogueNode) -> void:
     var actor = _dialogue_player.get_actor_implementation(hear_node.speaker)
     if actor and "portrait" in actor:
@@ -86,6 +90,7 @@ func _scroll_down() -> void:
         _scroll_tween.start()
 
 
+# override
 func _on_say_option_selected(say_node: SayDialogueNode) -> void:
     # clear previous hear node
     _clear_current_node()
@@ -100,6 +105,7 @@ func _on_say_option_selected(say_node: SayDialogueNode) -> void:
     ._on_say_option_selected(say_node)
 
 
+# override
 func _clear_current_node() -> void:
     if _history.get_child_count() > 0:
         _history.get_child(_history.get_child_count() - 1).is_history = true
@@ -108,6 +114,7 @@ func _clear_current_node() -> void:
     _end_button.hide()
 
 
+# override
 func _clear_say_options() -> void:
     for option in _say_options.get_children():
         option.queue_free()
