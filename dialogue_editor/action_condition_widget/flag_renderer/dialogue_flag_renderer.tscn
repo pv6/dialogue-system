@@ -10,34 +10,31 @@ script = ExtResource( 1 )
 
 [node name="VSeparator" type="VSeparator" parent="."]
 margin_right = 4.0
-margin_bottom = 20.0
+margin_bottom = 24.0
 
 [node name="ValueContainer" type="HBoxContainer" parent="."]
 margin_left = 8.0
-margin_right = 109.0
-margin_bottom = 20.0
+margin_right = 71.0
+margin_bottom = 24.0
 alignment = 2
 
 [node name="ValueLabel" type="Label" parent="ValueContainer"]
-margin_top = 3.0
+margin_top = 5.0
 margin_right = 35.0
-margin_bottom = 17.0
+margin_bottom = 19.0
 text = "Value"
 align = 1
 
-[node name="ValueOptionButton" type="OptionButton" parent="ValueContainer"]
+[node name="ValueCheckBox" type="CheckBox" parent="ValueContainer"]
 margin_left = 39.0
-margin_right = 101.0
-margin_bottom = 20.0
-rect_min_size = Vector2( 62, 0 )
-text = "True"
-items = [ "True", null, false, 0, null, "False", null, false, 1, null ]
-selected = 0
+margin_right = 63.0
+margin_bottom = 24.0
+pressed = true
 
 [node name="Label" type="Label" parent="."]
-margin_left = 113.0
-margin_top = 3.0
-margin_right = 113.0
-margin_bottom = 17.0
+margin_left = 75.0
+margin_top = 5.0
+margin_right = 75.0
+margin_bottom = 19.0
 
-[connection signal="item_selected" from="ValueContainer/ValueOptionButton" to="." method="_on_flag_value_selected"]
+[connection signal="toggled" from="ValueContainer/ValueCheckBox" to="." method="_on_flag_value_selected"]

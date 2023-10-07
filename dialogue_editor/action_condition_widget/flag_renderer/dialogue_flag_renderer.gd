@@ -3,14 +3,13 @@ extends "base_dialogue_flag_widget.gd"
 
 
 const DialogueFlagContentsRenderer := preload("dialogue_flag_contents_renderer.gd")
-const VALUES := [true, false]
 
 const BLACKBOARD_FLAG_CONTENTS_RENDERER_SCENE := preload("implemented/blackboard_flag/blackboard_flag_contents_renderer.tscn")
 const VISITED_NODE_FLAG_CONTENTS_RENDERER_SCENE := preload("implemented/visited_node/visited_node_flag_contents_renderer.tscn")
 
 var _contents: DialogueFlagContentsRenderer
 
-onready var _value_option_button: OptionButton = $ValueContainer/ValueOptionButton
+onready var _value_check_box: CheckBox = $ValueContainer/ValueCheckBox
 
 
 static func create_contents(flag: DialogueFlag) -> DialogueFlagContentsRenderer:
@@ -59,24 +58,24 @@ func _on_node_id_changed() -> void:
 
 # virtual
 func _update_values() -> void:
-    if not _value_option_button:
+    if not _value_check_box:
         return
     if flag:
-        _value_option_button.select(0 if flag.value else 1)
+        _value_check_box.pressed = flag.value
     else:
-        _value_option_button.select(0)
+        _value_check_box.pressed = true
 
 
 func _get_flag(dialogue: Dialogue) -> DialogueFlag:
     return _get_flags(dialogue)[flag_index]
 
 
-func _on_flag_value_selected(value_index: int) -> void:
-    _session.dialogue_undo_redo.commit_action("Set Flag Value", self, "_set_flag_value", {"value": VALUES[value_index]})
+func _on_flag_value_selected(value: bool) -> void:
+    _session.dialogue_undo_redo.commit_action("Set Flag Value", self, "_set_flag_value", {"value": value})
 
 
 func _set_flag_value(dialogue: Dialogue, args: Dictionary) -> Dialogue:
-    if property == "":
+    if property == "" or not flag:
         return null
 
     _get_flag(dialogue).value = args["value"]
