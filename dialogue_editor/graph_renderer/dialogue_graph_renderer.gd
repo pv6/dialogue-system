@@ -261,6 +261,8 @@ func update_graph() -> void:
         for child in node_renderer.node.children:
             connect_node(node_renderer.name, 0, node_renderers[child.id].name, 0)
 
+    # contents are fully set only on the next frame, so need to wait 2 frames
+    yield(get_tree(), "idle_frame")
     call_deferred("update_node_sizes")
 
 
@@ -424,7 +426,7 @@ func _recursively_add_node_renderers(node: DialogueNode) -> void:
 
 
 func _on_node_dragged(from: Vector2, to: Vector2, node_renderer: DialogueNodeRenderer) -> void:
-    if not node_renderer.visible:
+    if not is_ready() or not node_renderer.visible:
         return
     _session.dialogue_undo_redo.commit_action("Drag Node", self, "_drag_node",
             {"from": from, "to": to, "node_renderer": node_renderer})

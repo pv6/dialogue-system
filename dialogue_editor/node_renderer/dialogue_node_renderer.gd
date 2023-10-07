@@ -24,6 +24,8 @@ export(bool) var is_collapsed setget set_is_collapsed
 
 var contents: DialogueNodeContentsRenderer
 
+var style: DialogueNodeStyle setget set_style
+
 var style_manager: DialogueNodeStyleManager = preload("style_manager/style_manager.tres")
 
 var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dialogue_editor/session.tres")
@@ -36,12 +38,14 @@ func _init() -> void:
 
 
 func set_node(new_node: DialogueNode) -> void:
+    # redo modulation even with old node in case triggered by settings update
+    self_modulate.v = 1
+    if new_node is ReferenceDialogueNode:
+        self_modulate.v *= _session.settings.reference_node_brightness
+
     if new_node == node:
         return
 
-    var old_script: Resource = null
-    if node:
-        old_script = node.get_script()
     node = new_node
 
     if new_node:
@@ -50,13 +54,10 @@ func set_node(new_node: DialogueNode) -> void:
 
     update_contents()
 
-    if old_script != new_node.get_script():
-        set_style(style_manager.get_style(new_node))
+    var new_style := style_manager.get_style(new_node)
+    if style != new_style:
+        set_style(new_style)
         _update_slots()
-
-    self_modulate.v = 1
-    if node is ReferenceDialogueNode:
-        self_modulate.v *= _session.settings.reference_node_brightness
 
 
 func set_is_collapsed(new_is_collapsed: bool) -> void:
@@ -84,7 +85,8 @@ func update_contents() -> void:
         contents.node = node
 
 
-func set_style(style: DialogueNodeStyle) -> void:
+func set_style(new_style: DialogueNodeStyle) -> void:
+    style = new_style
     add_stylebox_override("frame", style.frame_stylebox)
     add_stylebox_override("selectedframe", style.selected_frame_stylebox)
 

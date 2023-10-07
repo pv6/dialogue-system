@@ -9,7 +9,8 @@ export(Resource) var blackboards_implementation: Resource
 # StorageImplementation
 export(Resource) var actors_implementation: Resource
 
-var _show_say_options_immidiately: bool = false
+export(bool) var show_say_options_immidiately: bool = false
+export(bool) var continue_before_end: bool = false
 
 var _dialogue_player: DialoguePlayer
 
@@ -59,6 +60,14 @@ func _get_actor_name(actor: StorageItem) -> String:
     return "NONE"
 
 
+func _get_actor_implementation(actor: StorageItem):
+    return _dialogue_player.get_actor_implementation(actor)
+
+
+func _get_actor_implementation_by_name(actor_name: String):
+    return _dialogue_player.get_actor_implementation_by_name(actor_name)
+
+
 func _generate_blackboards_implementation(blackboard_templates: Storage) -> StorageImplementation:
     # generate dummy implementations for blackboards
     var blackboards := StorageImplementation.new(blackboard_templates)
@@ -80,12 +89,14 @@ func _generate_actors_implementation(dialogue_actors: Storage) -> StorageImpleme
     return actors
 
 
+# virtual
 func _on_say_option_selected(say_node: SayDialogueNode) -> void:
     _clear_say_options()
     _dialogue_player.say(say_node)
     _set_next_node()
 
 
+# virtual
 func _set_say_options(say_options: Array) -> void:
     var i := 0
     for say_node in say_options:
@@ -100,29 +111,39 @@ func _set_next_node() -> void:
     var hear_node := _dialogue_player.hear()
     if hear_node:
         _set_hear_node(hear_node)
-    if not hear_node or _show_say_options_immidiately:
-        _try_say()
-    else:
-        _try_continue()
+
+    var show_continue := true
+
+    if not hear_node or show_say_options_immidiately:
+        var can_say := _try_say()
+        show_continue = not can_say
+
+    if show_continue:
+        _try_continue(hear_node != null)
 
 
-func _try_say() -> void:
+func _try_say() -> bool:
     var say_options := _dialogue_player.get_say_options()
-    if not say_options.empty():
-        _set_say_options(say_options)
-    else:
-        _try_continue()
+    if say_options.empty():
+        return false
+    _set_say_options(say_options)
+    return true
 
 
-func _try_continue() -> void:
-    if _dialogue_player.can_continue():
+func _try_continue(was_hear_node: bool) -> void:
+    if (continue_before_end and was_hear_node) or _dialogue_player.can_continue():
         _set_continue()
     else:
         end_dialogue()
 
 
 # virtual
-func _clear_say_options() -> void:
+func _set_hear_node(hear_node: HearDialogueNode) -> void:
+    pass
+
+
+# virtual
+func _set_continue() -> void:
     pass
 
 
@@ -132,12 +153,7 @@ func _spawn_say_button(index: int, say_node: SayDialogueNode) -> void:
 
 
 # virtual
-func _set_hear_node(hear_node: HearDialogueNode) -> void:
-    pass
-
-
-# virtual
-func _clear() -> void:
+func _clear_say_options() -> void:
     pass
 
 
@@ -147,5 +163,5 @@ func _clear_current_node() -> void:
 
 
 # virtual
-func _set_continue() -> void:
+func _clear() -> void:
     pass

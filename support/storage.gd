@@ -12,9 +12,10 @@ export(Dictionary) var _data: Dictionary
 # this is supposed to be a set, but godot doesn't have those
 export(Dictionary) var _locked_ids: Dictionary
 # this is supposed to be a set, but godot doesn't have those
-export(Dictionary) var _hidden_ids: Dictionary
+export(Dictionary) var _hidden_ids: Dictionary setget _set_hidden_ids
+
 # this is supposed to be a set, but godot doesn't have those
-export(Dictionary) var _shown_ids: Dictionary setget _set_shown_ids
+var _shown_ids: Dictionary
 
 var _uid_generator := UIDGenerator.new()
 
@@ -38,6 +39,14 @@ func get_name() -> String:
 func _init() -> void:
     _data = {}
     _locked_ids = {}
+    _shown_ids = {}
+
+
+func _set_hidden_ids(new_hidden_ids: Dictionary) -> void:
+    _hidden_ids = new_hidden_ids.duplicate()
+    _shown_ids = _data.duplicate()
+    for hidden_id in _hidden_ids.keys():
+        _shown_ids.erase(hidden_id)
 
 
 func add_item(new_item, id := UIDGenerator.DUMMY_ID) -> int:
@@ -48,7 +57,9 @@ func add_item(new_item, id := UIDGenerator.DUMMY_ID) -> int:
         id = _uid_generator.generate_id()
     assert(not _data.has(id))
 
+    _shown_ids[id] = true
     _set_item(id, new_item)
+
     emit_changed()
     return id
 
@@ -63,9 +74,13 @@ func set_item(id: int, new_item) -> bool:
 
 
 func remove_item(id: int) -> void:
-    assert(_data.has(id))
-    _set_item(id, null)  # disconnect from 'changed' signal of item
-    _data.erase(id)
+    _remove_item(id)
+    emit_changed()
+
+
+func remove_items(ids: Array) -> void:
+    for id in ids:
+        _remove_item(id)
     emit_changed()
 
 
@@ -143,15 +158,6 @@ func shown_ids() -> Array:
     return _shown_ids.keys()
 
 
-func _set_shown_ids(new_shown_ids: Dictionary) -> void:
-    _shown_ids = new_shown_ids
-
-    if _shown_ids.size() != _data.size() - _hidden_ids.size():
-        _shown_ids = _data.duplicate()
-        for hidden_id in _hidden_ids.keys():
-            _shown_ids.erase(hidden_id)
-
-
 func items() -> Array:
     return _data.values()
 
@@ -209,3 +215,10 @@ func _set_item(id: int, new_item) -> void:
     _data[id] = new_item
     if new_item is Resource:
         new_item.connect("changed", self, "emit_changed")
+
+
+func _remove_item(id: int) -> void:
+    assert(_data.has(id))
+    _set_item(id, null)  # disconnect from 'changed' signal of item
+    _data.erase(id)
+    _shown_ids.erase(id)

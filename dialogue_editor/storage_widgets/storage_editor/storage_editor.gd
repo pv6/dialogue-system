@@ -49,17 +49,27 @@ func set_item_editor_scene(new_storage_item_editor_scene: PackedScene) -> void:
 
 
 func add_item(item) -> void:
-    _working_storage_manager.commit_action("Add Item \"" + str(item) + "\"", self, "_add_item", {"item": item})
+    _working_storage_manager.commit_action("Add Item \"%s\"" % str(item), self, "_add_item", {"item": item})
 
 
 func edit_item(id: int, new_item) -> void:
-    var action_name = "Edit Item \"" + str(self.storage.get_item(id)) + "\" to " + "\"" + str(new_item) + "\""
+    var action_name = "Edit Item \"%s\" to \"%s\"" % [str(self.storage.get_item(id)), str(new_item)]
     _working_storage_manager.commit_action(action_name, self, "_edit_item", {"new_item": new_item, "id": id})
 
 
 func remove_item(id: int) -> void:
-    var action_name = "Remove Item \"" + str(self.storage.get_item(id)) + "\""
+    var action_name = "Remove Item \"%s\"" % str(self.storage.get_item(id))
     _working_storage_manager.commit_action(action_name, self, "_remove_item", {"id": id})
+
+
+func remove_items(ids: Array) -> void:
+    var action_name = "Remove Items "
+    for i in range(ids.size()):
+        var id: int = ids[i]
+        action_name += "\"%s\"" % str(self.storage.get_item(id))
+        if i < ids.size() - 1:
+            action_name += ", "
+    _working_storage_manager.commit_action(action_name, self, "_remove_items", {"ids": ids})
 
 
 func set_storage(new_storage: Storage) -> void:
@@ -95,8 +105,15 @@ func _edit_item(modified_storage: Storage, args: Dictionary) -> Storage:
     return modified_storage
 
 
+# args = {"id" : int}
 func _remove_item(modified_storage: Storage, args: Dictionary) -> Storage:
     modified_storage.remove_item(args["id"])
+    return modified_storage
+
+
+# args = {"ids" : Array}
+func _remove_items(modified_storage: Storage, args: Dictionary) -> Storage:
+    modified_storage.remove_items(args["ids"])
     return modified_storage
 
 
@@ -145,8 +162,10 @@ func _on_edit_item_dialog_confirmed() -> void:
 
 
 func _on_remove_item_dialog_confirmed() -> void:
-    for id in _to_remove_ids:
-        remove_item(id)
+    if _to_remove_ids.size() == 1:
+        remove_item(_to_remove_ids.front())
+    else:
+        remove_items(_to_remove_ids)
 
 
 func _on_add_button_pressed() -> void:
@@ -171,13 +190,13 @@ func _on_remove_button_pressed() -> void:
     var selected := _item_list.get_selected_items()
     _to_remove_ids.clear()
     _to_remove_ids.append(_index_to_id[selected[0]])
-    var to_remove_text := "\"" + _item_list.get_item_text(selected[0]) + "\""
+    var to_remove_text := "\"%s\"" % _item_list.get_item_text(selected[0])
     for i in range(1, selected.size()):
         _to_remove_ids.append(_index_to_id[selected[i]])
         var name = _item_list.get_item_text(selected[i])
-        to_remove_text += ", \"" + name + "\""
+        to_remove_text += ", \"%s\"" % name
 
-    _remove_item_dialog.dialog_text = "Remove item(s) " + to_remove_text + "?"
+    _remove_item_dialog.dialog_text = "Remove item(s) %s?" % to_remove_text
     _remove_item_dialog.popup_centered()
 
 

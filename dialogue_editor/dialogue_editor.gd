@@ -55,8 +55,6 @@ func _init() -> void:
 
 
 func _ready() -> void:
-    session.dialogue_undo_redo = _get_current_working_dialogue_manager()
-
     set_settings(_init_settings())
 
     # set open global editors callback functions to GUI buttons

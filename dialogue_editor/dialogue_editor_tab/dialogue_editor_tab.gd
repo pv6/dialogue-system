@@ -35,7 +35,7 @@ func _process(delta) -> void:
         graph_renderer.update_graph()
         need_to_redraw_graph = false
     if not _look_at_nodes.empty() and graph_renderer and graph_renderer.is_ready() and graph_renderer_navigation:
-        graph_renderer_navigation.keep_on_screen(_look_at_nodes)
+        graph_renderer_navigation.keep_on_screen(_look_at_nodes, graph_renderer_navigation.focus_time)
         _look_at_nodes.clear()
 
 
@@ -507,7 +507,7 @@ func _make_reference_node(referenced_node_id: int, dialogue: Dialogue) -> Refere
     var ref_node := ReferenceDialogueNode.new()
     ref_node.id = dialogue.get_new_max_id()
     ref_node.referenced_node_id = _unroll_referenced_node_id(referenced_node_id, dialogue.nodes)
-    if dialogue.nodes[referenced_node_id] is ReferenceDialogueNode:
+    if dialogue.nodes.has(referenced_node_id) and dialogue.nodes[referenced_node_id] is ReferenceDialogueNode:
         ref_node.jump_to = dialogue.nodes[referenced_node_id].jump_to
     return ref_node
 

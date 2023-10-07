@@ -2,7 +2,8 @@ tool
 extends Node
 
 
-export(float) var reach_target_time := 0.30
+export(float) var focus_time := 0.30
+export(float) var keep_on_screen_time := 0.08
 
 var graph_renderer: DialogueGraphRenderer setget set_graph_renderer
 
@@ -19,8 +20,7 @@ func _input(event: InputEvent) -> void:
     if not graph_renderer or not event is InputEventKey or not event.is_pressed():
         return
 
-    var focus_owner = graph_renderer.get_focus_owner()
-    if focus_owner != graph_renderer:
+    if !graph_renderer.has_focus():
         return
 
     match event.scancode:
@@ -53,11 +53,11 @@ func set_graph_renderer(new_graph_renderer: DialogueGraphRenderer) -> void:
 
 
 func zoom_in() -> void:
-    _set_zoom(graph_renderer.zoom * graph_renderer.zoom_step)
+    _set_zoom(graph_renderer.zoom * graph_renderer.zoom_step, 0)
 
 
 func zoom_out() -> void:
-    _set_zoom(graph_renderer.zoom / graph_renderer.zoom_step)
+    _set_zoom(graph_renderer.zoom / graph_renderer.zoom_step, 0)
 
 
 func move_cursor_vertically(direction: int, keep_old_selection: bool) -> void:
@@ -76,9 +76,8 @@ func move_cursor_vertically(direction: int, keep_old_selection: bool) -> void:
 
     if not keep_old_selection:
         graph_renderer.unselect_all()
-    graph_renderer.select_node(parent.children[new_pos])
 
-    keep_on_screen([parent.children[new_pos]])
+    _select_node(parent.children[new_pos])
 
 
 func move_cursor_horizontally(direction: int, keep_old_selection: bool) -> void:
@@ -100,9 +99,8 @@ func move_cursor_horizontally(direction: int, keep_old_selection: bool) -> void:
 
     if not keep_old_selection:
         graph_renderer.unselect_all()
-    graph_renderer.select_node_by_id(new_cursor_pos)
 
-    keep_on_screen([graph_renderer.dialogue.get_node(new_cursor_pos)])
+    _select_node(graph_renderer.dialogue.get_node(new_cursor_pos))
 
 
 func focus_selected_nodes(with_children: bool = false) -> void:
@@ -134,19 +132,19 @@ func focus_nodes(nodes: Array, with_children: bool = false) -> void:
     var target_rect: Rect2 = result
     var target_zoom := _get_target_zoom(target_rect)
     var target_offset = target_rect.get_center() * target_zoom - graph_renderer.rect_size / 2
-    _set_zoom_and_offset(target_zoom, target_offset)
+    _set_zoom_and_offset(target_zoom, target_offset, focus_time)
 
 
 # nodes: Array[DialogueNode]
-func keep_on_screen_with_children(nodes: Array) -> void:
+func keep_on_screen_with_children(nodes: Array, time: float = keep_on_screen_time) -> void:
     var nodes_with_children := {}
     for node in nodes:
         graph_renderer.dialogue._recursively_collect_children(node, nodes_with_children)
-    keep_on_screen(nodes_with_children.keys())
+    keep_on_screen(nodes_with_children.keys(), time)
 
 
 # nodes: Array[DialogueNode]
-func keep_on_screen(nodes: Array) -> void:
+func keep_on_screen(nodes: Array, time: float = keep_on_screen_time) -> void:
     var result = _get_enclosing_rect(nodes)
     if result is GDScriptFunctionState:
         result = yield(result, "completed")
@@ -186,7 +184,7 @@ func keep_on_screen(nodes: Array) -> void:
 
         var target_offset := target_viewport.position + min_delta
 
-        _set_zoom_and_offset(target_zoom, target_offset)
+        _set_zoom_and_offset(target_zoom, target_offset, time)
 
 
 func select_center_node(keep_old_selection: bool) -> DialogueNode:
@@ -203,28 +201,34 @@ func select_center_node(keep_old_selection: bool) -> DialogueNode:
     if closest_node:
         if not keep_old_selection:
             graph_renderer.unselect_all()
-        graph_renderer.select_node(closest_node)
-        keep_on_screen([closest_node])
+        _select_node(closest_node)
 
     return closest_node
+
+
+func _select_node(node: DialogueNode) -> void:
+    graph_renderer.select_node(node)
+    # wait 1 frame for action/condition widget to resize
+    yield(get_tree(), "idle_frame")
+    keep_on_screen([node])
 
 
 func _get_viewport_center_offset() -> Vector2:
     return (graph_renderer.scroll_offset + graph_renderer.rect_size * 0.5) / graph_renderer.zoom
 
 
-func _set_zoom(target_zoom: float) -> void:
+func _set_zoom(target_zoom: float, time: float) -> void:
     target_zoom = clamp(target_zoom, graph_renderer.zoom_min, graph_renderer.zoom_max)
     var target_scroll_offset = _get_viewport_center_offset() * target_zoom - graph_renderer.rect_size * 0.5
-    _set_zoom_and_offset(target_zoom, target_scroll_offset)
+    _set_zoom_and_offset(target_zoom, target_scroll_offset, time)
 
 
-func _set_zoom_and_offset(target_zoom: float, target_offset: Vector2) -> void:
+func _set_zoom_and_offset(target_zoom: float, target_offset: Vector2, time: float) -> void:
     # set zoom first for target offset to be reached correctly (it depends on zoom)
     _focus_tween.interpolate_property(graph_renderer, "zoom",
-            graph_renderer.zoom, target_zoom, reach_target_time, Tween.TRANS_SINE)
+            graph_renderer.zoom, target_zoom, time, Tween.TRANS_SINE)
     _focus_tween.interpolate_property(graph_renderer, "scroll_offset",
-            graph_renderer.scroll_offset, target_offset, reach_target_time, Tween.TRANS_SINE)
+            graph_renderer.scroll_offset, target_offset, time, Tween.TRANS_SINE)
     _focus_tween.start()
 
 

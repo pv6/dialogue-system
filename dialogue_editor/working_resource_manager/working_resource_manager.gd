@@ -52,7 +52,7 @@ func new_file() -> void:
 
 
 func open(new_save_path: String) -> void:
-    var res = ResourceLoader.load(new_save_path, "", true)
+    var res = ResourceLoader.load(new_save_path, "", true).clone()
     if res:
         save_path = ""
         self.resource = res

@@ -23,5 +23,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 1.0
 margin_bottom = -1.0
+mouse_filter = 1
 border_color = Color( 0.45, 0.45, 0.45, 1 )
 editor_only = false
