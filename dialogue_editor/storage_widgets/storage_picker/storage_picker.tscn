@@ -13,6 +13,7 @@ script = ExtResource( 2 )
 [node name="OptionButton" type="OptionButton" parent="."]
 margin_right = 992.0
 margin_bottom = 24.0
+rect_min_size = Vector2( 60, 0 )
 size_flags_horizontal = 3
 text = "None"
 clip_text = true
