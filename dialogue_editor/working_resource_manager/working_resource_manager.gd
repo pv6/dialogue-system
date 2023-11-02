@@ -8,6 +8,9 @@ signal has_unsaved_changes_changed(value)
 signal file_changed()
 signal save_path_changed()
 
+const Saver := preload("res://addons/dialogue_system/saver/saver.gd")
+const MyResourceSaver := preload("res://addons/dialogue_system/saver/my_resource_saver.gd")
+
 export(String) var resource_class_name := "Resource" setget set_resource_class_name
 export(Resource) var resource: Resource setget set_resource
 export(String) var save_path := "" setget set_save_path
@@ -51,8 +54,8 @@ func new_file() -> void:
     emit_signal("file_changed")
 
 
-func open(new_save_path: String) -> void:
-    var res = ResourceLoader.load(new_save_path, "", true).clone()
+func open(new_save_path: String, saver: Saver = MyResourceSaver.new()) -> void:
+    var res = saver.load(new_save_path).clone()
     if res:
         save_path = ""
         self.resource = res
@@ -61,12 +64,12 @@ func open(new_save_path: String) -> void:
         emit_signal("file_changed")
 
 
-func save() -> void:
+func save(saver: Saver = MyResourceSaver.new()) -> void:
     if not resource:
         return
     assert(save_path.get_file().is_valid_filename())
 
-    ResourceSaver.save(save_path, resource.clone(), ResourceSaver.FLAG_REPLACE_SUBRESOURCE_PATHS)
+    saver.save(resource.clone(), save_path)
 
     self.has_unsaved_changes = false
 
