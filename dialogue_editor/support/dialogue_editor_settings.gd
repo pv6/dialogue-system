@@ -3,8 +3,8 @@ extends Resource
 class_name DialogueEditorSettings
 
 
-export(Resource) var global_actors setget set_global_actors
-export(Resource) var global_tags setget set_global_tags
+# DialogueEditorProject
+export(Resource) var project: Resource setget set_project
 
 export(bool) var autosave := false setget set_autosave
 
@@ -20,15 +20,13 @@ export(int) var node_focus_padding := 30 setget set_node_focus_padding
 export(bool) var cache_unused_node_renderers := false setget set_cache_unused_node_renderers
 
 
-func set_global_actors(new_global_actors: Storage) -> void:
-    if global_actors != new_global_actors:
-        global_actors = new_global_actors
-        emit_changed()
-
-
-func set_global_tags(new_global_tags: Storage) -> void:
-    if global_tags != new_global_tags:
-        global_tags = new_global_tags
+func set_project(new_project: DialogueEditorProject) -> void:
+    if project != new_project:
+        if project and project.is_connected("changed", self, "emit_changed"):
+            project.disconnect("changed", self, "emit_changed")
+        project = new_project
+        if project:
+            project.connect("changed", self, "emit_changed")
         emit_changed()
 
 

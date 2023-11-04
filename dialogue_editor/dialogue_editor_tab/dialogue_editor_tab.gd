@@ -293,7 +293,7 @@ func _update_action_condition_selected_nodes() -> void:
 
 
 func _get_selected_nodes(dialogue: Dialogue) -> Array:
-    return dialogue.get_nodes_by_ids(graph_renderer.selected_node_ids)
+    return dialogue.get_nodes(graph_renderer.selected_node_ids)
 
 
 static func _unroll_referenced_node_id(referenced_node_id: int, nodes: Dictionary) -> int:

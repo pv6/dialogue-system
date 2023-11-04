@@ -4,6 +4,7 @@ extends DialogueNode
 
 
 export(String) var text := "" setget set_text
+# Storage
 export(Resource) var tags setget set_tags
 # StorageItem
 export(Resource) var speaker: Resource setget set_speaker

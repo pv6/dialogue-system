@@ -36,7 +36,7 @@ func select(id: int) -> void:
 
 
 func get_selected_item_id() -> int:
-    if _option_button:
+    if _option_button and _index_to_id.has(_option_button.get_selected()):
         return _index_to_id[_option_button.get_selected()]
     return -1
 
@@ -73,7 +73,7 @@ func _update_options() -> void:
         # adjust number of items
         var old_num_of_options: int = _option_button.get_item_count()
         if num_of_options < old_num_of_options:
-            for i in range(num_of_options, old_num_of_options):
+            for i in range(old_num_of_options - 1, num_of_options - 1, -1):
                 _option_button.remove_item(i)
         elif num_of_options > old_num_of_options:
             for i in range(old_num_of_options, num_of_options):

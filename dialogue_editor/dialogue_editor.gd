@@ -11,8 +11,9 @@ const DialogueEditorTab := preload("dialogue_editor_tab/dialogue_editor_tab.gd")
 const GoToNodeWidget := preload("go_to_node_widget/go_to_node_widget.gd")
 
 const DEFAULT_SETTINGS_PATH := "res://dialogue_editor_settings.tres"
-const DEFAULT_GLOBAL_ACTORS_PATH := "res://dialogue_global_actors.tres"
-const DEFAULT_GLOBAL_TAGS_PATH := "res://dialogue_global_tags.tres"
+const DEFAULT_PROJECT_PATH := "res://dialogue_project.tres"
+const DEFAULT_PROJECT_ACTORS_PATH := "res://dialogue_project_actors.tres"
+const DEFAULT_PROJECT_TAGS_PATH := "res://dialogue_project_tags.tres"
 
 const DIALOGUE_EDITOR_TAB_SCENE := preload("dialogue_editor_tab/dialogue_editor_tab.tscn")
 
@@ -34,8 +35,8 @@ onready var actors_editor: StorageEditorDialog = $Editors/ActorsEditor
 onready var tags_editor: StorageEditorDialog = $Editors/TagsEditor
 onready var dialogue_blackboards_editor: StorageEditorDialog = $Editors/DialogueBlackboardsEditor
 onready var blackboard_editor: AcceptDialog = $Editors/BlackboardEditor
-onready var global_actors_editor: StorageEditorDialog = $Editors/GlobalActorsEditor
-onready var global_tags_editor: StorageEditorDialog = $Editors/GlobalTagsEditor
+onready var project_actors_editor: StorageEditorDialog = $Editors/ProjectActorsEditor
+onready var project_tags_editor: StorageEditorDialog = $Editors/ProjectTagsEditor
 
 onready var _open_dialogue_dialog: FileDialog = $Dialogs/OpenDialogueDialog
 onready var _save_dialogue_as_dialog: FileDialog = $Dialogs/SaveDialogueAsDialog
@@ -58,8 +59,8 @@ func _ready() -> void:
     set_settings(_init_settings())
 
     # set open global editors callback functions to GUI buttons
-    actors_editor.storage_editor.item_editor.connect("edit_storage_pressed", self, "open_global_actors_editor")
-    tags_editor.storage_editor.item_editor.connect("edit_storage_pressed", self, "open_global_tags_editor")
+    actors_editor.storage_editor.item_editor.connect("edit_storage_pressed", self, "open_project_actors_editor")
+    tags_editor.storage_editor.item_editor.connect("edit_storage_pressed", self, "open_project_tags_editor")
 
     _close_unsaved_dialog.add_button("Don't Save", true, "close_without_save")
     _close_unsaved_dialog.connect("canceled", self, "_on_save_dialogue_as_dialog_canceled")
@@ -265,14 +266,14 @@ func open_tags_editor(text_node: TextDialogueNode) -> void:
     tags_editor.popup_centered()
 
 
-func open_global_actors_editor() -> void:
-    global_actors_editor.storage_editor.storage = settings.global_actors
-    global_actors_editor.popup_centered()
+func open_project_actors_editor() -> void:
+    project_actors_editor.storage_editor.storage = settings.project.actors
+    project_actors_editor.popup_centered()
 
 
-func open_global_tags_editor() -> void:
-    global_tags_editor.storage_editor.storage = settings.global_tags
-    global_tags_editor.popup_centered()
+func open_project_tags_editor() -> void:
+    project_tags_editor.storage_editor.storage = settings.project.tags
+    project_tags_editor.popup_centered()
 
 
 func open_dialogue_blackboards_editor() -> void:
@@ -351,14 +352,14 @@ func _save_external_resource(resource: Resource) -> void:
     ref.set_resource(resource)
 
 
-func _on_global_actors_editor_confirmed() -> void:
-    session.settings.global_actors = global_actors_editor.storage_editor.storage
-    _save_external_resource(session.settings.global_actors)
+func _on_project_actors_editor_confirmed() -> void:
+    session.settings.project.actors = project_actors_editor.storage_editor.storage
+    _save_external_resource(session.settings.project.actors)
 
 
-func _on_global_actors_tags_confirmed():
-    session.settings.global_tags = global_tags_editor.storage_editor.storage
-    _save_external_resource(session.settings.global_tags)
+func _on_project_tags_editor_confirmed():
+    session.settings.project.tags = project_tags_editor.storage_editor.storage
+    _save_external_resource(session.settings.project.tags)
 
 
 func _on_settings_changed() -> void:
@@ -369,8 +370,8 @@ func _apply_settings() -> void:
     if not settings or not actors_editor:
         return
 
-    actors_editor.storage_editor.item_editor.storage = settings.global_actors
-    tags_editor.storage_editor.item_editor.storage = settings.global_tags
+    actors_editor.storage_editor.item_editor.storage = settings.project.actors
+    tags_editor.storage_editor.item_editor.storage = settings.project.tags
 
     for tab in _tabs_widget.get_tabs():
         tab.apply_settings()
@@ -390,13 +391,17 @@ func _init_settings() -> DialogueEditorSettings:
         output = _open_or_create_external_resource(
                 DEFAULT_SETTINGS_PATH, DialogueEditorSettings.new()
         )
-    if not output.global_actors:
-        output.global_actors = _open_or_create_external_resource(
-                DEFAULT_GLOBAL_ACTORS_PATH, Storage.new()
+    if not output.project:
+        output.project = _open_or_create_external_resource(
+                DEFAULT_PROJECT_PATH, DialogueEditorProject.new()
         )
-    if not output.global_tags:
-        output.global_tags = _open_or_create_external_resource(
-                DEFAULT_GLOBAL_TAGS_PATH, Storage.new()
+    if not output.project.actors:
+        output.project.actors = _open_or_create_external_resource(
+                DEFAULT_PROJECT_ACTORS_PATH, Storage.new()
+        )
+    if not output.project.tags:
+        output.project.tags = _open_or_create_external_resource(
+                DEFAULT_PROJECT_TAGS_PATH, Storage.new()
         )
 
     _save_external_resource(output)

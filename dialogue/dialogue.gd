@@ -95,14 +95,6 @@ func update_nodes() -> void:
     emit_signal("nodes_changed")
 
 
-func get_nodes_by_ids(ids: Array) -> Array:
-    var output := []
-    for id in ids:
-        if nodes.has(id):
-            output.push_back(nodes[id])
-    return output
-
-
 func set_root_node(new_root_node: DialogueNode) -> void:
     root_node = new_root_node
     update_nodes()

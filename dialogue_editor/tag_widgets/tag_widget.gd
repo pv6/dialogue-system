@@ -92,7 +92,7 @@ func _on_add_tag_dialog_about_to_show():
 
 func _update_tag_picker() -> void:
     # set global tags as selectable tags
-    _add_tag_picker.storage = _session.settings.global_tags
+    _add_tag_picker.storage = _session.settings.project.tags
     update_tag_renderers()
 
 
@@ -101,4 +101,4 @@ func _on_settings_changed() -> void:
 
 
 func _on_add_tag_picker_edit_storage_pressed() -> void:
-    _session.dialogue_editor.open_global_tags_editor()
+    _session.dialogue_editor.open_project_tags_editor()

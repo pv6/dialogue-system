@@ -53,12 +53,12 @@ items = [ "Go To Node...", null, 0, false, false, 0, 0, null, "", false, "", nul
 [node name="ActorsMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 16 )]
 margin_left = 205.0
 margin_right = 258.0
-items = [ "Edit Dialogue Actors...", null, 0, false, false, 0, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Edit Global Actors...", null, 0, false, false, 1, 0, null, "", false ]
+items = [ "Edit Dialogue Actors...", null, 0, false, false, 0, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Edit Project Actors...", null, 0, false, false, 1, 0, null, "", false ]
 
 [node name="TagsMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 17 )]
 margin_left = 262.0
 margin_right = 302.0
-items = [ "Edit Global Tags...", null, 0, false, false, 0, 0, null, "", false ]
+items = [ "Edit Project Tags...", null, 0, false, false, 0, 0, null, "", false ]
 
 [node name="BlackboardsMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 22 )]
 margin_left = 306.0
@@ -117,13 +117,13 @@ item_editor_scene = ExtResource( 14 )
 
 [node name="BlackboardEditor" parent="Editors" instance=ExtResource( 5 )]
 
-[node name="GlobalActorsEditor" parent="Editors" instance=ExtResource( 10 )]
-window_title = "Edit Global Actors"
-storage_name = "Global actors"
+[node name="ProjectActorsEditor" parent="Editors" instance=ExtResource( 10 )]
+window_title = "Edit Project Actors"
+storage_name = "Project actors"
 
-[node name="GlobalTagsEditor" parent="Editors" instance=ExtResource( 10 )]
-window_title = "Edit Global Tags"
-storage_name = "Global tags"
+[node name="ProjectTagsEditor" parent="Editors" instance=ExtResource( 10 )]
+window_title = "Edit Project Tags"
+storage_name = "Project tags"
 
 [node name="Dialogs" type="Control" parent="."]
 margin_right = 40.0
@@ -186,8 +186,8 @@ margin_bottom = 347.0
 [connection signal="zoom_in" from="VBoxContainer/MenuButtonsContainer/NavigationMenuButton" to="." method="call_current_tab_method" binds= [ "zoom_in" ]]
 [connection signal="zoom_out" from="VBoxContainer/MenuButtonsContainer/NavigationMenuButton" to="." method="call_current_tab_method" binds= [ "zoom_out" ]]
 [connection signal="open_dialogue_actors_editor" from="VBoxContainer/MenuButtonsContainer/ActorsMenuButton" to="." method="open_actors_editor"]
-[connection signal="open_global_actors_editor" from="VBoxContainer/MenuButtonsContainer/ActorsMenuButton" to="." method="open_global_actors_editor"]
-[connection signal="open_global_tags_editor" from="VBoxContainer/MenuButtonsContainer/TagsMenuButton" to="." method="open_global_tags_editor"]
+[connection signal="open_project_actors_editor" from="VBoxContainer/MenuButtonsContainer/ActorsMenuButton" to="." method="open_project_actors_editor"]
+[connection signal="open_project_tags_editor" from="VBoxContainer/MenuButtonsContainer/TagsMenuButton" to="." method="open_project_tags_editor"]
 [connection signal="open_blackboard_editor" from="VBoxContainer/MenuButtonsContainer/BlackboardsMenuButton" to="." method="open_blackboard_editor"]
 [connection signal="open_dialogue_blackboards_editor" from="VBoxContainer/MenuButtonsContainer/BlackboardsMenuButton" to="." method="open_dialogue_blackboards_editor"]
 [connection signal="tab_changed" from="VBoxContainer/TabsWidget" to="." method="_on_tab_changed"]
@@ -195,8 +195,8 @@ margin_bottom = 347.0
 [connection signal="confirmed" from="Editors/ActorsEditor" to="." method="_on_actors_editor_confirmed"]
 [connection signal="confirmed" from="Editors/TagsEditor" to="." method="_on_tags_editor_confirmed"]
 [connection signal="confirmed" from="Editors/DialogueBlackboardsEditor" to="." method="_on_dialogue_blackboards_editor_confirmed"]
-[connection signal="confirmed" from="Editors/GlobalActorsEditor" to="." method="_on_global_actors_editor_confirmed"]
-[connection signal="confirmed" from="Editors/GlobalTagsEditor" to="." method="_on_global_actors_tags_confirmed"]
+[connection signal="confirmed" from="Editors/ProjectActorsEditor" to="." method="_on_project_actors_editor_confirmed"]
+[connection signal="confirmed" from="Editors/ProjectTagsEditor" to="." method="_on_project_tags_editor_confirmed"]
 [connection signal="confirmed" from="Dialogs/CloseUnsavedDialog" to="." method="_on_save_before_close_pressed"]
 [connection signal="custom_action" from="Dialogs/CloseUnsavedDialog" to="." method="_on_close_unsaved_dialog_custom_action"]
 [connection signal="file_selected" from="Dialogs/OpenDialogueDialog" to="." method="_on_open_dialogue_dialog_file_selected"]

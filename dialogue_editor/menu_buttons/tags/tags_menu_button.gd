@@ -2,8 +2,8 @@ tool
 extends MyMenuButton
 
 
-signal open_global_tags_editor()
+signal open_project_tags_editor()
 
 
 func _ready() -> void:
-    add_button("Edit Global Tags...", "open_global_tags_editor")
+    add_button("Edit Project Tags...", "open_project_tags_editor")
