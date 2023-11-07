@@ -62,12 +62,14 @@ func _add_blackboards(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     if blackboards_to_add.size() == 0:
         return null
 
-    var indices := []
+    var ids := []
 
     for blackboard in blackboards_to_add:
-        var index = dialogue.add_blackboard(blackboard)
-        if index != -1:
-            indices.push_back(index)
+        var blackboard_reference = ExternalResourceReference.new()
+        blackboard_reference.external_path = blackboard.resource_path
+        var id = dialogue.add_blackboard(blackboard_reference)
+        if id != -1:
+            ids.push_back(id)
 
     # TODO: select first added blackboard
 #    _storage_picker.select(indices[0])

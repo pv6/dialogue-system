@@ -64,9 +64,7 @@ func set_blackboards(new_blackboards: Storage) -> void:
         emit_signal("blackboards_changed")
 
 
-func add_blackboard(blackboard: Storage) -> int:
-    var blackboard_reference = ExternalResourceReference.new()
-    blackboard_reference.external_path = blackboard.resource_path
+func add_blackboard(blackboard_reference: ResourceReference) -> int:
     return blackboards.add_item(blackboard_reference)
 
 
