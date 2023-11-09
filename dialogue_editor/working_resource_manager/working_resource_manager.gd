@@ -8,8 +8,8 @@ signal has_unsaved_changes_changed(value)
 signal file_changed()
 signal save_path_changed()
 
-const Saver := preload("res://addons/dialogue_system/saver/saver.gd")
-const MyResourceSaver := preload("res://addons/dialogue_system/saver/my_resource_saver.gd")
+const Saver := preload("res://addons/dialogue_system/dialogue_editor/saver/saver.gd")
+const MyResourceSaver := preload("res://addons/dialogue_system/dialogue_editor/saver/implemented_savers/my_resource_saver.gd")
 
 export(String) var resource_class_name := "Resource" setget set_resource_class_name
 export(Resource) var resource: Resource setget set_resource

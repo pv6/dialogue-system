@@ -1,0 +1,34 @@
+[gd_resource type="Resource" load_steps=15 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/saver/packer/packer_manager.gd" type="Script" id=1]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/saver/packer/packer_data/dialogue_packer/dialogue_node_packer/root_dialogue_node_packer.tres" type="Resource" id=2]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/saver/packer/packer_data/dialogue_packer/dialogue_node_packer/say_dialogue_node_packer.tres" type="Resource" id=3]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/saver/packer/packer_data/dialogue_packer/dialogue_node_packer/hear_dialogue_node_packer.tres" type="Resource" id=4]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/saver/packer/packer_data/dialogue_packer/dialogue_node_packer/reference_dialogue_node_packer.tres" type="Resource" id=5]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/saver/packer/packer_data/dialogue_packer/logic_packer/dialogue_node_logic_packer.tres" type="Resource" id=6]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/saver/packer/packer_data/dialogue_packer/logic_packer/flag_packer/blackboard_dialogue_flag_packer.tres" type="Resource" id=7]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/saver/packer/packer_data/dialogue_packer/logic_packer/flag_packer/visited_node_dialogue_flag_packer.tres" type="Resource" id=8]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/saver/packer/packer_data/resource_reference_packer/direct_resource_reference_packer.tres" type="Resource" id=9]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/saver/packer/packer_data/resource_reference_packer/external_resource_reference_packer.tres" type="Resource" id=10]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/saver/packer/packer_data/resource_reference_packer/storage_item_resource_reference_packer.tres" type="Resource" id=11]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/saver/packer/packer_data/storage_packer.tres" type="Resource" id=12]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/saver/packer/packer_data/storage_item_packer.tres" type="Resource" id=13]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/saver/packer/packer_data/dialogue_packer/dialogue_packer.tres" type="Resource" id=14]
+
+[resource]
+script = ExtResource( 1 )
+packers = {
+Resource( "res://addons/dialogue_system/support/resource_reference/storage_item_resource_reference.gd" ): ExtResource( 11 ),
+Resource( "res://addons/dialogue_system/dialogue/implemented_nodes/root_dialogue_node.gd" ): ExtResource( 2 ),
+Resource( "res://addons/dialogue_system/support/resource_reference/direct_resource_reference.gd" ): ExtResource( 9 ),
+Resource( "res://addons/dialogue_system/dialogue/logic/dialogue_node_logic.gd" ): ExtResource( 6 ),
+Resource( "res://addons/dialogue_system/dialogue/logic/implemented_flags/blackboard_dialogue_flag.gd" ): ExtResource( 7 ),
+Resource( "res://addons/dialogue_system/dialogue/implemented_nodes/reference_dialogue_node.gd" ): ExtResource( 5 ),
+Resource( "res://addons/dialogue_system/support/resource_reference/external_resource_reference.gd" ): ExtResource( 10 ),
+Resource( "res://addons/dialogue_system/support/storage_item.gd" ): ExtResource( 13 ),
+Resource( "res://addons/dialogue_system/support/storage.gd" ): ExtResource( 12 ),
+Resource( "res://addons/dialogue_system/dialogue/dialogue.gd" ): ExtResource( 14 ),
+Resource( "res://addons/dialogue_system/dialogue/implemented_nodes/hear_dialogue_node.gd" ): ExtResource( 4 ),
+Resource( "res://addons/dialogue_system/dialogue/implemented_nodes/say_dialogue_node.gd" ): ExtResource( 3 ),
+Resource( "res://addons/dialogue_system/dialogue/logic/implemented_flags/visited_node_dialogue_flag.gd" ): ExtResource( 8 )
+}

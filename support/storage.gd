@@ -5,6 +5,8 @@ extends Clonable
 
 export(bool) var must_be_unique = true
 
+const DUMMY_ID := UIDGenerator.DUMMY_ID
+
 var name: String setget ,get_name
 
 # export data for it to be saved to disk
@@ -91,8 +93,10 @@ func get_item(id: int):
 
 
 func find_item(item) -> int:
+    var has_equals = item is Object and item.has_method("equals")
+
     for id in _data.keys():
-        if item == _data[id]:
+        if has_equals and item.equals(_data[id]) or item == _data[id]:
             return id
     return UIDGenerator.DUMMY_ID
 
@@ -102,6 +106,12 @@ func has_id(id: int) -> bool:
 
 
 func has_item(item) -> bool:
+    if item is Object and item.has_method("equals"):
+        for existing_item in items():
+            if item.equals(existing_item):
+                return true
+        return false
+
     return _data.values().has(item)
 
 
@@ -168,7 +178,7 @@ func clone() -> Clonable:
     for id in _data.keys():
         copy._set_item(id, _data[id])
 
-    copy._locked_ids = _locked_ids.duplicate()
+    copy._shown_ids = _shown_ids.duplicate()
 
     return copy
 
@@ -187,10 +197,7 @@ func get_storage_reference() -> ResourceReference:
 
 
 func get_item_reference(id: int) -> StorageItem:
-    var output = StorageItem.new()
-    output.storage_reference = get_storage_reference()
-    output.storage_id = id
-    return output
+    return StorageItem.new(get_storage_reference(), id)
 
 
 func _is_item_valid(item) -> bool:
@@ -198,12 +205,6 @@ func _is_item_valid(item) -> bool:
         return false
 
     if not must_be_unique:
-        return true
-
-    if item is Object and item.has_method("equals"):
-        for existing_item in items():
-            if item.equals(existing_item):
-                return false
         return true
 
     return not has_item(item)

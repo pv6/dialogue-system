@@ -1,5 +1,5 @@
 tool
-extends "saver.gd"
+extends "../saver.gd"
 
 
 # virtual

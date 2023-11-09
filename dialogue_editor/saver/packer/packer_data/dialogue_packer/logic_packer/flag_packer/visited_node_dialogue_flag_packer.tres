@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/saver/packer/implemented_packers/dialogue_packer/logic_packer/flag_packer/visited_node_dialogue_flag_packer.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
