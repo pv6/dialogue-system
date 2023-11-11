@@ -17,7 +17,7 @@ func pack(object: Object):
 
     var output = .pack(reference_node)
 
-    output[JUMP_TO_FIELD] = str(reference_node.jump_to)
-    output[REFERENCED_NODE_ID_FIELD] = JUMP_TO_VALUES[reference_node.jump_to]
+    output[REFERENCED_NODE_ID_FIELD] = str(reference_node.jump_to)
+    output[JUMP_TO_FIELD] = JUMP_TO_VALUES[reference_node.jump_to]
 
     return output

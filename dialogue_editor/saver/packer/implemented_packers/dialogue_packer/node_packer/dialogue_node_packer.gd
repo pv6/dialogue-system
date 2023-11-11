@@ -21,7 +21,7 @@ func pack(object: Object):
     var node := object as DialogueNode
     assert(node)
 
-    var output = {}
+    var output = .pack(node)
 
     output[ID_FIELD] = str(node.id)
 

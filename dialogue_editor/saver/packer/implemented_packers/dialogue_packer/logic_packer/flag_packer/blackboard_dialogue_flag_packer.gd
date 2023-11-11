@@ -2,7 +2,7 @@ tool
 extends "dialogue_flag_packer.gd"
 
 
-const BLACKBOARD_ITEM_FIELD := "blackboard_item"
+const BLACKBOARD_FIELD_FIELD := "blackboard_field"
 
 
 # virtual
@@ -17,6 +17,6 @@ func pack(object: Object):
 
     var output = .pack(blackboard_flag)
 
-    output[BLACKBOARD_ITEM_FIELD] = _meta_packer.pack(blackboard_flag.blackboard_field)
+    output[BLACKBOARD_FIELD_FIELD] = _meta_packer.pack(blackboard_flag.blackboard_field)
 
     return output

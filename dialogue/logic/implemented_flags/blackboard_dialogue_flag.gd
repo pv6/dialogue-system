@@ -45,7 +45,7 @@ func set_name(new_name: String) -> void:
     var blackboard_ref := get_blackboard()
     if not blackboard_ref or not blackboard_ref.resource:
         return
-    set_field_id(blackboard_ref.resource.find_item(new_name))
+    set_field_id(blackboard_ref.resource.find_item_id(new_name))
 
 
 func get_name() -> String:

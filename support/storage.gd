@@ -92,7 +92,7 @@ func get_item(id: int):
     return _data[id]
 
 
-func find_item(item) -> int:
+func find_item_id(item) -> int:
     var has_equals = item is Object and item.has_method("equals")
 
     for id in _data.keys():

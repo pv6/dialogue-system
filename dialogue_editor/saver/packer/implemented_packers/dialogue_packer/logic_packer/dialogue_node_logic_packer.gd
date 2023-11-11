@@ -29,7 +29,7 @@ func pack(object: Object):
     var packed_auto_flags = []
     for flag in logic.auto_flags:
         packed_auto_flags.push_back(_meta_packer.pack(flag))
-    output[AUTO_FLAGS_FIELD] = packed_flags
+    output[AUTO_FLAGS_FIELD] = packed_auto_flags
 
     output[USE_FLAGS_FIELD] = logic.use_flags
 

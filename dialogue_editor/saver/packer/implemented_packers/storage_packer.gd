@@ -18,7 +18,7 @@ func pack(object: Object):
     var storage := object as Storage
     assert(storage)
 
-    var output = {}
+    var output = .pack(storage)
 
     output[DATA_FIELD] = _meta_packer.pack(storage._data)
 

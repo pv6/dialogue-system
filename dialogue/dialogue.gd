@@ -290,21 +290,35 @@ func _recursively_collect_children(subroot_node: DialogueNode, output: Dictionar
         _recursively_collect_children(child, output)
 
 
+func _local_blackboard() -> Storage:
+    return _local_blackboard_ref.resource
+
+
+func _update_node_auto_flags(node: DialogueNode, flag_id: int) -> void:
+    # check that auto flag is assigned to node
+    for auto_flag in node.action_logic.auto_flags:
+        if auto_flag.field_id == flag_id:
+            return
+
+    _local_blackboard_ref.resource.hide_item(flag_id)
+
+    # set visited flag to true on action
+    var visited_flag := BlackboardDialogueFlag.new()
+    visited_flag.blackboard = get_local_blackboard_ref()
+    visited_flag.field_id = flag_id
+    visited_flag.value = true
+    node.action_logic.auto_flags.push_back(visited_flag)
+
+
 func _update_auto_flags() -> void:
     for node in nodes.values():
         var visited_flag_name = "auto_visited_node_%d" % node.id
-        var flag_id = _local_blackboard_ref.resource.add_item(visited_flag_name)
+        var flag_id = _local_blackboard().add_item(visited_flag_name)
         if flag_id == UIDGenerator.DUMMY_ID:
-            continue
+            flag_id = _local_blackboard().find_item_id(visited_flag_name)
+            assert(flag_id != UIDGenerator.DUMMY_ID)
 
-        _local_blackboard_ref.resource.hide_item(flag_id)
-
-        # set visited flag to true on action
-        var visited_flag := BlackboardDialogueFlag.new()
-        visited_flag.blackboard = get_local_blackboard_ref()
-        visited_flag.field_id = flag_id
-        visited_flag.value = true
-        node.action_logic.auto_flags.push_back(visited_flag)
+        _update_node_auto_flags(node, flag_id)
 
 
 func _set_root_node_directly(new_root_node: DialogueNode) -> void:
