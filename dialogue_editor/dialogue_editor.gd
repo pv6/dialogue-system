@@ -97,6 +97,28 @@ func get_selected_node_ids() -> Array:
     return cur_tab.get_selected_node_ids()
 
 
+func open_find_widget() -> void:
+    call_current_tab_method("open_find_widget")
+
+
+func select_node(node: DialogueNode) -> void:
+    call_current_tab_method_one_arg("select_node", node)
+
+
+func select_node_by_id(node_id: int) -> void:
+    call_current_tab_method_one_arg("select_node_by_id", node_id)
+
+
+# Array[DialogueNode]
+func select_nodes(nodes: Array) -> void:
+    call_current_tab_method_one_arg("select_nodes", nodes)
+
+
+# Array[int]
+func select_nodes_by_id(node_ids: Array) -> void:
+    call_current_tab_method_one_arg("select_nodes_by_id", node_ids)
+
+
 func unselect_all():
     call_current_tab_method("unselect_all")
 

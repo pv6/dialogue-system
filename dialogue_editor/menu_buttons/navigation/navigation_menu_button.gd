@@ -3,6 +3,8 @@ extends MyMenuButton
 
 signal go_to_node()
 
+signal open_find_widget()
+
 signal focus_selected_nodes()
 signal focus_selected_nodes_with_children()
 
@@ -12,6 +14,10 @@ signal zoom_out()
 
 func _ready() -> void:
     add_button("Go To Node...", "go_to_node", KEY_G, CTRL)
+
+    add_separator()
+
+    add_button("Find Node...", "open_find_widget", KEY_F, CTRL)
 
     add_separator()
 

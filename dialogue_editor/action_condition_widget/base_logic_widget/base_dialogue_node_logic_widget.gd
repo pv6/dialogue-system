@@ -29,7 +29,7 @@ func set_property(new_property: String) -> void:
     _on_property_changed()
 
 
-# returns Array[DialogueFlag]
+# return Array[DialogueFlag]
 func _get_flags(dialogue: Dialogue) -> Array:
     return dialogue.nodes[node_id].get(property + "_logic").flags
 

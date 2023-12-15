@@ -34,7 +34,7 @@ func get_current_tab() -> Tab:
     return get_tab(get_current_tab_index())
 
 
-# returns Array[Tab]
+# return Array[Tab]
 func get_tabs() -> Array:
     return _tab_container.get_children()
 

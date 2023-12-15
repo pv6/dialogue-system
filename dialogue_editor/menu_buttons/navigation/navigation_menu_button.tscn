@@ -6,4 +6,5 @@
 margin_right = 12.0
 margin_bottom = 20.0
 text = "Navigation"
+items = [ "Go To Node...", null, 0, false, false, 0, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Focus Selected Nodes", null, 0, false, false, 1, 0, null, "", false, "Focus Selected Nodes With Children", null, 0, false, false, 2, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Zoom In", null, 0, false, false, 3, 0, null, "", false, "Zoom Out", null, 0, false, false, 4, 0, null, "", false ]
 script = ExtResource( 1 )

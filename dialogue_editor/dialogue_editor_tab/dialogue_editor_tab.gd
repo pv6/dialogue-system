@@ -4,6 +4,7 @@ extends "res://addons/dialogue_system/dialogue_editor/tabs_widget/tab.gd"
 
 const DialogueGraphRendererNavigation := preload("res://addons/dialogue_system/dialogue_editor/graph_renderer/navigation/dialogue_graph_navigation.gd")
 const TextDialogueNodeContentsRenderer := preload("res://addons/dialogue_system/dialogue_editor/node_renderer/implemented_contents/text_node/text_dialogue_node_contents_renderer.gd")
+const FindWidget := preload("res://addons/dialogue_system/dialogue_editor/find_widget/find_widget.gd")
 
 const COPY_NODES_STRING_HEADER := "copy ids:"
 const CUT_NODES_STRING_HEADER := "cut ids:"
@@ -15,9 +16,10 @@ var _session: DialogueEditorSession = preload("res://addons/dialogue_system/dial
 
 var _look_at_nodes := []
 
-onready var graph_renderer: DialogueGraphRenderer = $DialogueGraphRenderer
-onready var graph_renderer_navigation: DialogueGraphRendererNavigation = $DialogueGraphNavigation
-onready var action_condition_widget: ActionConditionWidget = $ActionConditionWidget
+onready var graph_renderer: DialogueGraphRenderer = $"%DialogueGraphRenderer"
+onready var graph_renderer_navigation: DialogueGraphRendererNavigation = $"%DialogueGraphNavigation"
+onready var action_condition_widget: ActionConditionWidget = $"%ActionConditionWidget"
+onready var find_widget: FindWidget = $"%FindWidget"
 
 
 func _init() -> void:
@@ -28,6 +30,7 @@ func _init() -> void:
 
 func _ready():
     graph_renderer_navigation.graph_renderer = graph_renderer
+    working_dialogue_manager.connect("resource_changed", find_widget, "search", [false])
 
 
 func _process(delta) -> void:
@@ -125,6 +128,12 @@ func get_selected_nodes() -> Array:
 
 func unselect_all() -> void:
     graph_renderer.unselect_all()
+
+
+func open_find_widget() -> void:
+    find_widget.show()
+    find_widget.focus_query()
+    find_widget.search(false)
 
 
 # nodes: Array[DialogueNode]

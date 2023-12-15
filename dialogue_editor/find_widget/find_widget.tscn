@@ -1,0 +1,81 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/find_widget/find_widget.gd" type="Script" id=1]
+[ext_resource path="res://addons/dialogue_system/dialogue_editor/support/icon_button.gd" type="Script" id=2]
+[ext_resource path="res://addons/dialogue_system/assets/icons/close.svg" type="Texture" id=3]
+[ext_resource path="res://addons/dialogue_system/assets/icons/move_up.svg" type="Texture" id=4]
+[ext_resource path="res://addons/dialogue_system/assets/icons/move_down.svg" type="Texture" id=5]
+
+[sub_resource type="InputEventKey" id=1]
+pressed = true
+scancode = 16777217
+
+[sub_resource type="ShortCut" id=2]
+shortcut = SubResource( 1 )
+
+[node name="FindWidget" type="PanelContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 1017.0
+margin_bottom = 593.0
+
+[node name="QueryLineEdit" type="LineEdit" parent="HBoxContainer"]
+unique_name_in_owner = true
+margin_right = 722.0
+margin_bottom = 586.0
+size_flags_horizontal = 3
+
+[node name="MatchesLabel" type="Label" parent="HBoxContainer"]
+unique_name_in_owner = true
+margin_left = 726.0
+margin_top = 286.0
+margin_right = 809.0
+margin_bottom = 300.0
+text = "%d matches."
+
+[node name="PrevButton" type="ToolButton" parent="HBoxContainer"]
+unique_name_in_owner = true
+margin_left = 813.0
+margin_right = 841.0
+margin_bottom = 586.0
+focus_mode = 0
+icon = ExtResource( 4 )
+script = ExtResource( 2 )
+
+[node name="NextButton" type="ToolButton" parent="HBoxContainer"]
+unique_name_in_owner = true
+margin_left = 845.0
+margin_right = 873.0
+margin_bottom = 586.0
+focus_mode = 0
+icon = ExtResource( 5 )
+script = ExtResource( 2 )
+
+[node name="MatchCaseCheckBox" type="CheckBox" parent="HBoxContainer"]
+unique_name_in_owner = true
+margin_left = 877.0
+margin_right = 978.0
+margin_bottom = 586.0
+text = "Match Case"
+
+[node name="CloseButton" type="ToolButton" parent="HBoxContainer"]
+unique_name_in_owner = true
+margin_left = 982.0
+margin_right = 1010.0
+margin_bottom = 586.0
+focus_mode = 0
+shortcut = SubResource( 2 )
+icon = ExtResource( 3 )
+script = ExtResource( 2 )
+
+[connection signal="text_changed" from="HBoxContainer/QueryLineEdit" to="." method="_on_query_line_edit_text_changed"]
+[connection signal="text_entered" from="HBoxContainer/QueryLineEdit" to="." method="_on_query_line_edit_text_entered"]
+[connection signal="pressed" from="HBoxContainer/PrevButton" to="." method="_on_prev_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/NextButton" to="." method="_on_next_button_pressed"]
+[connection signal="toggled" from="HBoxContainer/MatchCaseCheckBox" to="." method="_on_match_case_check_box_toggled"]
+[connection signal="pressed" from="HBoxContainer/CloseButton" to="." method="_on_close_button_pressed"]
