@@ -44,6 +44,7 @@ items = [ "New Dialogue", null, 0, false, false, 0, 0, null, "", false, "Open Di
 [node name="NodeMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 4 )]
 margin_left = 72.0
 margin_right = 118.0
+items = [ "Insert Child Hear Node", null, 0, false, false, 0, 0, null, "", false, "Insert Child Say Node", null, 0, false, false, 1, 0, null, "", false, "Insert Parent Hear Node", null, 0, false, false, 2, 0, null, "", false, "Insert Parent Say Node", null, 0, false, false, 3, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Move Selected Nodes Up", null, 0, false, false, 4, 0, null, "", false, "Move Selected Nodes Down", null, 0, false, false, 5, 0, null, "", false, "Move Selected Nodes Left", null, 0, false, false, 6, 0, null, "", false, "Move Selected Nodes Right", null, 0, false, false, 7, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Copy Selected Nodes", null, 0, false, false, 8, 0, null, "", false, "Cut Selected Nodes", null, 0, false, false, 9, 0, null, "", false, "Paste Nodes", null, 0, false, false, 10, 0, null, "", false, "Paste Cut Nodes With Children", null, 0, false, false, 11, 0, null, "", false, "Paste Cut Node As Parent", null, 0, false, false, 12, 0, null, "", false, "Paste Cut Node With Children As Parent", null, 0, false, false, 13, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Duplicate Selected Nodes", null, 0, false, false, 14, 0, null, "", false, "Duplicate Selected Nodes With Children", null, 0, false, false, 15, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Delete Selected Nodes", null, 0, false, false, 16, 0, null, "", false, "Delete Selected Nodes With Children", null, 0, false, false, 17, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Edit Selected Node's Text", null, 0, false, false, 18, 0, null, "", false, "Unselect All", null, 0, false, false, 19, 0, null, "", false ]
 
 [node name="NavigationMenuButton" parent="VBoxContainer/MenuButtonsContainer" instance=ExtResource( 11 )]
 margin_left = 122.0
@@ -172,6 +173,8 @@ margin_bottom = 347.0
 [connection signal="insert_parent_hear_node" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="insert_parent_hear_node"]
 [connection signal="insert_parent_say_node" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="insert_parent_say_node"]
 [connection signal="move_selected_nodes_down" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="move_selected_nodes_down"]
+[connection signal="move_selected_nodes_left" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="move_selected_nodes_left"]
+[connection signal="move_selected_nodes_right" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="move_selected_nodes_right"]
 [connection signal="move_selected_nodes_up" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="move_selected_nodes_up"]
 [connection signal="paste_cut_node_as_parent" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="paste_cut_node_as_parent"]
 [connection signal="paste_cut_node_with_children_as_parent" from="VBoxContainer/MenuButtonsContainer/NodeMenuButton" to="." method="paste_cut_node_with_children_as_parent"]

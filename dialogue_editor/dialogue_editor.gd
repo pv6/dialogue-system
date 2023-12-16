@@ -155,6 +155,14 @@ func move_selected_nodes_down() -> void:
     call_current_tab_method("move_selected_nodes_down")
 
 
+func move_selected_nodes_left():
+    call_current_tab_method("move_selected_nodes_left")
+
+
+func move_selected_nodes_right():
+    call_current_tab_method("move_selected_nodes_right")
+
+
 func paste_nodes() -> void:
     call_current_tab_method("paste_nodes")
 

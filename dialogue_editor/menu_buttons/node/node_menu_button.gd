@@ -9,6 +9,8 @@ signal insert_parent_say_node()
 
 signal move_selected_nodes_up()
 signal move_selected_nodes_down()
+signal move_selected_nodes_left()
+signal move_selected_nodes_right()
 
 signal copy_selected_nodes()
 signal cut_selected_nodes()
@@ -35,8 +37,10 @@ func _ready() -> void:
 
     add_separator()
 
-    add_button("Move Selected Nodes Up", "move_selected_nodes_up", KEY_UP, CTRL)
-    add_button("Move Selected Nodes Down", "move_selected_nodes_down", KEY_DOWN, CTRL)
+    add_button("Move Selected Nodes Up", "move_selected_nodes_up", KEY_UP, ALT)
+    add_button("Move Selected Nodes Down", "move_selected_nodes_down", KEY_DOWN, ALT)
+    add_button("Move Selected Nodes Left", "move_selected_nodes_left", KEY_LEFT, ALT)
+    add_button("Move Selected Nodes Right", "move_selected_nodes_right", KEY_RIGHT, ALT)
 
     add_separator()
 

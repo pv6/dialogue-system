@@ -25,13 +25,17 @@ func _input(event: InputEvent) -> void:
 
     match event.scancode:
         KEY_UP:
-            move_cursor_vertically(-1, Input.is_key_pressed(KEY_SHIFT))
+            if not Input.is_key_pressed(KEY_ALT):
+                move_cursor_vertically(-1, Input.is_key_pressed(KEY_SHIFT))
         KEY_DOWN:
-            move_cursor_vertically(1, Input.is_key_pressed(KEY_SHIFT))
+            if not Input.is_key_pressed(KEY_ALT):
+                move_cursor_vertically(1, Input.is_key_pressed(KEY_SHIFT))
         KEY_LEFT:
-            move_cursor_horizontally(-1, Input.is_key_pressed(KEY_SHIFT))
+            if not Input.is_key_pressed(KEY_ALT):
+                move_cursor_horizontally(-1, Input.is_key_pressed(KEY_SHIFT))
         KEY_RIGHT:
-            move_cursor_horizontally(1, Input.is_key_pressed(KEY_SHIFT))
+            if not Input.is_key_pressed(KEY_ALT):
+                move_cursor_horizontally(1, Input.is_key_pressed(KEY_SHIFT))
         KEY_KP_ADD:
             if Input.is_key_pressed(KEY_CONTROL):
                 zoom_in()

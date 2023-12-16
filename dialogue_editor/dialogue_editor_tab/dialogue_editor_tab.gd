@@ -193,6 +193,13 @@ func move_selected_nodes_down() -> void:
     working_dialogue_manager.commit_action("Move Selected Nodes Down", self, "_move_selected_nodes_vertically", {"shift": 1})
 
 
+func move_selected_nodes_left():
+    working_dialogue_manager.commit_action("Move Selected Nodes Left", self, "_move_selected_nodes_horizontally", {"shift": -1})
+
+
+func move_selected_nodes_right():
+    working_dialogue_manager.commit_action("Move Selected Nodes Left", self, "_move_selected_nodes_horizontally", {"shift": 1})
+
 func paste_nodes() -> void:
     working_dialogue_manager.commit_action("Paste Nodes", self, "_paste_nodes", {"with_children": false, "as_parent": false})
 
@@ -729,39 +736,83 @@ func _on_graph_renderer_duplicate_nodes_request():
         shallow_duplicate_selected_nodes()
 
 
-# args = {"shift"}
+# args = {"shift": int}
 func _move_selected_nodes_vertically(dialogue: Dialogue, args: Dictionary) -> Dialogue:
     var shift: int = args["shift"]
     var selected_nodes := _get_selected_nodes(dialogue)
     if selected_nodes.empty():
         return null
 
-    var filtered_selected_nodes := []
+    var made_changes := false
+    selected_nodes.sort_custom(Dialogue.NodeVerticalSorter.new(dialogue.nodes, shift > 0), "less_than")
+
     for node in selected_nodes:
         var parent := dialogue.get_node(node.parent_id)
         if not parent:
             continue
-        filtered_selected_nodes.append(node)
         var pos = parent.get_child_position(node)
         var new_pos = clamp(pos + shift, 0, parent.children.size() - 1)
-        shift = sign(shift) * min(abs(new_pos - pos), abs(shift))
+        if new_pos - pos == 0 or parent.children[new_pos] in selected_nodes:
+            continue
+        parent.children.erase(node)
+        parent.children.insert(new_pos, node)
+        made_changes = true
 
-    if filtered_selected_nodes.empty() or shift == 0:
-        print("No Nodes Moved")
+    if not made_changes:
+        return null
+    return dialogue
+
+
+# args = {"shift": int}
+func _move_selected_nodes_horizontally(dialogue: Dialogue, args: Dictionary) -> Dialogue:
+    var shift: int = args["shift"]
+    var selected_nodes := _get_selected_nodes(dialogue)
+    if selected_nodes.empty() or shift == 0:
         return null
 
-    filtered_selected_nodes.sort_custom(Dialogue.NodeVerticalSorter.new(dialogue.nodes, shift > 0), "less_than")
+    var made_changes := false
 
-    for node in filtered_selected_nodes:
-        var parent := dialogue.get_node(node.parent_id)
-        assert(parent)
-        var pos = parent.get_child_position(node)
-        assert(0 <= pos + shift)
-        assert(pos + shift <= parent.children.size() - 1)
-        parent.children.erase(node)
-        parent.children.insert(pos + shift, node)
+    selected_nodes.sort_custom(Dialogue.NodeHorizontalSorter.new(dialogue.nodes, shift > 0), "less_than")
 
+    for node in selected_nodes:
+        for i in range(abs(shift)):
+            if shift < 0:
+                var parent := dialogue.get_node(node.parent_id)
+                if not parent or parent in selected_nodes:
+                    break
+                made_changes = _swap_nodes(dialogue, parent, node)
+            else:
+                var first_child: DialogueNode = null if node.children.empty() else node.children[0]
+                if not first_child or first_child in selected_nodes:
+                    break
+                made_changes = _swap_nodes(dialogue, node, first_child)
+
+    if not made_changes:
+        return null
     return dialogue
+
+
+func _swap_nodes(dialogue: Dialogue, parent: DialogueNode, child: DialogueNode) -> bool:
+    var grandparent := dialogue.get_node(parent.parent_id)
+    if not grandparent:
+        return false
+    var node_pos := parent.get_child_position(child)
+    var parent_pos := grandparent.get_child_position(parent)
+
+    grandparent.children[parent_pos] = child
+    var child_children: Array = child.children
+    child.children = parent.children
+    parent.children = child_children
+    child.children[node_pos] = parent
+    parent.parent_id = child.id
+    child.parent_id = grandparent.id
+
+    for child_child in child.children:
+        child_child.parent_id = child.id
+    for parent_child in parent.children:
+        parent_child.parent_id = parent.id
+
+    return true
 
 
 func _commit_text_changes():
