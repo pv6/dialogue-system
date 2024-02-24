@@ -11,6 +11,9 @@ var _prev_target_offsets: Vector2
 
 # node id
 var _cursor_position: int setget _set_cursor_position
+# Array[int]
+var _prev_cursor_positions: Array = []
+var _prev_cursor_position: int = DialogueNode.DUMMY_ID
 
 onready var _focus_tween: Tween = $FocusTween
 onready var _label: Label = $Label
@@ -78,10 +81,14 @@ func move_cursor_vertically(direction: int, keep_old_selection: bool) -> void:
     var new_pos = parent.get_child_position(cur_node) + direction
     new_pos = clamp(new_pos, 0, parent.children.size() - 1)
 
+    var new_selected_node = parent.children[new_pos]
+    if new_selected_node.id == _cursor_position:
+        return
+
     if not keep_old_selection:
         graph_renderer.unselect_all()
 
-    _select_node(parent.children[new_pos])
+    _select_node(new_selected_node)
 
 
 func move_cursor_horizontally(direction: int, keep_old_selection: bool) -> void:
@@ -94,12 +101,22 @@ func move_cursor_horizontally(direction: int, keep_old_selection: bool) -> void:
     var new_cursor_pos = _cursor_position
 
     if direction < 0:
-        if cur_node.parent_id != -1:
+        if cur_node.parent_id != DialogueNode.DUMMY_ID:
             new_cursor_pos = cur_node.parent_id
+            _prev_cursor_positions.push_back(_cursor_position)
     else:
+        if graph_renderer.is_collapsed(cur_node):
+            return
         if not cur_node.children.empty():
-            var middle_child_pos := (cur_node.children.size() - 1) / 2
-            new_cursor_pos = cur_node.children[middle_child_pos].id
+            var child_pos := -1
+            if not _prev_cursor_positions.empty():
+                child_pos = cur_node.get_child_position_by_id(_prev_cursor_positions.back())
+            if child_pos == -1:
+                child_pos = (cur_node.children.size() - 1) / 2
+            new_cursor_pos = cur_node.children[child_pos].id
+
+    if new_cursor_pos == _cursor_position:
+        return
 
     if not keep_old_selection:
         graph_renderer.unselect_all()
@@ -301,17 +318,28 @@ func _on_node_selected(node_renderer: DialogueNodeRenderer) -> void:
 
 func _on_node_unselected(node_renderer: DialogueNodeRenderer) -> void:
     if not node_renderer or node_renderer.node.id == _cursor_position:
-        _set_cursor_position(-1)
+        _set_cursor_position(DialogueNode.DUMMY_ID)
 
 
 func _set_cursor_position(new_cursor_position: int) -> void:
+    # handle cursor path history
+    if _cursor_position != DialogueNode.DUMMY_ID:
+        _prev_cursor_position = _cursor_position
+    if new_cursor_position != DialogueNode.DUMMY_ID and not _prev_cursor_positions.empty():
+        # remove last position from history if re-tracing previous path
+        if new_cursor_position == _prev_cursor_positions.back():
+            _prev_cursor_positions.pop_back()
+        # otherwise clear position history if jumping around
+        elif _prev_cursor_position != _prev_cursor_positions.back():
+            _prev_cursor_positions.clear()
+
     if graph_renderer.node_renderers.has(_cursor_position):
         graph_renderer.node_renderers[_cursor_position].overlay = GraphNode.OVERLAY_DISABLED
     _cursor_position = new_cursor_position
     if graph_renderer.node_renderers.has(_cursor_position):
         graph_renderer.node_renderers[_cursor_position].overlay = GraphNode.OVERLAY_BREAKPOINT
 
-    _label.text = "CURSOR POS: %d" % _cursor_position
+    _label.text = "CURSOR POS: %d\nhistory: %s" % [_cursor_position, _prev_cursor_positions]
 
 
 func _on_graph_renderer_finished_updating() -> void:

@@ -135,8 +135,12 @@ func unselect_all() -> void:
     emit_signal("node_unselected", null)
 
 
+func is_collapsed_by_id(node_id: int) -> bool:
+    return collapsed_node_ids.has(node_id)
+
+
 func is_collapsed(node: DialogueNode) -> bool:
-    return collapsed_node_ids.has(node.id)
+    return is_collapsed_by_id(node.id)
 
 
 func collapse_node(node: DialogueNode) -> void:

@@ -67,7 +67,11 @@ func remove_child(node: DialogueNode) -> void:
 
 
 func get_child_position(child_node: DialogueNode) -> int:
+    return get_child_position_by_id(child_node.id)
+
+
+func get_child_position_by_id(child_node_id: int) -> int:
     for i in range(children.size()):
-        if children[i] == child_node:
+        if children[i].id == child_node_id:
             return i
     return -1
